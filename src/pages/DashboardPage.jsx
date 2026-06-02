@@ -7,6 +7,7 @@ const tabs = [
   { key: 'products', label: 'Products' },
   { key: 'categories', label: 'Categories' },
   { key: 'suppliers', label: 'Suppliers' },
+  { key: 'imports', label: 'Imports' },
 ]
 
 const emptyCategoryForm = {
@@ -96,6 +97,15 @@ export default function DashboardPage() {
   const [productError, setProductError] = useState('')
   const [productForm, setProductForm] = useState(emptyProductForm)
 
+  const [importItems, setImportItems] = useState([])
+  const [importMeta, setImportMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
+  const [importSearch, setImportSearch] = useState('')
+  const [importPage, setImportPage] = useState(1)
+  const [importLoading, setImportLoading] = useState(false)
+  const [importSaving, setImportSaving] = useState(false)
+  const [importError, setImportError] = useState('')
+  const [importForm, setImportForm] = useState({ id: '', supplierId: '', note: '', items: [] })
+
   async function loadCategories(params = {}) {
     setCategoryLoading(true)
     setCategoryError('')
@@ -173,6 +183,92 @@ export default function DashboardPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, productSearch, productPage, productCategoryFilter, productSupplierFilter])
+
+  async function loadImports(params = {}) {
+    setImportLoading(true)
+    setImportError('')
+    try {
+      const response = await api.get(`/imports?${buildQuery({ search: params.search ?? importSearch, page: params.page ?? importPage, limit: 10 })}`)
+      const payload = response.data?.data || {}
+      setImportItems(payload.items || [])
+      setImportMeta(payload.meta || importMeta)
+    } catch (error) {
+      setImportError(parseApiError(error, 'Failed to load imports'))
+    } finally {
+      setImportLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === 'imports') {
+      loadImports({ search: importSearch, page: importPage })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, importSearch, importPage])
+
+  async function submitImport(event) {
+    event.preventDefault()
+    setImportSaving(true)
+    setImportError('')
+    try {
+      const payload = {
+        supplierId: importForm.supplierId,
+        note: importForm.note,
+        items: importForm.items,
+      }
+      await api.post('/imports', payload)
+      setImportForm({ id: '', supplierId: '', note: '', items: [] })
+      setImportPage(1)
+      await loadImports({ search: importSearch, page: 1 })
+    } catch (error) {
+      setImportError(parseApiError(error, 'Failed to create import receipt'))
+    } finally {
+      setImportSaving(false)
+    }
+  }
+
+  async function approveImport(id) {
+    if (!window.confirm('Approve this import receipt? This will update stock and cannot be undone.')) return
+    try {
+      await api.post(`/imports/${id}/approve`)
+      await loadImports({ search: importSearch, page: importPage })
+    } catch (error) {
+      setImportError(parseApiError(error, 'Failed to approve import'))
+    }
+  }
+
+  async function rejectImport(id) {
+    const reason = window.prompt('Reason for rejection:')
+    if (!reason) return
+    try {
+      await api.post(`/imports/${id}/reject`, { reason })
+      await loadImports({ search: importSearch, page: importPage })
+    } catch (error) {
+      setImportError(parseApiError(error, 'Failed to reject import'))
+    }
+  }
+
+  function addImportItem() {
+    setImportForm(prev => ({
+      ...prev,
+      items: [...prev.items, { productId: '', quantity: 1, unitPrice: 0, lotNumber: '', expiryDate: '' }]
+    }))
+  }
+
+  function updateImportItem(index, field, value) {
+    setImportForm(prev => {
+      const newItems = [...prev.items]
+      newItems[index] = { ...newItems[index], [field]: value }
+      return { ...prev, items: newItems }
+    })
+  }
+
+  function removeImportItem(index) {
+    setImportForm(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }))
+  }
 
   async function submitCategory(event) {
     event.preventDefault()
@@ -823,14 +919,167 @@ export default function DashboardPage() {
     )
   }
 
+  function renderImportsSection() {
+    return (
+      <div className="resource-layout">
+        <section className="resource-panel">
+          <div className="resource-header">
+            <div>
+              <p className="section-label">Warehouse</p>
+              <h2>Import Receipts</h2>
+            </div>
+            <button type="button" className="secondary-button" onClick={() => setImportForm({ id: '', supplierId: '', note: '', items: [] })}>
+              New receipt
+            </button>
+          </div>
+
+          <div className="filter-row">
+            <input
+              className="field-input"
+              placeholder="Search by code"
+              value={importSearch}
+              onChange={(event) => {
+                setImportPage(1)
+                setImportSearch(event.target.value)
+              }}
+            />
+          </div>
+
+          {importError ? <p className="error-banner">{importError}</p> : null}
+
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Supplier</th>
+                  <th>Status</th>
+                  <th>By</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {importLoading ? (
+                  <TableEmpty colSpan={5} text="Loading imports..." />
+                ) : importItems.length === 0 ? (
+                  <TableEmpty colSpan={5} text="No imports found" />
+                ) : (
+                  importItems.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <strong>{item.code}</strong>
+                        <div className="muted-line">{new Date(item.createdAt).toLocaleDateString()}</div>
+                      </td>
+                      <td>{item.supplier?.name || '-'}</td>
+                      <td>
+                        <span className={`status-badge ${item.status.toLowerCase()}`}>
+                          {item.status}
+                        </span>
+                        {item.rejectedReason && <div className="muted-line">{item.rejectedReason}</div>}
+                      </td>
+                      <td>
+                        <div>Creator: {item.createdBy?.name || '-'}</div>
+                        {item.approvedBy && <div className="muted-line">Action by: {item.approvedBy.name}</div>}
+                      </td>
+                      <td className="actions-cell">
+                        {item.status === 'PENDING' && (
+                          <>
+                            <button type="button" className="text-button" onClick={() => approveImport(item.id)}>Approve</button>
+                            <button type="button" className="text-button danger" onClick={() => rejectImport(item.id)}>Reject</button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {renderPagination(importMeta, setImportPage, importLoading)}
+        </section>
+
+        <aside className="resource-panel form-panel" style={{ minWidth: '400px' }}>
+          <div className="resource-header">
+            <div>
+              <p className="section-label">Create receipt</p>
+              <h2>New Import</h2>
+            </div>
+          </div>
+
+          <form className="resource-form" onSubmit={submitImport}>
+            <label>
+              Supplier
+              <select className="field-select" value={importForm.supplierId} onChange={(e) => setImportForm(prev => ({ ...prev, supplierId: e.target.value }))} required>
+                <option value="">Select supplier</option>
+                {supplierItems.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Note
+              <input className="field-input" value={importForm.note} onChange={(e) => setImportForm(prev => ({ ...prev, note: e.target.value }))} />
+            </label>
+
+            <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1rem' }}>Items</h3>
+                <button type="button" className="text-button" onClick={addImportItem}>+ Add Item</button>
+              </div>
+              
+              {importForm.items.length === 0 ? (
+                <div className="muted-line">No items added.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {importForm.items.map((item, index) => (
+                    <div key={index} style={{ border: '1px solid #e2e8f0', padding: '0.75rem', borderRadius: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <strong>Item {index + 1}</strong>
+                        <button type="button" className="text-button danger" onClick={() => removeImportItem(index)}>Remove</button>
+                      </div>
+                      
+                      <select className="field-select" value={item.productId} onChange={(e) => updateImportItem(index, 'productId', e.target.value)} required style={{ marginBottom: '0.5rem' }}>
+                        <option value="">Select product</option>
+                        {productItems.map(p => (
+                          <option key={p.id} value={p.id}>{p.sku} - {p.name}</option>
+                        ))}
+                      </select>
+
+                      <div className="two-col" style={{ marginBottom: '0.5rem' }}>
+                        <label>Qty <input type="number" min="1" className="field-input" value={item.quantity} onChange={(e) => updateImportItem(index, 'quantity', e.target.value)} required /></label>
+                        <label>Price <input type="number" min="0" step="0.01" className="field-input" value={item.unitPrice} onChange={(e) => updateImportItem(index, 'unitPrice', e.target.value)} required /></label>
+                      </div>
+
+                      <div className="two-col">
+                        <label>Lot # <input className="field-input" value={item.lotNumber} onChange={(e) => updateImportItem(index, 'lotNumber', e.target.value)} required /></label>
+                        <label>Expiry <input type="date" className="field-input" value={item.expiryDate} onChange={(e) => updateImportItem(index, 'expiryDate', e.target.value)} required /></label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="form-actions">
+              <button type="submit" className="primary-button" disabled={importSaving || importForm.items.length === 0}>
+                {importSaving ? 'Saving...' : 'Create receipt'}
+              </button>
+            </div>
+          </form>
+        </aside>
+      </div>
+    )
+  }
+
   return (
     <main className="management-shell">
       <section className="management-hero">
         <div>
-          <p className="eyebrow">Phase 3</p>
-          <h1>Quản lý dữ liệu nền</h1>
+          <p className="eyebrow">Phase 3 & 4</p>
+          <h1>Quản lý dữ liệu & Nhập kho</h1>
           <p className="hero-copy">
-            CRUD cho categories, suppliers và products với search, filter và phân trang.
+            CRUD cho categories, suppliers, products và quản lý phiếu nhập kho.
           </p>
         </div>
 
@@ -863,6 +1112,7 @@ export default function DashboardPage() {
           {activeTab === 'products' ? renderProductsSection() : null}
           {activeTab === 'categories' ? renderCategoriesSection() : null}
           {activeTab === 'suppliers' ? renderSuppliersSection() : null}
+          {activeTab === 'imports' ? renderImportsSection() : null}
         </div>
       </section>
     </main>

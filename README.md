@@ -58,6 +58,11 @@ npm run preview
 - Tìm kiếm, lọc và phân trang danh sách
 - Tạo, sửa, xóa dữ liệu ngay trên dashboard
 
+## Phase 4 UI
+- Quản lý phiếu nhập kho `imports`
+- Thêm nhiều mặt hàng vào một phiếu nhập
+- Duyệt và từ chối phiếu nhập (cập nhật tồn kho tự động qua transaction)
+
 ## Demo accounts
 - `admin@stockinsight.local` / `admin123`
 - `manager@stockinsight.local` / `admin123`
