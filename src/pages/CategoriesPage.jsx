@@ -25,7 +25,7 @@ export default function CategoriesPage() {
       setItems(payload.items || [])
       setMeta(payload.meta || meta)
     } catch (err) {
-      setError(parseApiError(err, 'Failed to load categories'))
+      setError(parseApiError(err, 'Lỗi khi tải danh sách danh mục'))
     } finally {
       setLoading(false)
     }
@@ -50,21 +50,21 @@ export default function CategoriesPage() {
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Failed to save category'))
+      setError(parseApiError(err, 'Lỗi khi lưu danh mục'))
     } finally {
       setSaving(false)
     }
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Delete this category?')) return
+    if (!window.confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return
     try {
       await api.delete(`/categories/${id}`)
       if (form.id === id) setForm(emptyCategoryForm)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Failed to delete category'))
+      setError(parseApiError(err, 'Lỗi khi xóa danh mục'))
     }
   }
 
@@ -79,26 +79,26 @@ export default function CategoriesPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Categories</h1>
-        <p className="hero-copy">Manage product categories</p>
+        <h1>Danh mục</h1>
+        <p className="hero-copy">Quản lý danh mục sản phẩm</p>
       </div>
       
       <div className="resource-layout">
         <section className="resource-panel">
           <div className="resource-header">
             <div>
-              <p className="section-label">Master data</p>
-              <h2>Category List</h2>
+              <p className="section-label">Dữ liệu gốc</p>
+              <h2>Danh sách danh mục</h2>
             </div>
             <button type="button" className="secondary-button" onClick={() => setForm(emptyCategoryForm)}>
-              New category
+              Thêm danh mục
             </button>
           </div>
 
           <div className="filter-row">
             <input
               className="field-input"
-              placeholder="Search categories"
+              placeholder="Tìm kiếm danh mục"
               value={search}
               onChange={(event) => {
                 setPage(1)
@@ -113,16 +113,16 @@ export default function CategoriesPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Description</th>
-                  <th>Actions</th>
+                  <th>Tên</th>
+                  <th>Mô tả</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <TableEmpty colSpan={3} text="Loading categories..." />
+                  <TableEmpty colSpan={3} text="Đang tải danh mục..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={3} text="No categories found" />
+                  <TableEmpty colSpan={3} text="Không tìm thấy danh mục nào" />
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
@@ -131,8 +131,8 @@ export default function CategoriesPage() {
                       </td>
                       <td>{item.description || '-'}</td>
                       <td className="actions-cell">
-                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Edit</button>
-                        <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Delete</button>
+                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
+                        <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Xóa</button>
                       </td>
                     </tr>
                   ))
@@ -147,25 +147,25 @@ export default function CategoriesPage() {
         <aside className="resource-panel form-panel">
           <div className="resource-header">
             <div>
-              <p className="section-label">{form.id ? 'Edit category' : 'Create category'}</p>
-              <h2>{form.id ? form.name || 'Category details' : 'New category'}</h2>
+              <p className="section-label">{form.id ? 'Sửa danh mục' : 'Tạo danh mục mới'}</p>
+              <h2>{form.id ? form.name || 'Chi tiết danh mục' : 'Danh mục mới'}</h2>
             </div>
           </div>
 
           <form className="resource-form" onSubmit={handleSubmit}>
             <label>
-              Name
+              Tên
               <input className="field-input" value={form.name} onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))} required />
             </label>
             <label>
-              Description
+              Mô tả
               <textarea className="field-textarea" rows="4" value={form.description} onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))} />
             </label>
             <div className="form-actions">
               <button type="submit" className="primary-button" disabled={saving}>
-                {saving ? 'Saving...' : form.id ? 'Update category' : 'Create category'}
+                {saving ? 'Đang lưu...' : form.id ? 'Cập nhật' : 'Tạo mới'}
               </button>
-              <button type="button" className="secondary-button" onClick={() => setForm(emptyCategoryForm)}>Reset</button>
+              <button type="button" className="secondary-button" onClick={() => setForm(emptyCategoryForm)}>Làm mới</button>
             </div>
           </form>
         </aside>

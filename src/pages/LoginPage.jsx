@@ -58,7 +58,7 @@ export default function LoginPage() {
           </label>
 
           <label>
-            Password
+            Mật khẩu
             <input
               type="password"
               value={password}
@@ -71,12 +71,12 @@ export default function LoginPage() {
           {error ? <p className="auth-error">{error}</p> : null}
 
           <button type="submit" className="auth-button" disabled={submitting}>
-            {submitting ? 'Signing in...' : 'Sign in'}
+            {submitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
 
         <div className="auth-hint">
-          <p>Demo accounts</p>
+          <p>Tài khoản Demo</p>
           <ul>
             <li>admin@stockinsight.local / admin123</li>
             <li>manager@stockinsight.local / admin123</li>

@@ -25,7 +25,7 @@ export default function SuppliersPage() {
       setItems(payload.items || [])
       setMeta(payload.meta || meta)
     } catch (err) {
-      setError(parseApiError(err, 'Failed to load suppliers'))
+      setError(parseApiError(err, 'Lỗi khi tải danh sách nhà cung cấp'))
     } finally {
       setLoading(false)
     }
@@ -50,21 +50,21 @@ export default function SuppliersPage() {
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Failed to save supplier'))
+      setError(parseApiError(err, 'Lỗi khi lưu nhà cung cấp'))
     } finally {
       setSaving(false)
     }
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Delete this supplier?')) return
+    if (!window.confirm('Bạn có chắc chắn muốn xóa nhà cung cấp này?')) return
     try {
       await api.delete(`/suppliers/${id}`)
       if (form.id === id) setForm(emptySupplierForm)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Failed to delete supplier'))
+      setError(parseApiError(err, 'Lỗi khi xóa nhà cung cấp'))
     }
   }
 
@@ -81,26 +81,26 @@ export default function SuppliersPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Suppliers</h1>
-        <p className="hero-copy">Manage suppliers and contact information</p>
+        <h1>Nhà cung cấp</h1>
+        <p className="hero-copy">Quản lý nhà cung cấp và thông tin liên lạc</p>
       </div>
 
       <div className="resource-layout">
         <section className="resource-panel">
           <div className="resource-header">
             <div>
-              <p className="section-label">Master data</p>
-              <h2>Supplier List</h2>
+              <p className="section-label">Dữ liệu gốc</p>
+              <h2>Danh sách nhà cung cấp</h2>
             </div>
             <button type="button" className="secondary-button" onClick={() => setForm(emptySupplierForm)}>
-              New supplier
+              Thêm nhà cung cấp
             </button>
           </div>
 
           <div className="filter-row">
             <input
               className="field-input"
-              placeholder="Search suppliers"
+              placeholder="Tìm kiếm nhà cung cấp"
               value={search}
               onChange={(event) => {
                 setPage(1)
@@ -115,17 +115,17 @@ export default function SuppliersPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Contact</th>
-                  <th>Address</th>
-                  <th>Actions</th>
+                  <th>Tên</th>
+                  <th>Liên lạc</th>
+                  <th>Địa chỉ</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <TableEmpty colSpan={4} text="Loading suppliers..." />
+                  <TableEmpty colSpan={4} text="Đang tải danh sách nhà cung cấp..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={4} text="No suppliers found" />
+                  <TableEmpty colSpan={4} text="Không tìm thấy nhà cung cấp nào" />
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
@@ -138,8 +138,8 @@ export default function SuppliersPage() {
                       </td>
                       <td>{item.address || '-'}</td>
                       <td className="actions-cell">
-                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Edit</button>
-                        <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Delete</button>
+                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
+                        <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Xóa</button>
                       </td>
                     </tr>
                   ))
@@ -154,19 +154,19 @@ export default function SuppliersPage() {
         <aside className="resource-panel form-panel">
           <div className="resource-header">
             <div>
-              <p className="section-label">{form.id ? 'Edit supplier' : 'Create supplier'}</p>
-              <h2>{form.id ? form.name || 'Supplier details' : 'New supplier'}</h2>
+              <p className="section-label">{form.id ? 'Sửa nhà cung cấp' : 'Tạo nhà cung cấp mới'}</p>
+              <h2>{form.id ? form.name || 'Chi tiết nhà cung cấp' : 'Nhà cung cấp mới'}</h2>
             </div>
           </div>
 
           <form className="resource-form" onSubmit={handleSubmit}>
             <label>
-              Name
+              Tên
               <input className="field-input" value={form.name} onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))} required />
             </label>
             <div className="two-col">
               <label>
-                Phone
+                Số điện thoại
                 <input className="field-input" value={form.phone} onChange={(e) => setForm(prev => ({ ...prev, phone: e.target.value }))} />
               </label>
               <label>
@@ -175,14 +175,14 @@ export default function SuppliersPage() {
               </label>
             </div>
             <label>
-              Address
+              Địa chỉ
               <textarea className="field-textarea" rows="4" value={form.address} onChange={(e) => setForm(prev => ({ ...prev, address: e.target.value }))} />
             </label>
             <div className="form-actions">
               <button type="submit" className="primary-button" disabled={saving}>
-                {saving ? 'Saving...' : form.id ? 'Update supplier' : 'Create supplier'}
+                {saving ? 'Đang lưu...' : form.id ? 'Cập nhật' : 'Tạo mới'}
               </button>
-              <button type="button" className="secondary-button" onClick={() => setForm(emptySupplierForm)}>Reset</button>
+              <button type="button" className="secondary-button" onClick={() => setForm(emptySupplierForm)}>Làm mới</button>
             </div>
           </form>
         </aside>

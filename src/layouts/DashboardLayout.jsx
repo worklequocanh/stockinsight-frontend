@@ -14,27 +14,27 @@ export default function DashboardLayout() {
         </div>
         <nav className="sidebar-nav">
           <NavLink to="/dashboard/products" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Products
+            Sản phẩm
           </NavLink>
           <NavLink to="/dashboard/categories" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Categories
+            Danh mục
           </NavLink>
           <NavLink to="/dashboard/suppliers" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Suppliers
+            Nhà cung cấp
           </NavLink>
           <NavLink to="/dashboard/imports" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Import Receipts
+            Nhập kho
           </NavLink>
           <NavLink to="/dashboard/exports" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Export Receipts
+            Xuất kho
           </NavLink>
         </nav>
         <div className="sidebar-footer session-card">
-          <span className="session-label">Signed in as</span>
+          <span className="session-label">Tài khoản</span>
           <strong>{user?.name}</strong>
           <span className="session-meta">{user?.role}</span>
           <button type="button" className="secondary-button logout-btn" onClick={logout}>
-            Logout
+            Đăng xuất
           </button>
         </div>
       </aside>

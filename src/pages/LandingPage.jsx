@@ -87,10 +87,7 @@ export default function LandingPage() {
 
         <div className="hero-actions">
           <Link className="hero-button primary" to={isAuthenticated ? '/dashboard' : '/login'}>
-            {isAuthenticated ? 'Open dashboard' : 'Sign in'}
-          </Link>
-          <Link className="hero-button secondary" to="/login">
-            View login
+            {isAuthenticated ? 'Vào bảng điều khiển' : 'Đăng nhập'}
           </Link>
         </div>
 
@@ -101,9 +98,9 @@ export default function LandingPage() {
           </div>
           <div className="health-meta">
             <span>Trạng thái: {health.status}</span>
-            {health.database ? <span>Database: {health.database}</span> : null}
-            {health.environment ? <span>Env: {health.environment}</span> : null}
-            {health.timestamp ? <span>Last check: {health.timestamp}</span> : null}
+            {health.database ? <span>Cơ sở dữ liệu: {health.database}</span> : null}
+            {health.environment ? <span>Môi trường: {health.environment}</span> : null}
+            {health.timestamp ? <span>Kiểm tra lần cuối: {health.timestamp}</span> : null}
           </div>
         </div>
       </section>

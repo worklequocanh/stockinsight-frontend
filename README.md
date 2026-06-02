@@ -1,74 +1,42 @@
-# StockInsight Frontend
+# StockInsight
 
-Frontend cho hệ thống quản lý hàng hóa và phân tích bán hàng StockInsight.
+Hệ thống quản lý kho hàng - Đồ án thực tập (Giai đoạn 1 - 5)
 
-## Tech Stack
-- React 19
-- Vite
-- React Router DOM
-- Axios
+## Các giai đoạn đã hoàn thành
 
-## Cấu trúc chính
-```text
-public/          tài nguyên tĩnh
-src/pages/       các trang giao diện
-src/components/  component dùng chung
-src/services/    API client và auth helper
-src/context/     auth state
-src/assets/      hình ảnh và icon
-```
+- **Phase 1 & 2**: Khởi tạo dự án, thiết lập CSDL (Prisma + PostgreSQL), JWT Authentication, CRUD cơ bản.
+- **Phase 3**: Quản lý Nhập kho (Import) & Xuất kho (Export) với phương pháp FEFO (First Expired First Out).
+- **Phase 4**: Cải thiện giao diện với bố cục Dashboard chuẩn (Sidebar, Tabs), chia nhỏ component, tăng trải nghiệm người dùng (UX/UI).
+- **Phase 5**: Bản địa hóa (Localization) toàn bộ ứng dụng sang Tiếng Việt.
+  - Chuyển đổi dữ liệu mẫu (Seed Data) sang Tiếng Việt.
+  - Dịch toàn bộ thông báo lỗi và thành công từ API Backend sang Tiếng Việt.
+  - Dịch toàn bộ giao diện Frontend (Pages, Components) sang Tiếng Việt.
 
-## Cài đặt môi trường
-Tạo file `.env` trong thư mục frontend:
-```ini
-VITE_API_BASE_URL=http://localhost:3001/api
-```
+## Cài đặt và Chạy ứng dụng
 
-## Chạy project
+### Yêu cầu
+- Node.js
+- PostgreSQL
+- WSL (Dành cho Windows)
+
+### 1. Cài đặt Backend
 ```bash
+cd stockinsight-backend
+npm install
+# Cấu hình .env với DATABASE_URL
+npx prisma migrate dev
+npx prisma db seed # Nạp dữ liệu mẫu
+npm run dev
+```
+
+### 2. Cài đặt Frontend
+```bash
+cd stockinsight-frontend
 npm install
 npm run dev
 ```
 
-Build production:
-```bash
-npm run build
-```
-
-Preview bản build:
-```bash
-npm run preview
-```
-
-## Phase 2 Pages
-- `/`
-  - landing page
-- `/login`
-  - form đăng nhập JWT
-- `/dashboard`
-  - trang quản trị dữ liệu nền cho phase 3
-
-## Auth flow
-- Frontend lưu access token trong `localStorage`
-- Axios tự gắn `Authorization: Bearer <token>`
-- Khi vào app, frontend gọi `GET /api/auth/me` để bootstrap user hiện tại
-
-## Phase 3 UI
-- Quản lý `products`, `categories`, `suppliers`
-- Tìm kiếm, lọc và phân trang danh sách
-- Tạo, sửa, xóa dữ liệu ngay trên dashboard
-
-## Phase 4 UI
-- Quản lý phiếu nhập kho `imports`
-- Thêm nhiều mặt hàng vào một phiếu nhập
-- Duyệt và từ chối phiếu nhập (cập nhật tồn kho tự động qua transaction)
-
-## Phase 5 UI
-- Quản lý phiếu xuất kho `exports`
-- Giao diện xuất kho tự động nhận giá trị tồn hiện tại.
-- Backend tự động tính toán xuất kho theo FEFO, giao diện hỗ trợ thêm nhiều dòng hàng.
-
-## Demo accounts
-- `admin@stockinsight.local` / `admin123`
-- `manager@stockinsight.local` / `admin123`
-- `employee@stockinsight.local` / `admin123`
+### 3. Tài khoản Demo
+- **Admin**: `admin@stockinsight.local` / `admin123`
+- **Manager**: `manager@stockinsight.local` / `admin123`
+- **Employee**: `employee@stockinsight.local` / `admin123`

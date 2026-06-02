@@ -42,7 +42,7 @@ export default function ProductsPage() {
       setItems(payload.items || [])
       setMeta(payload.meta || meta)
     } catch (err) {
-      setError(parseApiError(err, 'Failed to load products'))
+      setError(parseApiError(err, 'Lỗi khi tải danh sách sản phẩm'))
     } finally {
       setLoading(false)
     }
@@ -79,21 +79,21 @@ export default function ProductsPage() {
       setPage(1)
       await loadData({ search, page: 1, categoryId: categoryFilter, supplierId: supplierFilter })
     } catch (err) {
-      setError(parseApiError(err, 'Failed to save product'))
+      setError(parseApiError(err, 'Lỗi khi lưu sản phẩm'))
     } finally {
       setSaving(false)
     }
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Delete this product?')) return
+    if (!window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return
     try {
       await api.delete(`/products/${id}`)
       if (form.id === id) setForm(emptyProductForm)
       setPage(1)
       await loadData({ search, page: 1, categoryId: categoryFilter, supplierId: supplierFilter })
     } catch (err) {
-      setError(parseApiError(err, 'Failed to delete product'))
+      setError(parseApiError(err, 'Lỗi khi xóa sản phẩm'))
     }
   }
 
@@ -116,26 +116,26 @@ export default function ProductsPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Products</h1>
-        <p className="hero-copy">Manage product catalog, prices, and stock limits</p>
+        <h1>Sản phẩm</h1>
+        <p className="hero-copy">Quản lý danh mục sản phẩm, giá cả và giới hạn tồn kho</p>
       </div>
 
       <div className="resource-layout">
         <section className="resource-panel" style={{ flex: 2 }}>
           <div className="resource-header">
             <div>
-              <p className="section-label">Master data</p>
-              <h2>Product List</h2>
+              <p className="section-label">Dữ liệu gốc</p>
+              <h2>Danh sách sản phẩm</h2>
             </div>
             <button type="button" className="secondary-button" onClick={() => setForm(emptyProductForm)}>
-              New product
+              Thêm sản phẩm
             </button>
           </div>
 
           <div className="filter-row">
             <input
               className="field-input"
-              placeholder="Search by name, SKU, barcode"
+              placeholder="Tìm theo tên, SKU, mã vạch"
               value={search}
               onChange={(event) => {
                 setPage(1)
@@ -150,7 +150,7 @@ export default function ProductsPage() {
                 setCategoryFilter(event.target.value)
               }}
             >
-              <option value="">All Categories</option>
+              <option value="">Tất cả danh mục</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -165,7 +165,7 @@ export default function ProductsPage() {
                 setSupplierFilter(event.target.value)
               }}
             >
-              <option value="">All Suppliers</option>
+              <option value="">Tất cả nhà cung cấp</option>
               {suppliers.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
@@ -180,18 +180,18 @@ export default function ProductsPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Product</th>
-                  <th>Category/Supplier</th>
-                  <th>Prices (Cost / Sale)</th>
-                  <th>Stock</th>
-                  <th>Actions</th>
+                  <th>Sản phẩm</th>
+                  <th>Danh mục/Nhà cung cấp</th>
+                  <th>Giá (Vốn / Bán)</th>
+                  <th>Tồn kho</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <TableEmpty colSpan={5} text="Loading products..." />
+                  <TableEmpty colSpan={5} text="Đang tải danh sách sản phẩm..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={5} text="No products found" />
+                  <TableEmpty colSpan={5} text="Không tìm thấy sản phẩm nào" />
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
@@ -216,8 +216,8 @@ export default function ProductsPage() {
                         <div className="muted-line">Min: {item.minStock}</div>
                       </td>
                       <td className="actions-cell">
-                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Edit</button>
-                        <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Delete</button>
+                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
+                        <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Xóa</button>
                       </td>
                     </tr>
                   ))
@@ -232,14 +232,14 @@ export default function ProductsPage() {
         <aside className="resource-panel form-panel">
           <div className="resource-header">
             <div>
-              <p className="section-label">{form.id ? 'Edit product' : 'Create product'}</p>
-              <h2>{form.id ? form.name || 'Product details' : 'New product'}</h2>
+              <p className="section-label">{form.id ? 'Sửa sản phẩm' : 'Tạo sản phẩm mới'}</p>
+              <h2>{form.id ? form.name || 'Chi tiết sản phẩm' : 'Sản phẩm mới'}</h2>
             </div>
           </div>
 
           <form className="resource-form" onSubmit={handleSubmit}>
             <label>
-              Name
+              Tên
               <input className="field-input" value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} required />
             </label>
             <div className="two-col">
@@ -248,15 +248,15 @@ export default function ProductsPage() {
                 <input className="field-input" value={form.sku} onChange={(e) => setForm((prev) => ({ ...prev, sku: e.target.value }))} required />
               </label>
               <label>
-                Barcode
+                Mã vạch
                 <input className="field-input" value={form.barcode} onChange={(e) => setForm((prev) => ({ ...prev, barcode: e.target.value }))} />
               </label>
             </div>
             <div className="two-col">
               <label>
-                Category
+                Danh mục
                 <select className="field-select" value={form.categoryId} onChange={(e) => setForm((prev) => ({ ...prev, categoryId: e.target.value }))} required>
-                  <option value="">Select category</option>
+                  <option value="">Chọn danh mục</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -265,9 +265,9 @@ export default function ProductsPage() {
                 </select>
               </label>
               <label>
-                Supplier
+                Nhà cung cấp
                 <select className="field-select" value={form.supplierId} onChange={(e) => setForm((prev) => ({ ...prev, supplierId: e.target.value }))} required>
-                  <option value="">Select supplier</option>
+                  <option value="">Chọn nhà cung cấp</option>
                   {suppliers.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
@@ -278,36 +278,36 @@ export default function ProductsPage() {
             </div>
             <div className="two-col">
               <label>
-                Unit
-                <input className="field-input" placeholder="e.g. Box, Kg, Pcs" value={form.unit} onChange={(e) => setForm((prev) => ({ ...prev, unit: e.target.value }))} required />
+                Đơn vị tính
+                <input className="field-input" placeholder="VD: Hộp, Kg, Cái" value={form.unit} onChange={(e) => setForm((prev) => ({ ...prev, unit: e.target.value }))} required />
               </label>
               <label>
-                Min Stock
+                Tồn kho tối thiểu
                 <input type="number" min="0" className="field-input" value={form.minStock} onChange={(e) => setForm((prev) => ({ ...prev, minStock: e.target.value }))} required />
               </label>
             </div>
             <div className="two-col">
               <label>
-                Cost Price
+                Giá vốn
                 <input type="number" min="0" step="0.01" className="field-input" value={form.costPrice} onChange={(e) => setForm((prev) => ({ ...prev, costPrice: e.target.value }))} required />
               </label>
               <label>
-                Sale Price
+                Giá bán
                 <input type="number" min="0" step="0.01" className="field-input" value={form.salePrice} onChange={(e) => setForm((prev) => ({ ...prev, salePrice: e.target.value }))} required />
               </label>
             </div>
             {form.id && (
               <label>
-                Current Stock (Read-only)
+                Tồn kho hiện tại (Chỉ đọc)
                 <input type="number" className="field-input" value={form.currentStock} disabled />
               </label>
             )}
             <div className="form-actions">
               <button type="submit" className="primary-button" disabled={saving}>
-                {saving ? 'Saving...' : form.id ? 'Update product' : 'Create product'}
+                {saving ? 'Đang lưu...' : form.id ? 'Cập nhật' : 'Tạo mới'}
               </button>
               <button type="button" className="secondary-button" onClick={() => setForm(emptyProductForm)}>
-                Reset
+                Làm mới
               </button>
             </div>
           </form>
