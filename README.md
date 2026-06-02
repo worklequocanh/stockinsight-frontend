@@ -1,50 +1,59 @@
 # StockInsight Frontend
 
-Giao diện người dùng cho hệ thống quản lý hàng hóa và phân tích bán hàng StockInsight, được xây dựng bằng React và Vite.
+Frontend cho hệ thống quản lý hàng hóa và phân tích bán hàng StockInsight.
 
-## Công nghệ sử dụng
-- **Bundler**: Vite
-- **UI Library**: React (v19)
-- **Routing**: React Router DOM (v7)
-- **HTTP Client**: Axios
+## Tech Stack
+- React 19
+- Vite
+- React Router DOM
+- Axios
 
-## Cấu trúc thư mục chính
+## Cấu trúc chính
 ```text
-├── public/             # Tài nguyên tĩnh công cộng (icons, v.v.)
-├── src/
-│   ├── assets/         # Hình ảnh, stylesheets
-│   ├── components/     # Các React component dùng chung
-│   ├── pages/          # Các trang giao diện (Landing, Login, v.v.)
-│   ├── services/       # Cấu hình API client kết nối Backend
-│   ├── App.jsx         # Component gốc định tuyến
-│   ├── main.jsx        # Entry point của ứng dụng React
-│   └── index.css       # File CSS chính
+public/          tài nguyên tĩnh
+src/pages/       các trang giao diện
+src/components/  component dùng chung
+src/services/    API client và auth helper
+src/context/     auth state
+src/assets/      hình ảnh và icon
 ```
 
-## Yêu cầu môi trường
-Tạo file `.env` ở thư mục gốc dự án dựa trên file `.env.example`:
+## Cài đặt môi trường
+Tạo file `.env` trong thư mục frontend:
 ```ini
 VITE_API_BASE_URL=http://localhost:3001/api
 ```
 
-## Cài đặt và Khởi chạy
+## Chạy project
+```bash
+npm install
+npm run dev
+```
 
-1. **Cài đặt các gói phụ thuộc**:
-   ```bash
-   npm install
-   ```
+Build production:
+```bash
+npm run build
+```
 
-2. **Khởi chạy ứng dụng**:
-   - Ở chế độ Development:
-     ```bash
-     npm run dev
-     ```
-   - Chạy thử bản Build (Preview):
-     ```bash
-     npm run preview
-     ```
+Preview bản build:
+```bash
+npm run preview
+```
 
-3. **Build cho Production**:
-   ```bash
-   npm run build
-   ```
+## Phase 2 Pages
+- `/`
+  - landing page
+- `/login`
+  - form đăng nhập JWT
+- `/dashboard`
+  - trang protected để test auth và role
+
+## Auth flow
+- Frontend lưu access token trong `localStorage`
+- Axios tự gắn `Authorization: Bearer <token>`
+- Khi vào app, frontend gọi `GET /api/auth/me` để bootstrap user hiện tại
+
+## Demo accounts
+- `admin@stockinsight.local` / `admin123`
+- `manager@stockinsight.local` / `admin123`
+- `employee@stockinsight.local` / `admin123`

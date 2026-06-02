@@ -1,4 +1,6 @@
+import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import '../landing.css'
 
@@ -27,6 +29,7 @@ const phaseItems = [
 ]
 
 export default function LandingPage() {
+  const { isAuthenticated } = useAuth()
   const [health, setHealth] = useState({
     status: 'checking',
     message: 'Đang kiểm tra kết nối backend...',
@@ -80,6 +83,15 @@ export default function LandingPage() {
           <span>Backend: stockinsight-backend</span>
           <span>Frontend: stockinsight-frontend</span>
           <span>DB: PostgreSQL</span>
+        </div>
+
+        <div className="hero-actions">
+          <Link className="hero-button primary" to={isAuthenticated ? '/dashboard' : '/login'}>
+            {isAuthenticated ? 'Open dashboard' : 'Sign in'}
+          </Link>
+          <Link className="hero-button secondary" to="/login">
+            View login
+          </Link>
         </div>
 
         <div className={`health-panel health-${health.status}`}>
