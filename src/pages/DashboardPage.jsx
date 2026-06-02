@@ -8,6 +8,7 @@ const tabs = [
   { key: 'categories', label: 'Categories' },
   { key: 'suppliers', label: 'Suppliers' },
   { key: 'imports', label: 'Imports' },
+  { key: 'exports', label: 'Exports' },
 ]
 
 const emptyCategoryForm = {
@@ -105,6 +106,15 @@ export default function DashboardPage() {
   const [importSaving, setImportSaving] = useState(false)
   const [importError, setImportError] = useState('')
   const [importForm, setImportForm] = useState({ id: '', supplierId: '', note: '', items: [] })
+
+  const [exportItems, setExportItems] = useState([])
+  const [exportMeta, setExportMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
+  const [exportSearch, setExportSearch] = useState('')
+  const [exportPage, setExportPage] = useState(1)
+  const [exportLoading, setExportLoading] = useState(false)
+  const [exportSaving, setExportSaving] = useState(false)
+  const [exportError, setExportError] = useState('')
+  const [exportForm, setExportForm] = useState({ id: '', exportType: 'SALE', note: '', items: [] })
 
   async function loadCategories(params = {}) {
     setCategoryLoading(true)
@@ -265,6 +275,101 @@ export default function DashboardPage() {
 
   function removeImportItem(index) {
     setImportForm(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }))
+  }
+
+  async function loadExports(params = {}) {
+    setExportLoading(true)
+    setExportError('')
+    try {
+      const response = await api.get(`/exports?${buildQuery({ search: params.search ?? exportSearch, page: params.page ?? exportPage, limit: 10 })}`)
+      const payload = response.data?.data || {}
+      setExportItems(payload.items || [])
+      setExportMeta(payload.meta || exportMeta)
+    } catch (error) {
+      setExportError(parseApiError(error, 'Failed to load exports'))
+    } finally {
+      setExportLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === 'exports') {
+      loadExports({ search: exportSearch, page: exportPage })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, exportSearch, exportPage])
+
+  async function submitExport(event) {
+    event.preventDefault()
+    setExportSaving(true)
+    setExportError('')
+    try {
+      const payload = {
+        exportType: exportForm.exportType,
+        note: exportForm.note,
+        items: exportForm.items,
+      }
+      await api.post('/exports', payload)
+      setExportForm({ id: '', exportType: 'SALE', note: '', items: [] })
+      setExportPage(1)
+      await loadExports({ search: exportSearch, page: 1 })
+    } catch (error) {
+      setExportError(parseApiError(error, 'Failed to create export receipt'))
+    } finally {
+      setExportSaving(false)
+    }
+  }
+
+  async function approveExport(id) {
+    if (!window.confirm('Approve this export receipt? This will deduct stock and cannot be undone.')) return
+    try {
+      await api.post(`/exports/${id}/approve`)
+      await loadExports({ search: exportSearch, page: exportPage })
+    } catch (error) {
+      setExportError(parseApiError(error, 'Failed to approve export'))
+    }
+  }
+
+  async function rejectExport(id) {
+    const reason = window.prompt('Reason for rejection:')
+    if (!reason) return
+    try {
+      await api.post(`/exports/${id}/reject`, { reason })
+      await loadExports({ search: exportSearch, page: exportPage })
+    } catch (error) {
+      setExportError(parseApiError(error, 'Failed to reject export'))
+    }
+  }
+
+  function addExportItem() {
+    setExportForm(prev => ({
+      ...prev,
+      items: [...prev.items, { productId: '', quantity: 1, unitPrice: 0 }]
+    }))
+  }
+
+  function updateExportItem(index, field, value) {
+    setExportForm(prev => {
+      const newItems = [...prev.items]
+      newItems[index] = { ...newItems[index], [field]: value }
+      
+      // Auto fill sale price if product is selected
+      if (field === 'productId') {
+        const product = productItems.find(p => p.id === value)
+        if (product) {
+          newItems[index].unitPrice = product.salePrice || 0
+        }
+      }
+      
+      return { ...prev, items: newItems }
+    })
+  }
+
+  function removeExportItem(index) {
+    setExportForm(prev => ({
       ...prev,
       items: prev.items.filter((_, i) => i !== index)
     }))
@@ -1072,14 +1177,164 @@ export default function DashboardPage() {
     )
   }
 
+  function renderExportsSection() {
+    return (
+      <div className="resource-layout">
+        <section className="resource-panel">
+          <div className="resource-header">
+            <div>
+              <p className="section-label">Warehouse</p>
+              <h2>Export Receipts</h2>
+            </div>
+            <button type="button" className="secondary-button" onClick={() => setExportForm({ id: '', exportType: 'SALE', note: '', items: [] })}>
+              New export
+            </button>
+          </div>
+
+          <div className="filter-row">
+            <input
+              className="field-input"
+              placeholder="Search by code"
+              value={exportSearch}
+              onChange={(event) => {
+                setExportPage(1)
+                setExportSearch(event.target.value)
+              }}
+            />
+          </div>
+
+          {exportError ? <p className="error-banner">{exportError}</p> : null}
+
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>By</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {exportLoading ? (
+                  <TableEmpty colSpan={5} text="Loading exports..." />
+                ) : exportItems.length === 0 ? (
+                  <TableEmpty colSpan={5} text="No exports found" />
+                ) : (
+                  exportItems.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <strong>{item.code}</strong>
+                        <div className="muted-line">{new Date(item.createdAt).toLocaleDateString()}</div>
+                      </td>
+                      <td>{item.exportType}</td>
+                      <td>
+                        <span className={`status-badge ${item.status.toLowerCase()}`}>
+                          {item.status}
+                        </span>
+                        {item.rejectedReason && <div className="muted-line">{item.rejectedReason}</div>}
+                      </td>
+                      <td>
+                        <div>Creator: {item.createdBy?.name || '-'}</div>
+                        {item.approvedBy && <div className="muted-line">Action by: {item.approvedBy.name}</div>}
+                      </td>
+                      <td className="actions-cell">
+                        {item.status === 'PENDING' && (
+                          <>
+                            <button type="button" className="text-button" onClick={() => approveExport(item.id)}>Approve</button>
+                            <button type="button" className="text-button danger" onClick={() => rejectExport(item.id)}>Reject</button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {renderPagination(exportMeta, setExportPage, exportLoading)}
+        </section>
+
+        <aside className="resource-panel form-panel" style={{ minWidth: '400px' }}>
+          <div className="resource-header">
+            <div>
+              <p className="section-label">Create receipt</p>
+              <h2>New Export (FEFO)</h2>
+            </div>
+          </div>
+
+          <form className="resource-form" onSubmit={submitExport}>
+            <div className="two-col">
+              <label>
+                Type
+                <select className="field-select" value={exportForm.exportType} onChange={(e) => setExportForm(prev => ({ ...prev, exportType: e.target.value }))} required>
+                  <option value="SALE">SALE</option>
+                  <option value="INTERNAL">INTERNAL</option>
+                  <option value="DAMAGED">DAMAGED</option>
+                  <option value="TRANSFER">TRANSFER</option>
+                </select>
+              </label>
+              <label>
+                Note
+                <input className="field-input" value={exportForm.note} onChange={(e) => setExportForm(prev => ({ ...prev, note: e.target.value }))} />
+              </label>
+            </div>
+
+            <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1rem' }}>Items</h3>
+                <button type="button" className="text-button" onClick={addExportItem}>+ Add Item</button>
+              </div>
+              
+              {exportForm.items.length === 0 ? (
+                <div className="muted-line">No items added.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {exportForm.items.map((item, index) => (
+                    <div key={index} style={{ border: '1px solid #e2e8f0', padding: '0.75rem', borderRadius: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <strong>Item {index + 1}</strong>
+                        <button type="button" className="text-button danger" onClick={() => removeExportItem(index)}>Remove</button>
+                      </div>
+                      
+                      <select className="field-select" value={item.productId} onChange={(e) => updateExportItem(index, 'productId', e.target.value)} required style={{ marginBottom: '0.5rem' }}>
+                        <option value="">Select product</option>
+                        {productItems.map(p => (
+                          <option key={p.id} value={p.id}>{p.sku} - {p.name} (Stock: {p.currentStock})</option>
+                        ))}
+                      </select>
+
+                      <div className="two-col" style={{ marginBottom: '0.5rem' }}>
+                        <label>Qty <input type="number" min="1" className="field-input" value={item.quantity} onChange={(e) => updateExportItem(index, 'quantity', e.target.value)} required /></label>
+                        <label>Unit Price <input type="number" min="0" step="0.01" className="field-input" value={item.unitPrice} onChange={(e) => updateExportItem(index, 'unitPrice', e.target.value)} required /></label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="form-actions">
+              <button type="submit" className="primary-button" disabled={exportSaving || exportForm.items.length === 0}>
+                {exportSaving ? 'Saving...' : 'Create receipt'}
+              </button>
+            </div>
+          </form>
+        </aside>
+      </div>
+    )
+  }
+
   return (
     <main className="management-shell">
       <section className="management-hero">
         <div>
-          <p className="eyebrow">Phase 3 & 4</p>
-          <h1>Quản lý dữ liệu & Nhập kho</h1>
+          <p className="eyebrow">Phase 3, 4 & 5</p>
+          <h1>Quản lý dữ liệu, Nhập & Xuất kho</h1>
           <p className="hero-copy">
-            CRUD cho categories, suppliers, products và quản lý phiếu nhập kho.
+            Quản lý danh mục, hàng hóa, nhập kho và xuất kho tự động theo chuẩn FEFO.
           </p>
         </div>
 
@@ -1113,6 +1368,7 @@ export default function DashboardPage() {
           {activeTab === 'categories' ? renderCategoriesSection() : null}
           {activeTab === 'suppliers' ? renderSuppliersSection() : null}
           {activeTab === 'imports' ? renderImportsSection() : null}
+          {activeTab === 'exports' ? renderExportsSection() : null}
         </div>
       </section>
     </main>

@@ -63,6 +63,11 @@ npm run preview
 - Thêm nhiều mặt hàng vào một phiếu nhập
 - Duyệt và từ chối phiếu nhập (cập nhật tồn kho tự động qua transaction)
 
+## Phase 5 UI
+- Quản lý phiếu xuất kho `exports`
+- Giao diện xuất kho tự động nhận giá trị tồn hiện tại.
+- Backend tự động tính toán xuất kho theo FEFO, giao diện hỗ trợ thêm nhiều dòng hàng.
+
 ## Demo accounts
 - `admin@stockinsight.local` / `admin123`
 - `manager@stockinsight.local` / `admin123`
