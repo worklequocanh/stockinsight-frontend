@@ -13,6 +13,12 @@ export default function DashboardLayout() {
           <p className="eyebrow">Phase 3, 4 & 5</p>
         </div>
         <nav className="sidebar-nav">
+          <NavLink to="/dashboard" end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+            Tổng quan
+          </NavLink>
+          <NavLink to="/dashboard/inventory-reports" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+            Báo cáo Tồn kho
+          </NavLink>
           <NavLink to="/dashboard/products" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
             Sản phẩm
           </NavLink>
