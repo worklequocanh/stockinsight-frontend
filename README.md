@@ -46,12 +46,17 @@ npm run preview
 - `/login`
   - form đăng nhập JWT
 - `/dashboard`
-  - trang protected để test auth và role
+  - trang quản trị dữ liệu nền cho phase 3
 
 ## Auth flow
 - Frontend lưu access token trong `localStorage`
 - Axios tự gắn `Authorization: Bearer <token>`
 - Khi vào app, frontend gọi `GET /api/auth/me` để bootstrap user hiện tại
+
+## Phase 3 UI
+- Quản lý `products`, `categories`, `suppliers`
+- Tìm kiếm, lọc và phân trang danh sách
+- Tạo, sửa, xóa dữ liệu ngay trên dashboard
 
 ## Demo accounts
 - `admin@stockinsight.local` / `admin123`
