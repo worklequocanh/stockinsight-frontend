@@ -300,21 +300,105 @@
 /* Dashboard Layout Sidebar */
 .dashboard-layout {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: #020817; /* match global */
 }
 
+@media (min-width: 1024px) {
+  .dashboard-layout {
+    flex-direction: row;
+  }
+}
+
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: rgba(9, 17, 31, 0.95);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.mobile-header h2 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #f8fafc;
+  font-size: 1.4rem;
+}
+
+.hamburger-btn {
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 1024px) {
+  .mobile-header {
+    display: none;
+  }
+}
+
 .sidebar {
   width: 280px;
-  background: rgba(9, 17, 31, 0.9);
+  background: rgba(9, 17, 31, 0.98);
   border-right: 1px solid rgba(148, 163, 184, 0.18);
   display: flex;
   flex-direction: column;
   padding: 24px;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   height: 100vh;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    position: sticky;
+    transform: translateX(0);
+    transition: none;
+  }
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 45;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (min-width: 1024px) {
+  .sidebar-overlay {
+    display: none;
+  }
 }
 
 .sidebar-header h2 {
@@ -374,9 +458,22 @@
 
 .main-content {
   flex-grow: 1;
-  padding: 32px 40px;
+  padding: 16px 16px;
   overflow-y: auto;
   max-width: 1360px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: 24px 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: 32px 40px;
+  }
 }
 
 .page-container {
@@ -392,7 +489,7 @@
 .page-header h1 {
   margin: 0 0 8px 0;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 2.8rem;
+  font-size: clamp(2rem, 4vw, 2.8rem);
   color: #f8fafc;
 }
 

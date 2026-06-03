@@ -132,7 +132,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <aside className="resource-panel" style={{ minWidth: '350px' }}>
+        <aside className="resource-panel">
           <div className="resource-header">
             <div>
               <p className="section-label">Thống kê</p>
