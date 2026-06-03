@@ -195,7 +195,7 @@ export default function ExportsPage() {
           <Pagination meta={meta} onPageChange={setPage} loading={loading} />
         </section>
 
-        <aside className="resource-panel form-panel" style={{ minWidth: '400px' }}>
+        <aside className="resource-panel form-panel">
           <div className="resource-header">
             <div>
               <p className="section-label">Tạo phiếu xuất</p>
