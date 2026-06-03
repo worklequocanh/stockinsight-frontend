@@ -129,15 +129,15 @@ export default function SuppliersPage() {
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
-                      <td>
+                      <td data-label="Tên">
                         <strong>{item.name}</strong>
                       </td>
-                      <td>
+                      <td data-label="Liên lạc">
                         <div className="muted-line">{item.phone || '-'}</div>
                         <div className="muted-line">{item.email || '-'}</div>
                       </td>
-                      <td>{item.address || '-'}</td>
-                      <td className="actions-cell">
+                      <td data-label="Địa chỉ">{item.address || '-'}</td>
+                      <td data-label="Thao tác" className="actions-cell">
                         <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
                         <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Xóa</button>
                       </td>

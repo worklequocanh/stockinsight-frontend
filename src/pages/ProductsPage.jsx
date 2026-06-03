@@ -195,27 +195,27 @@ export default function ProductsPage() {
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
-                      <td>
+                      <td data-label="Sản phẩm">
                         <strong>{item.name}</strong>
                         <div className="muted-line">
                           SKU: {item.sku} {item.barcode ? ` | BC: ${item.barcode}` : ''}
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Danh mục/Nhà cung cấp">
                         <div>{item.category?.name || '-'}</div>
                         <div className="muted-line">{item.supplier?.name || '-'}</div>
                       </td>
-                      <td>
+                      <td data-label="Giá (Vốn / Bán)">
                         <div>{Number(item.costPrice).toLocaleString()}</div>
                         <div className="muted-line">{Number(item.salePrice).toLocaleString()}</div>
                       </td>
-                      <td>
+                      <td data-label="Tồn kho">
                         <strong>
                           {item.currentStock} {item.unit}
                         </strong>
                         <div className="muted-line">Min: {item.minStock}</div>
                       </td>
-                      <td className="actions-cell">
+                      <td data-label="Thao tác" className="actions-cell">
                         <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
                         <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Xóa</button>
                       </td>

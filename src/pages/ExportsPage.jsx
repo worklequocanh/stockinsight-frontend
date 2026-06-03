@@ -162,22 +162,22 @@ export default function ExportsPage() {
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
-                      <td>
+                      <td data-label="Mã phiếu">
                         <strong>{item.code}</strong>
                         <div className="muted-line">{new Date(item.createdAt).toLocaleDateString()}</div>
                       </td>
-                      <td>{translateExportType(item.exportType)}</td>
-                      <td>
+                      <td data-label="Loại phiếu">{translateExportType(item.exportType)}</td>
+                      <td data-label="Trạng thái">
                         <span className={`status-badge ${item.status.toLowerCase()}`}>
                           {translateStatus(item.status)}
                         </span>
                         {item.rejectedReason && <div className="muted-line">{item.rejectedReason}</div>}
                       </td>
-                      <td>
+                      <td data-label="Người xử lý">
                         <div>Tạo bởi: {item.createdBy?.name || '-'}</div>
                         {item.approvedBy && <div className="muted-line">Duyệt bởi: {item.approvedBy.name}</div>}
                       </td>
-                      <td className="actions-cell">
+                      <td data-label="Thao tác" className="actions-cell">
                         {item.status === 'PENDING' && (
                           <>
                             <button type="button" className="text-button" onClick={() => approveExport(item.id)}>Duyệt</button>

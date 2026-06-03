@@ -126,11 +126,11 @@ export default function CategoriesPage() {
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
-                      <td>
+                      <td data-label="Tên">
                         <strong>{item.name}</strong>
                       </td>
-                      <td>{item.description || '-'}</td>
-                      <td className="actions-cell">
+                      <td data-label="Mô tả">{item.description || '-'}</td>
+                      <td data-label="Thao tác" className="actions-cell">
                         <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
                         <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Xóa</button>
                       </td>
