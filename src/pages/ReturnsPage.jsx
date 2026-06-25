@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import api from '../services/api'
 import { buildQuery, parseApiError } from '../utils/helpers'
-import { translateStatus } from '../utils/translations'
+import { translateReturnStatus } from '../utils/translations'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 
-export default function ImportsPage() {
+const QUALITY_OPTIONS = ['Mới', 'Tốt', 'Hư hỏng', 'Mất niêm phong']
+
+export default function ReturnsPage() {
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -13,28 +15,24 @@ export default function ImportsPage() {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [form, setForm] = useState({ id: '', supplierId: '', note: '', items: [] })
 
-  const [suppliers, setSuppliers] = useState([])
   const [products, setProducts] = useState([])
-  const [locations, setLocations] = useState([])
+  const [form, setForm] = useState({ reason: '', originalExportId: '', items: [] })
 
   useEffect(() => {
-    api.get('/suppliers?limit=100').then(res => setSuppliers(res.data?.data?.items || []))
-    api.get('/products?limit=100').then(res => setProducts(res.data?.data?.items || []))
-    api.get('/locations?limit=100').then(res => setLocations(res.data?.data?.items || []))
+    api.get('/products?limit=200').then(res => setProducts(res.data?.data?.items || []))
   }, [])
 
   async function loadData(params = {}) {
     setLoading(true)
     setError('')
     try {
-      const response = await api.get(`/imports?${buildQuery({ search: params.search ?? search, page: params.page ?? page, limit: 10 })}`)
+      const response = await api.get(`/returns?${buildQuery({ search: params.search ?? search, page: params.page ?? page, limit: 10 })}`)
       const payload = response.data?.data || {}
       setItems(payload.items || [])
       setMeta(payload.meta || meta)
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi tải danh sách phiếu nhập'))
+      setError(parseApiError(err, 'Lỗi khi tải danh sách phiếu trả'))
     } finally {
       setLoading(false)
     }
@@ -50,53 +48,40 @@ export default function ImportsPage() {
     setSaving(true)
     setError('')
     try {
-      await api.post('/imports', {
-        supplierId: form.supplierId,
-        note: form.note,
+      await api.post('/returns', {
+        reason: form.reason,
+        originalExportId: form.originalExportId || undefined,
         items: form.items.map(i => ({
           productId: i.productId,
           quantity: Number(i.quantity),
-          unitPrice: Number(i.unitPrice),
-          lotNumber: i.lotNumber,
-          expiryDate: i.expiryDate,
-          locationId: i.locationId || undefined,
+          qualityStatus: i.qualityStatus || 'Mới',
         })),
       })
-      setForm({ id: '', supplierId: '', note: '', items: [] })
+      setForm({ reason: '', originalExportId: '', items: [] })
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi tạo phiếu nhập'))
+      setError(parseApiError(err, 'Lỗi khi tạo phiếu trả'))
     } finally {
       setSaving(false)
     }
   }
 
-  async function approveImport(id) {
-    if (!window.confirm('Duyệt phiếu nhập này? Tồn kho sẽ được cập nhật và không thể hoàn tác.')) return
+  async function handleProcess(id, action) {
+    const label = action === 'RETURNED_TO_STOCK' ? 'nhập lại kho' : 'tiêu hủy'
+    if (!window.confirm(`Xác nhận ${label} phiếu trả hàng này?`)) return
     try {
-      await api.post(`/imports/${id}/approve`)
+      await api.put(`/returns/${id}/process`, { action })
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi duyệt phiếu nhập'))
-    }
-  }
-
-  async function rejectImport(id) {
-    const reason = window.prompt('Lý do từ chối:')
-    if (!reason) return
-    try {
-      await api.post(`/imports/${id}/reject`, { reason })
-      await loadData({ search, page })
-    } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi từ chối phiếu nhập'))
+      setError(parseApiError(err, 'Lỗi khi xử lý phiếu trả'))
     }
   }
 
   function addItem() {
     setForm(prev => ({
       ...prev,
-      items: [...prev.items, { productId: '', quantity: 1, unitPrice: 0, lotNumber: '', expiryDate: '', locationId: '' }]
+      items: [...prev.items, { productId: '', quantity: 1, qualityStatus: 'Mới' }]
     }))
   }
 
@@ -104,12 +89,6 @@ export default function ImportsPage() {
     setForm(prev => {
       const newItems = [...prev.items]
       newItems[index] = { ...newItems[index], [field]: value }
-      if (field === 'productId') {
-        const product = products.find(p => p.id === value)
-        if (product) {
-          newItems[index].unitPrice = product.costPrice || 0
-        }
-      }
       return { ...prev, items: newItems }
     })
   }
@@ -124,18 +103,20 @@ export default function ImportsPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Nhập kho</h1>
-        <p className="hero-copy">Quản lý các lô hàng nhập vào kho</p>
+        <h1>Trả hàng</h1>
+        <p className="hero-copy">Quản lý hàng hóa khách trả lại</p>
       </div>
+
+      {error && <p className="error-banner" style={{ marginBottom: '1rem' }}>{error}</p>}
 
       <div className="resource-layout">
         <section className="resource-panel">
           <div className="resource-header">
             <div>
-              <p className="section-label">Kho hàng</p>
-              <h2>Danh sách phiếu nhập</h2>
+              <p className="section-label">Nghiệp vụ</p>
+              <h2>Danh sách phiếu trả</h2>
             </div>
-            <button type="button" className="secondary-button" onClick={() => setForm({ id: '', supplierId: '', note: '', items: [] })}>
+            <button type="button" className="secondary-button" onClick={() => setForm({ reason: '', originalExportId: '', items: [] })}>
               Tạo phiếu mới
             </button>
           </div>
@@ -152,16 +133,14 @@ export default function ImportsPage() {
             />
           </div>
 
-          {error && <p className="error-banner">{error}</p>}
-
           <div className="table-wrap">
             <table className="data-table">
               <thead>
                 <tr>
                   <th>Mã phiếu</th>
-                  <th>Nhà cung cấp</th>
+                  <th>Lý do</th>
                   <th>Trạng thái</th>
-                  <th>Người xử lý</th>
+                  <th>Người tạo</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
@@ -169,7 +148,7 @@ export default function ImportsPage() {
                 {loading ? (
                   <TableEmpty colSpan={5} text="Đang tải dữ liệu..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={5} text="Không tìm thấy phiếu nhập nào" />
+                  <TableEmpty colSpan={5} text="Không tìm thấy phiếu trả nào" />
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
@@ -177,22 +156,22 @@ export default function ImportsPage() {
                         <strong>{item.code}</strong>
                         <div className="muted-line">{new Date(item.createdAt).toLocaleDateString()}</div>
                       </td>
-                      <td data-label="Nhà cung cấp">{item.supplier?.name || '-'}</td>
+                      <td data-label="Lý do">{item.reason}</td>
                       <td data-label="Trạng thái">
                         <span className={`badge badge--${item.status.toLowerCase()}`}>
-                          {translateStatus(item.status)}
+                          {translateReturnStatus(item.status)}
                         </span>
-                        {item.rejectedReason && <div className="muted-line">{item.rejectedReason}</div>}
                       </td>
-                      <td data-label="Người xử lý">
-                        <div>Tạo bởi: {item.createdBy?.name || '-'}</div>
-                        {item.approvedBy && <div className="muted-line">Duyệt bởi: {item.approvedBy.name}</div>}
-                      </td>
+                      <td data-label="Người tạo">{item.createdBy?.name || '-'}</td>
                       <td data-label="Thao tác" className="actions-cell">
                         {item.status === 'PENDING' && (
                           <>
-                            <button type="button" className="text-button" onClick={() => approveImport(item.id)}>Duyệt</button>
-                            <button type="button" className="text-button danger" onClick={() => rejectImport(item.id)}>Từ chối</button>
+                            <button type="button" className="text-button" onClick={() => handleProcess(item.id, 'RETURNED_TO_STOCK')}>
+                              Nhập lại kho
+                            </button>
+                            <button type="button" className="text-button danger" onClick={() => handleProcess(item.id, 'DISCARDED')}>
+                              Tiêu hủy
+                            </button>
                           </>
                         )}
                       </td>
@@ -209,29 +188,24 @@ export default function ImportsPage() {
         <aside className="resource-panel form-panel">
           <div className="resource-header">
             <div>
-              <p className="section-label">Tạo phiếu nhập</p>
-              <h2>Nhập kho mới</h2>
+              <p className="section-label">Tạo phiếu trả</p>
+              <h2>Phiếu trả mới</h2>
             </div>
           </div>
 
           <form className="resource-form" onSubmit={handleSubmit}>
             <label>
-              Nhà cung cấp
-              <select className="field-select" value={form.supplierId} onChange={(e) => setForm(prev => ({ ...prev, supplierId: e.target.value }))} required>
-                <option value="">Chọn nhà cung cấp</option>
-                {suppliers.map(s => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
+              Lý do trả hàng
+              <textarea className="field-textarea" rows="2" value={form.reason} onChange={(e) => setForm(prev => ({ ...prev, reason: e.target.value }))} required placeholder="VD: Hàng hư hỏng, sai quy cách..." />
             </label>
             <label>
-              Ghi chú
-              <input className="field-input" value={form.note} onChange={(e) => setForm(prev => ({ ...prev, note: e.target.value }))} />
+              Mã phiếu xuất gốc (tuỳ chọn)
+              <input className="field-input" value={form.originalExportId} onChange={(e) => setForm(prev => ({ ...prev, originalExportId: e.target.value }))} placeholder="Nhập mã phiếu xuất bán gốc" />
             </label>
 
             <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <h3 style={{ margin: 0, fontSize: '1rem' }}>Sản phẩm</h3>
+                <h3 style={{ margin: 0, fontSize: '1rem' }}>Sản phẩm trả</h3>
                 <button type="button" className="text-button" onClick={addItem}>+ Thêm sản phẩm</button>
               </div>
               
@@ -255,23 +229,15 @@ export default function ImportsPage() {
 
                       <div className="two-col" style={{ marginBottom: '0.5rem' }}>
                         <label>Số lượng <input type="number" min="1" className="field-input" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', e.target.value)} required /></label>
-                        <label>Giá nhập <input type="number" min="0" step="0.01" className="field-input" value={item.unitPrice} onChange={(e) => updateItem(index, 'unitPrice', e.target.value)} required /></label>
+                        <label>
+                          Tình trạng
+                          <select className="field-select" value={item.qualityStatus} onChange={(e) => updateItem(index, 'qualityStatus', e.target.value)}>
+                            {QUALITY_OPTIONS.map(q => (
+                              <option key={q} value={q}>{q}</option>
+                            ))}
+                          </select>
+                        </label>
                       </div>
-
-                      <div className="two-col">
-                        <label>Số lô <input className="field-input" value={item.lotNumber} onChange={(e) => updateItem(index, 'lotNumber', e.target.value)} required /></label>
-                        <label>HSD <input type="date" className="field-input" value={item.expiryDate} onChange={(e) => updateItem(index, 'expiryDate', e.target.value)} required /></label>
-                      </div>
-
-                      <label style={{ marginTop: '0.5rem' }}>
-                        Vị trí lưu kho (tuỳ chọn)
-                        <select className="field-select" value={item.locationId || ''} onChange={(e) => updateItem(index, 'locationId', e.target.value)}>
-                          <option value="">Không chọn</option>
-                          {locations.map(loc => (
-                            <option key={loc.id} value={loc.id}>{loc.code} - {loc.name}</option>
-                          ))}
-                        </select>
-                      </label>
                     </div>
                   ))}
                 </div>
@@ -280,7 +246,7 @@ export default function ImportsPage() {
 
             <div className="form-actions">
               <button type="submit" className="primary-button" disabled={saving || form.items.length === 0}>
-                {saving ? 'Đang lưu...' : 'Tạo phiếu nhập'}
+                {saving ? 'Đang lưu...' : 'Tạo phiếu trả'}
               </button>
             </div>
           </form>

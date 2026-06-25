@@ -68,6 +68,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: Boolean(user && token),
     login,
     logout,
+    updateUser: setUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

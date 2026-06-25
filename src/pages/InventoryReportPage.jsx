@@ -150,7 +150,7 @@ export default function InventoryReportPage() {
                       <td>{batch.remainingQuantity}</td>
                       <td>{new Date(batch.expiryDate).toLocaleDateString()}</td>
                       <td>
-                        <span className={`status-badge ${batch.severity === 'danger' ? 'rejected' : batch.severity === 'warning' ? 'pending' : 'approved'}`}>
+                        <span className={`badge badge--${batch.severity === 'danger' ? 'rejected' : batch.severity === 'warning' ? 'pending' : 'approved'}`}>
                           Còn {batch.daysUntilExpiry} ngày
                         </span>
                       </td>

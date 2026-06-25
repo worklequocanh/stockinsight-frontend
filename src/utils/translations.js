@@ -17,6 +17,20 @@ export const EXPORT_TYPE_MAP = {
   TRANSFER: 'Điều chuyển'
 };
 
+export const CHECK_STATUS_MAP = {
+  DRAFT: 'Nháp',
+  IN_PROGRESS: 'Đang kiểm',
+  COMPLETED: 'Đã chốt',
+  CANCELED: 'Đã hủy'
+};
+
+export const RETURN_STATUS_MAP = {
+  PENDING: 'Chờ xử lý',
+  INSPECTED: 'Đã kiểm tra',
+  RETURNED_TO_STOCK: 'Đã nhập lại kho',
+  DISCARDED: 'Đã tiêu hủy'
+};
+
 export function translateStatus(status) {
   return STATUS_MAP[status] || status;
 }
@@ -27,4 +41,12 @@ export function translateRole(role) {
 
 export function translateExportType(type) {
   return EXPORT_TYPE_MAP[type] || type;
+}
+
+export function translateCheckStatus(status) {
+  return CHECK_STATUS_MAP[status] || status;
+}
+
+export function translateReturnStatus(status) {
+  return RETURN_STATUS_MAP[status] || status;
 }

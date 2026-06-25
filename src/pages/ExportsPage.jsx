@@ -13,12 +13,14 @@ export default function ExportsPage() {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [form, setForm] = useState({ id: '', exportType: 'SALE', note: '', items: [] })
+  const [form, setForm] = useState({ id: '', exportType: 'SALE', note: '', customerId: '', items: [] })
 
   const [products, setProducts] = useState([])
+  const [customers, setCustomers] = useState([])
 
   useEffect(() => {
     api.get('/products?limit=100').then(res => setProducts(res.data?.data?.items || []))
+    api.get('/customers?limit=100').then(res => setCustomers(res.data?.data?.items || []))
   }, [])
 
   async function loadData(params = {}) {
@@ -49,9 +51,10 @@ export default function ExportsPage() {
       await api.post('/exports', {
         exportType: form.exportType,
         note: form.note,
+        customerId: form.exportType === 'SALE' ? form.customerId : undefined,
         items: form.items,
       })
-      setForm({ id: '', exportType: 'SALE', note: '', items: [] })
+      setForm({ id: '', exportType: 'SALE', note: '', customerId: '', items: [] })
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
@@ -124,7 +127,7 @@ export default function ExportsPage() {
               <p className="section-label">Kho hàng</p>
               <h2>Danh sách phiếu xuất</h2>
             </div>
-            <button type="button" className="secondary-button" onClick={() => setForm({ id: '', exportType: 'SALE', note: '', items: [] })}>
+            <button type="button" className="secondary-button" onClick={() => setForm({ id: '', exportType: 'SALE', note: '', customerId: '', items: [] })}>
               Tạo phiếu mới
             </button>
           </div>
@@ -149,6 +152,7 @@ export default function ExportsPage() {
                 <tr>
                   <th>Mã phiếu</th>
                   <th>Loại phiếu</th>
+                  <th>Khách hàng</th>
                   <th>Trạng thái</th>
                   <th>Người xử lý</th>
                   <th>Thao tác</th>
@@ -156,9 +160,9 @@ export default function ExportsPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <TableEmpty colSpan={5} text="Đang tải dữ liệu..." />
+                  <TableEmpty colSpan={6} text="Đang tải dữ liệu..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={5} text="Không tìm thấy phiếu xuất nào" />
+                  <TableEmpty colSpan={6} text="Không tìm thấy phiếu xuất nào" />
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
@@ -167,8 +171,16 @@ export default function ExportsPage() {
                         <div className="muted-line">{new Date(item.createdAt).toLocaleDateString()}</div>
                       </td>
                       <td data-label="Loại phiếu">{translateExportType(item.exportType)}</td>
+                      <td data-label="Khách hàng">
+                        {item.customer ? (
+                          <>
+                            <div>{item.customer.name}</div>
+                            {item.customer.phone && <div className="muted-line">{item.customer.phone}</div>}
+                          </>
+                        ) : '-'}
+                      </td>
                       <td data-label="Trạng thái">
-                        <span className={`status-badge ${item.status.toLowerCase()}`}>
+                        <span className={`badge badge--${item.status.toLowerCase()}`}>
                           {translateStatus(item.status)}
                         </span>
                         {item.rejectedReason && <div className="muted-line">{item.rejectedReason}</div>}
@@ -219,6 +231,18 @@ export default function ExportsPage() {
                 <input className="field-input" value={form.note} onChange={(e) => setForm(prev => ({ ...prev, note: e.target.value }))} />
               </label>
             </div>
+
+            {form.exportType === 'SALE' && (
+              <label style={{ marginTop: '0.5rem' }}>
+                Khách hàng
+                <select className="field-select" value={form.customerId} onChange={(e) => setForm(prev => ({ ...prev, customerId: e.target.value }))} required>
+                  <option value="">Chọn khách hàng</option>
+                  {customers.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</option>
+                  ))}
+                </select>
+              </label>
+            )}
 
             <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
