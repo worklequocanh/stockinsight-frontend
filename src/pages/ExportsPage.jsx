@@ -4,6 +4,7 @@ import { buildQuery, parseApiError } from '../utils/helpers'
 import { translateStatus, translateExportType } from '../utils/translations'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
+import QRScannerModal from '../components/QRScannerModal'
 
 export default function ExportsPage() {
   const [items, setItems] = useState([])
@@ -14,6 +15,8 @@ export default function ExportsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ id: '', exportType: 'SALE', note: '', customerId: '', items: [] })
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
+  const [targetItemIndex, setTargetItemIndex] = useState(null)
 
   const [products, setProducts] = useState([])
   const [customers, setCustomers] = useState([])
@@ -111,6 +114,26 @@ export default function ExportsPage() {
       ...prev,
       items: prev.items.filter((_, i) => i !== index)
     }))
+  }
+
+  function openScanner(index) {
+    setTargetItemIndex(index)
+    setIsScannerOpen(true)
+  }
+
+  async function handleScanSuccess(code) {
+    setIsScannerOpen(false)
+    try {
+      const res = await api.get(`/products/search?code=${code}`)
+      const product = res.data?.data?.item
+      if (product) {
+        updateItem(targetItemIndex, 'productId', product.id)
+      } else {
+        alert('Không tìm thấy sản phẩm với mã này!')
+      }
+    } catch (err) {
+      alert(parseApiError(err, 'Lỗi tìm kiếm sản phẩm'))
+    }
   }
 
   return (
@@ -258,7 +281,10 @@ export default function ExportsPage() {
                     <div key={index} style={{ border: '1px solid #e2e8f0', padding: '0.75rem', borderRadius: '4px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                         <strong>Sản phẩm {index + 1}</strong>
-                        <button type="button" className="text-button danger" onClick={() => removeItem(index)}>Xóa</button>
+                        <div>
+                          <button type="button" className="text-button" onClick={() => openScanner(index)} style={{ marginRight: '10px' }}>📷 Quét QR</button>
+                          <button type="button" className="text-button danger" onClick={() => removeItem(index)}>Xóa</button>
+                        </div>
                       </div>
                       
                       <select className="field-select" value={item.productId} onChange={(e) => updateItem(index, 'productId', e.target.value)} required style={{ marginBottom: '0.5rem' }}>
@@ -286,6 +312,11 @@ export default function ExportsPage() {
           </form>
         </aside>
       </div>
+      <QRScannerModal 
+        isOpen={isScannerOpen} 
+        onClose={() => setIsScannerOpen(false)} 
+        onScanSuccess={handleScanSuccess} 
+      />
     </div>
   )
 }

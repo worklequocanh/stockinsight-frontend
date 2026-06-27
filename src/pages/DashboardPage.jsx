@@ -9,6 +9,7 @@ import {
   Legend,
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
+import { io } from 'socket.io-client'
 import api from '../services/api'
 import { parseApiError } from '../utils/helpers'
 
@@ -27,9 +28,9 @@ export default function DashboardPage() {
   const [topSelling, setTopSelling] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
 
-  useEffect(() => {
-    async function fetchData() {
+  const fetchData = async () => {
       setLoading(true)
       try {
         const [kpiRes, monthlyRes, topRes] = await Promise.all([
@@ -48,7 +49,19 @@ export default function DashboardPage() {
       }
     }
 
+  useEffect(() => {
     fetchData()
+
+    const socket = io('http://localhost:3001')
+    socket.on('stock_updated', (data) => {
+      setToast('Có thay đổi về dữ liệu kho. Đang tự động cập nhật...')
+      fetchData()
+      setTimeout(() => setToast(''), 3000)
+    })
+
+    return () => {
+      socket.disconnect()
+    }
   }, [])
 
   if (loading) {
@@ -92,7 +105,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ position: 'relative' }}>
+      {toast && (
+        <div style={{ position: 'fixed', top: '20px', right: '20px', background: '#38bdf8', color: '#fff', padding: '10px 20px', borderRadius: '8px', zIndex: 9999, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+          {toast}
+        </div>
+      )}
       <div className="page-header">
         <h1>Tổng quan Dashboard</h1>
         <p className="hero-copy">Các chỉ số KPI và biểu đồ phân tích hoạt động kho</p>

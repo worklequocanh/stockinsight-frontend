@@ -66,6 +66,9 @@ export default function DashboardLayout() {
           <NavLink to="/dashboard/exports" onClick={closeSidebar} className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
             Xuất kho
           </NavLink>
+          <NavLink to="/dashboard/transfers" onClick={closeSidebar} className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+            Chuyển kho
+          </NavLink>
           <NavLink to="/dashboard/inventory-checks" onClick={closeSidebar} className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
             Kiểm kê kho
           </NavLink>

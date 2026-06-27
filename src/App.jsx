@@ -12,6 +12,7 @@ import CustomersPage from './pages/CustomersPage'
 import LocationsPage from './pages/LocationsPage'
 import ImportsPage from './pages/ImportsPage'
 import ExportsPage from './pages/ExportsPage'
+import TransfersPage from './pages/TransfersPage'
 import DashboardPage from './pages/DashboardPage'
 import InventoryReportPage from './pages/InventoryReportPage'
 import InventoryChecksPage from './pages/InventoryChecksPage'
@@ -43,6 +44,7 @@ function App() {
         <Route path="locations" element={<LocationsPage />} />
         <Route path="imports" element={<ImportsPage />} />
         <Route path="exports" element={<ExportsPage />} />
+        <Route path="transfers" element={<TransfersPage />} />
         <Route path="inventory-checks" element={<InventoryChecksPage />} />
         <Route path="returns" element={<ReturnsPage />} />
         <Route path="audit-logs" element={<AuditLogsPage />} />

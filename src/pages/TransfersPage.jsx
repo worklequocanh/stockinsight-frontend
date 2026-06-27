@@ -6,7 +6,7 @@ import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import QRScannerModal from '../components/QRScannerModal'
 
-export default function ImportsPage() {
+export default function TransfersPage() {
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -14,30 +14,36 @@ export default function ImportsPage() {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [form, setForm] = useState({ id: '', supplierId: '', note: '', items: [] })
+  const [form, setForm] = useState({ id: '', note: '', items: [] })
+  
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [targetItemIndex, setTargetItemIndex] = useState(null)
 
-  const [suppliers, setSuppliers] = useState([])
   const [products, setProducts] = useState([])
   const [locations, setLocations] = useState([])
+  const [batches, setBatches] = useState([])
 
   useEffect(() => {
-    api.get('/suppliers?limit=100').then(res => setSuppliers(res.data?.data?.items || []))
     api.get('/products?limit=100').then(res => setProducts(res.data?.data?.items || []))
     api.get('/locations?limit=100').then(res => setLocations(res.data?.data?.items || []))
+    api.get('/reports/inventory').then(res => {
+      // In the current architecture, we might not have a direct endpoint for batches easily
+      // A workaround is to fetch products with their batches or use a specific batch endpoint.
+      // Assuming /reports/inventory returns batches with products. Let's see later.
+      // But actually, we only need batches for selected products. Let's load batches when product changes.
+    }).catch(err => console.error(err))
   }, [])
 
   async function loadData(params = {}) {
     setLoading(true)
     setError('')
     try {
-      const response = await api.get(`/imports?${buildQuery({ search: params.search ?? search, page: params.page ?? page, limit: 10 })}`)
+      const response = await api.get(`/transfers?${buildQuery({ search: params.search ?? search, page: params.page ?? page, limit: 10 })}`)
       const payload = response.data?.data || {}
       setItems(payload.items || [])
       setMeta(payload.meta || meta)
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi tải danh sách phiếu nhập'))
+      setError(parseApiError(err, 'Lỗi khi tải danh sách phiếu chuyển kho'))
     } finally {
       setLoading(false)
     }
@@ -48,58 +54,63 @@ export default function ImportsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, page])
 
+  async function loadBatchesForProduct(productId) {
+    try {
+      // To get batches for a product, we could query /exports endpoint logic or directly.
+      // Actually we will use a workaround: The backend doesn't have a direct /batches endpoint yet?
+      // Wait, let's just make the user input lot number or we can fetch a product by id to get its batches.
+      const res = await api.get(`/products/${productId}`);
+      const productBatches = res.data?.data?.item?.stockBatches || [];
+      // we need a new way to get batches.
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
     setSaving(true)
     setError('')
     try {
-      await api.post('/imports', {
-        supplierId: form.supplierId,
+      await api.post('/transfers', {
         note: form.note,
-        items: form.items.map(i => ({
-          productId: i.productId,
-          quantity: Number(i.quantity),
-          unitPrice: Number(i.unitPrice),
-          lotNumber: i.lotNumber,
-          expiryDate: i.expiryDate,
-          locationId: i.locationId || undefined,
-        })),
+        items: form.items,
       })
-      setForm({ id: '', supplierId: '', note: '', items: [] })
+      setForm({ id: '', note: '', items: [] })
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi tạo phiếu nhập'))
+      setError(parseApiError(err, 'Lỗi khi tạo phiếu chuyển kho'))
     } finally {
       setSaving(false)
     }
   }
 
-  async function approveImport(id) {
-    if (!window.confirm('Duyệt phiếu nhập này? Tồn kho sẽ được cập nhật và không thể hoàn tác.')) return
+  async function approveTransfer(id) {
+    if (!window.confirm('Duyệt phiếu chuyển kho này? Tồn kho sẽ được cập nhật và không thể hoàn tác.')) return
     try {
-      await api.post(`/imports/${id}/approve`)
+      await api.post(`/transfers/${id}/approve`)
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi duyệt phiếu nhập'))
+      setError(parseApiError(err, 'Lỗi khi duyệt phiếu'))
     }
   }
 
-  async function rejectImport(id) {
+  async function rejectTransfer(id) {
     const reason = window.prompt('Lý do từ chối:')
     if (!reason) return
     try {
-      await api.post(`/imports/${id}/reject`, { reason })
+      await api.post(`/transfers/${id}/reject`, { reason })
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi từ chối phiếu nhập'))
+      setError(parseApiError(err, 'Lỗi khi từ chối phiếu'))
     }
   }
 
   function addItem() {
     setForm(prev => ({
       ...prev,
-      items: [...prev.items, { productId: '', quantity: 1, unitPrice: 0, lotNumber: '', expiryDate: '', locationId: '' }]
+      items: [...prev.items, { productId: '', fromLocationId: '', toLocationId: '', quantity: 1, fromBatchId: '' }]
     }))
   }
 
@@ -107,12 +118,6 @@ export default function ImportsPage() {
     setForm(prev => {
       const newItems = [...prev.items]
       newItems[index] = { ...newItems[index], [field]: value }
-      if (field === 'productId') {
-        const product = products.find(p => p.id === value)
-        if (product) {
-          newItems[index].unitPrice = product.costPrice || 0
-        }
-      }
       return { ...prev, items: newItems }
     })
   }
@@ -147,18 +152,18 @@ export default function ImportsPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Nhập kho</h1>
-        <p className="hero-copy">Quản lý các lô hàng nhập vào kho</p>
+        <h1>Chuyển kho</h1>
+        <p className="hero-copy">Quản lý điều chuyển hàng hóa giữa các vị trí</p>
       </div>
 
       <div className="resource-layout">
         <section className="resource-panel">
           <div className="resource-header">
             <div>
-              <p className="section-label">Kho hàng</p>
-              <h2>Danh sách phiếu nhập</h2>
+              <p className="section-label">Danh sách</p>
+              <h2>Phiếu chuyển kho</h2>
             </div>
-            <button type="button" className="secondary-button" onClick={() => setForm({ id: '', supplierId: '', note: '', items: [] })}>
+            <button type="button" className="secondary-button" onClick={() => setForm({ id: '', note: '', items: [] })}>
               Tạo phiếu mới
             </button>
           </div>
@@ -182,7 +187,7 @@ export default function ImportsPage() {
               <thead>
                 <tr>
                   <th>Mã phiếu</th>
-                  <th>Nhà cung cấp</th>
+                  <th>Ghi chú</th>
                   <th>Trạng thái</th>
                   <th>Người xử lý</th>
                   <th>Thao tác</th>
@@ -192,7 +197,7 @@ export default function ImportsPage() {
                 {loading ? (
                   <TableEmpty colSpan={5} text="Đang tải dữ liệu..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={5} text="Không tìm thấy phiếu nhập nào" />
+                  <TableEmpty colSpan={5} text="Không tìm thấy phiếu nào" />
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
@@ -200,7 +205,7 @@ export default function ImportsPage() {
                         <strong>{item.code}</strong>
                         <div className="muted-line">{new Date(item.createdAt).toLocaleDateString()}</div>
                       </td>
-                      <td data-label="Nhà cung cấp">{item.supplier?.name || '-'}</td>
+                      <td data-label="Ghi chú">{item.note || '-'}</td>
                       <td data-label="Trạng thái">
                         <span className={`badge badge--${item.status.toLowerCase()}`}>
                           {translateStatus(item.status)}
@@ -214,8 +219,8 @@ export default function ImportsPage() {
                       <td data-label="Thao tác" className="actions-cell">
                         {item.status === 'PENDING' && (
                           <>
-                            <button type="button" className="text-button" onClick={() => approveImport(item.id)}>Duyệt</button>
-                            <button type="button" className="text-button danger" onClick={() => rejectImport(item.id)}>Từ chối</button>
+                            <button type="button" className="text-button" onClick={() => approveTransfer(item.id)}>Duyệt</button>
+                            <button type="button" className="text-button danger" onClick={() => rejectTransfer(item.id)}>Từ chối</button>
                           </>
                         )}
                       </td>
@@ -232,24 +237,15 @@ export default function ImportsPage() {
         <aside className="resource-panel form-panel">
           <div className="resource-header">
             <div>
-              <p className="section-label">Tạo phiếu nhập</p>
-              <h2>Nhập kho mới</h2>
+              <p className="section-label">Tạo phiếu điều chuyển</p>
+              <h2>Chuyển kho mới</h2>
             </div>
           </div>
 
           <form className="resource-form" onSubmit={handleSubmit}>
             <label>
-              Nhà cung cấp
-              <select className="field-select" value={form.supplierId} onChange={(e) => setForm(prev => ({ ...prev, supplierId: e.target.value }))} required>
-                <option value="">Chọn nhà cung cấp</option>
-                {suppliers.map(s => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
-            </label>
-            <label>
               Ghi chú
-              <input className="field-input" value={form.note} onChange={(e) => setForm(prev => ({ ...prev, note: e.target.value }))} />
+              <input className="field-input" value={form.note} onChange={(e) => setForm(prev => ({ ...prev, note: e.target.value }))} placeholder="Lý do chuyển kho..." />
             </label>
 
             <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
@@ -280,24 +276,15 @@ export default function ImportsPage() {
                       </select>
 
                       <div className="two-col" style={{ marginBottom: '0.5rem' }}>
+                        <label>Vị trí từ <select className="field-select" value={item.fromLocationId} onChange={(e) => updateItem(index, 'fromLocationId', e.target.value)} required><option value="">Chọn vị trí từ</option>{locations.map(loc => <option key={loc.id} value={loc.id}>{loc.code} - {loc.name}</option>)}</select></label>
+                        <label>Vị trí đến <select className="field-select" value={item.toLocationId} onChange={(e) => updateItem(index, 'toLocationId', e.target.value)} required><option value="">Chọn vị trí đến</option>{locations.map(loc => <option key={loc.id} value={loc.id}>{loc.code} - {loc.name}</option>)}</select></label>
+                      </div>
+
+                      <div className="two-col" style={{ marginBottom: '0.5rem' }}>
+                        <label>Lô hàng ID (Tạm thời nhập thủ công) <input type="text" className="field-input" value={item.fromBatchId} onChange={(e) => updateItem(index, 'fromBatchId', e.target.value)} required placeholder="VD: batch-id..." /></label>
                         <label>Số lượng <input type="number" min="1" className="field-input" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', e.target.value)} required /></label>
-                        <label>Giá nhập <input type="number" min="0" step="0.01" className="field-input" value={item.unitPrice} onChange={(e) => updateItem(index, 'unitPrice', e.target.value)} required /></label>
                       </div>
 
-                      <div className="two-col">
-                        <label>Số lô <input className="field-input" value={item.lotNumber} onChange={(e) => updateItem(index, 'lotNumber', e.target.value)} required /></label>
-                        <label>HSD <input type="date" className="field-input" value={item.expiryDate} onChange={(e) => updateItem(index, 'expiryDate', e.target.value)} required /></label>
-                      </div>
-
-                      <label style={{ marginTop: '0.5rem' }}>
-                        Vị trí lưu kho (tuỳ chọn)
-                        <select className="field-select" value={item.locationId || ''} onChange={(e) => updateItem(index, 'locationId', e.target.value)}>
-                          <option value="">Không chọn</option>
-                          {locations.map(loc => (
-                            <option key={loc.id} value={loc.id}>{loc.code} - {loc.name}</option>
-                          ))}
-                        </select>
-                      </label>
                     </div>
                   ))}
                 </div>
@@ -306,12 +293,13 @@ export default function ImportsPage() {
 
             <div className="form-actions">
               <button type="submit" className="primary-button" disabled={saving || form.items.length === 0}>
-                {saving ? 'Đang lưu...' : 'Tạo phiếu nhập'}
+                {saving ? 'Đang lưu...' : 'Tạo phiếu chuyển kho'}
               </button>
             </div>
           </form>
         </aside>
       </div>
+
       <QRScannerModal 
         isOpen={isScannerOpen} 
         onClose={() => setIsScannerOpen(false)} 
