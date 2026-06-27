@@ -97,6 +97,21 @@ export default function ProductsPage() {
     }
   }
 
+  async function handleExportExcel() {
+    try {
+      const response = await api.get('/reports/export-excel', { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'Bao_Cao_Ton_Kho.xlsx')
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (err) {
+      setError('Lỗi xuất file Excel: ' + err.message)
+    }
+  }
+
   function handleEdit(item) {
     setForm({
       id: item.id,
@@ -127,9 +142,14 @@ export default function ProductsPage() {
               <p className="section-label">Dữ liệu gốc</p>
               <h2>Danh sách sản phẩm</h2>
             </div>
-            <button type="button" className="secondary-button" onClick={() => setForm(emptyProductForm)}>
-              Thêm sản phẩm
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="button" className="secondary-button" onClick={handleExportExcel}>
+                Xuất Excel
+              </button>
+              <button type="button" className="primary-button" onClick={() => setForm(emptyProductForm)}>
+                Thêm sản phẩm
+              </button>
+            </div>
           </div>
 
           <div className="filter-row">

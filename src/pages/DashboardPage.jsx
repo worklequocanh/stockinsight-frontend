@@ -33,7 +33,7 @@ export default function DashboardPage() {
       setLoading(true)
       try {
         const [kpiRes, monthlyRes, topRes] = await Promise.all([
-          api.get('/reports/kpi'),
+          api.get('/reports/overview'),
           api.get('/reports/monthly'),
           api.get('/reports/top-selling')
         ])

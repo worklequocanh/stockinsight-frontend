@@ -79,7 +79,7 @@ export default function InventoryReportPage() {
                   <tr><td colSpan={6} style={{ textAlign: 'center' }}>Không có dữ liệu</td></tr>
                 ) : (
                   inventory.map(item => (
-                    <tr key={item.id} style={{ background: item.isLowStock ? '#fffbeb' : 'inherit' }}>
+                    <tr key={item.id} style={{ background: item.isLowStock ? 'rgba(251, 191, 36, 0.1)' : 'inherit' }}>
                       <td>
                         <strong>{item.name}</strong>
                         <div className="muted-line">SKU: {item.sku}</div>

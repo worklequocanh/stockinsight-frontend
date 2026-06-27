@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import NotificationBell from '../components/NotificationBell'
 import '../management.css'
 
 export default function DashboardLayout() {
@@ -14,6 +15,7 @@ export default function DashboardLayout() {
     <div className="dashboard-layout">
       <div className="mobile-header">
         <h2>StockInsight</h2>
+        <NotificationBell />
         <button className="hamburger-btn" onClick={toggleSidebar}>
           ☰
         </button>
@@ -100,9 +102,14 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      <main className="main-content">
-        <Outlet />
-      </main>
+      <div className="main-wrapper">
+        <div className="desktop-header">
+          <NotificationBell />
+        </div>
+        <main className="main-content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }
