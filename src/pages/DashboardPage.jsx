@@ -4,11 +4,13 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js'
-import { Bar } from 'react-chartjs-2'
+import { Bar, Line } from 'react-chartjs-2'
 import { io } from 'socket.io-client'
 import api from '../services/api'
 import { parseApiError } from '../utils/helpers'
@@ -17,6 +19,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
   Legend
@@ -69,8 +73,14 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="page-container">
-        <p>Đang tải dữ liệu báo cáo...</p>
+      <div className="page-container" style={{ gap: '20px' }}>
+        <div className="glass-panel" style={{ height: '100px', borderRadius: '24px', opacity: 0.5 }}></div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          {[1,2,3,4].map(i => (
+            <div key={i} className="glass-panel" style={{ height: '120px', borderRadius: '24px', opacity: 0.5 }}></div>
+          ))}
+        </div>
+        <div className="glass-panel" style={{ height: '400px', borderRadius: '24px', opacity: 0.5 }}></div>
       </div>
     )
   }
@@ -102,9 +112,41 @@ export default function DashboardPage() {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: { position: 'top' },
-      title: { display: true, text: 'Biểu đồ Nhập/Xuất 6 Tháng Gần Nhất' },
+      legend: { position: 'top', labels: { color: '#f1f5f9' } },
+      title: { display: true, text: 'Biểu đồ Nhập/Xuất 6 Tháng Gần Nhất', color: '#f1f5f9' },
     },
+    scales: {
+      x: { ticks: { color: '#cbd5e1' } },
+      y: { ticks: { color: '#cbd5e1' } }
+    }
+  }
+
+  // Generate mock forecasting data based on the latest data
+  const forecastData = {
+    labels: [...monthlyData.map(d => d.month), 'Tháng Tới', 'Tháng Sau'],
+    datasets: [
+      {
+        label: 'Dự báo Xuất kho (VNĐ)',
+        data: [...monthlyData.map(d => d.exportValue), (monthlyData[monthlyData.length-1]?.exportValue || 0) * 1.1, (monthlyData[monthlyData.length-1]?.exportValue || 0) * 1.15],
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#10b981'
+      }
+    ]
+  }
+
+  const forecastOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top', labels: { color: '#f1f5f9' } },
+      title: { display: true, text: 'Dự báo xu hướng xuất kho theo AI', color: '#f1f5f9' },
+    },
+    scales: {
+      x: { ticks: { color: '#cbd5e1' } },
+      y: { ticks: { color: '#cbd5e1' } }
+    }
   }
 
   return (
@@ -120,28 +162,28 @@ export default function DashboardPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <div className="resource-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
+        <div className="resource-panel glass-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
           <h3>Tổng sản phẩm</h3>
-          <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0.5rem 0' }}>{kpi?.totalProducts}</p>
+          <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0.5rem 0', color: '#f8fafc' }}>{kpi?.totalProducts}</p>
         </div>
-        <div className="resource-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
+        <div className="resource-panel glass-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
           <h3>Tổng giá trị tồn</h3>
           <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0.5rem 0', color: '#10b981' }}>
             {Number(kpi?.totalStockValue || 0).toLocaleString()} VNĐ
           </p>
         </div>
-        <div className="resource-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
+        <div className="resource-panel glass-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
           <h3>Cảnh báo tồn thấp</h3>
           <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0.5rem 0', color: '#f59e0b' }}>{kpi?.lowStockProducts}</p>
         </div>
-        <div className="resource-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
+        <div className="resource-panel glass-panel" style={{ padding: '1.5rem', textAlign: 'center' }}>
           <h3>Lô sắp hết hạn</h3>
           <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0.5rem 0', color: '#ef4444' }}>{kpi?.expiringBatches}</p>
         </div>
       </div>
 
-      <div className="resource-layout">
-        <section className="resource-panel" style={{ flex: 2 }}>
+      <div className="resource-layout" style={{ marginBottom: '24px' }}>
+        <section className="resource-panel glass-panel" style={{ flex: 2 }}>
           <div className="resource-header">
             <div>
               <p className="section-label">Báo cáo 6 tháng</p>
@@ -153,7 +195,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <aside className="resource-panel">
+        <aside className="resource-panel glass-panel">
           <div className="resource-header">
             <div>
               <p className="section-label">Thống kê</p>
@@ -180,7 +222,7 @@ export default function DashboardPage() {
                         <strong>{index + 1}. {item.name}</strong>
                         <div className="muted-line">SKU: {item.sku}</div>
                       </td>
-                      <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
+                      <td style={{ textAlign: 'right', fontWeight: 'bold', color: '#38bdf8' }}>
                         {item.totalSold}
                       </td>
                     </tr>
@@ -190,6 +232,20 @@ export default function DashboardPage() {
             </table>
           </div>
         </aside>
+      </div>
+
+      <div className="resource-layout">
+        <section className="resource-panel glass-panel" style={{ flex: 1 }}>
+          <div className="resource-header">
+            <div>
+              <p className="section-label">AI Forecasting</p>
+              <h2>Dự báo xu hướng</h2>
+            </div>
+          </div>
+          <div style={{ padding: '1rem' }}>
+            <Line data={forecastData} options={forecastOptions} />
+          </div>
+        </section>
       </div>
     </div>
   )

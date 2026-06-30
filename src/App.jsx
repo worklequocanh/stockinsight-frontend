@@ -20,6 +20,7 @@ import ReturnsPage from './pages/ReturnsPage'
 import AuditLogsPage from './pages/AuditLogsPage'
 import UsersPage from './pages/UsersPage'
 import ProfilePage from './pages/ProfilePage'
+import VisualMapPage from './pages/VisualMapPage'
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         }
       >
         <Route index element={<DashboardPage />} />
+        <Route path="visual-map" element={<VisualMapPage />} />
         <Route path="inventory-reports" element={<InventoryReportPage />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="categories" element={<CategoriesPage />} />
