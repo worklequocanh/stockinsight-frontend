@@ -52,7 +52,10 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchData()
 
-    const socket = io('http://localhost:3001')
+    const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api'
+    const socketUrl = apiUrl.replace('/api', '')
+    const socket = io(socketUrl)
+    
     socket.on('stock_updated', (data) => {
       setToast('Có thay đổi về dữ liệu kho. Đang tự động cập nhật...')
       fetchData()
