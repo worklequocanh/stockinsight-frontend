@@ -220,7 +220,7 @@ export default function UsersPage() {
                             <div className="user-avatar-circle">
                               {item.name ? item.name.charAt(0).toUpperCase() : 'U'}
                             </div>
-                            <strong style={{ display: 'block', color: '#fff', fontSize: '0.98rem' }}>{item.name}</strong>
+                            <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.name}</strong>
                           </div>
                         </td>
                         <td style={{ color: '#cbd5e1', fontSize: '0.92rem' }}>

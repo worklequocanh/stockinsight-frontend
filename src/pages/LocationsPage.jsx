@@ -167,7 +167,7 @@ export default function LocationsPage() {
                             📍
                           </div>
                           <div>
-                            <strong style={{ display: 'block', color: '#fff', fontSize: '1.02rem', letterSpacing: '0.04em', fontFamily: "'Outfit', monospace" }}>
+                            <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '1.02rem', letterSpacing: '0.04em', fontFamily: "'Outfit', monospace" }}>
                               {item.code}
                             </strong>
                             <span style={{ fontSize: '0.78rem', color: '#34d399' }}>ID: #{item.id.slice(0, 8)}</span>

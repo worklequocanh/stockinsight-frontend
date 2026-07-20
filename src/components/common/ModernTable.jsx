@@ -114,7 +114,7 @@ export default function ModernTable({
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ background: 'rgba(15, 23, 42, 0.85)', borderBottom: '1px solid var(--border-glass)' }}>
+              <tr style={{ background: 'var(--bg-surface-elevated)', borderBottom: '1px solid var(--border-glass)' }}>
                 {columns.map(col => (
                   <th key={col.key || col.dataIndex} style={{
                     padding: '16px 20px',

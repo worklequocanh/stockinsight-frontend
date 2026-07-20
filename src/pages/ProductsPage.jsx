@@ -274,7 +274,7 @@ export default function ProductsPage() {
                     return (
                       <tr key={item.id} style={{ background: isLowStock ? 'rgba(245, 158, 11, 0.05)' : 'transparent' }}>
                         <td>
-                          <strong style={{ display: 'block', color: '#fff', fontSize: '0.96rem' }}>{item.name}</strong>
+                          <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.96rem' }}>{item.name}</strong>
                           <span className="sku-tag">
                             SKU: {item.sku} {item.barcode && `| BC: ${item.barcode}`}
                           </span>

@@ -197,7 +197,7 @@ export default function AuditLogsPage() {
                 items.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <strong style={{ color: '#fff', fontSize: '0.88rem', display: 'block' }}>
+                      <strong style={{ color: 'var(--text-main)', fontSize: '0.88rem', display: 'block' }}>
                         {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                       </strong>
                       <span style={{ color: 'var(--primary-light)', fontSize: '0.78rem' }}>
@@ -207,7 +207,7 @@ export default function AuditLogsPage() {
                     <td>
                       {item.user ? (
                         <div>
-                          <strong style={{ color: '#fff', fontSize: '0.88rem', display: 'block' }}>
+                          <strong style={{ color: 'var(--text-main)', fontSize: '0.88rem', display: 'block' }}>
                             🧑‍💻 {item.user.name}
                           </strong>
                           <span style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>

@@ -149,7 +149,7 @@ export default function LandingPage() {
             <div className="mock-fefo-alert">
               <span style={{ fontSize: '1.6rem' }}>⚡</span>
               <div>
-                <strong style={{ display: 'block', fontSize: '0.9rem', color: '#fff' }}>Phát hiện 3 lô hàng cận date trong 30 ngày</strong>
+                <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-main)' }}>Phát hiện 3 lô hàng cận date trong 30 ngày</strong>
                 <span style={{ fontSize: '0.78rem', color: '#fca5a5' }}>Thuật toán FEFO đã tự động điều hướng ưu tiên vào phiếu xuất tiếp theo</span>
               </div>
             </div>

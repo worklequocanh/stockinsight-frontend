@@ -165,7 +165,7 @@ export default function CategoriesPage() {
                             📁
                           </div>
                           <div>
-                            <strong style={{ color: '#fff', fontSize: '1rem', display: 'block' }}>{item.name}</strong>
+                            <strong style={{ color: 'var(--text-main)', fontSize: '1rem', display: 'block' }}>{item.name}</strong>
                             <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>ID: #{item.id}</span>
                           </div>
                         </div>

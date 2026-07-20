@@ -197,7 +197,7 @@ export default function VisualMapPage() {
                 <div className="drawer-header">
                   <div>
                     <span className="status-pill info" style={{ marginBottom: 6 }}>📍 KHU VỰC {selectedLoc.zone}</span>
-                    <h2 style={{ fontSize: '1.5rem', margin: 0, color: '#fff' }}>{selectedLoc.code}</h2>
+                    <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--text-main)' }}>{selectedLoc.code}</h2>
                   </div>
                   <button onClick={() => setSelectedLoc(null)} className="btn-secondary" style={{ padding: '6px 12px' }} title="Đóng">✕</button>
                 </div>
@@ -217,7 +217,7 @@ export default function VisualMapPage() {
 
                   <div className="loc-detail-row">
                     <span style={{ color: 'var(--text-muted)' }}>Tên vị trí kệ:</span>
-                    <strong style={{ color: '#fff' }}>{selectedLoc.name || 'Chưa đặt tên'}</strong>
+                    <strong style={{ color: 'var(--text-main)' }}>{selectedLoc.name || 'Chưa đặt tên'}</strong>
                   </div>
 
                   <div className="loc-detail-row">
@@ -245,7 +245,7 @@ export default function VisualMapPage() {
             ) : (
               <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--text-muted)' }}>
                 <div style={{ fontSize: '3.5rem', marginBottom: 12 }}>🧭</div>
-                <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: 6 }}>Chọn Vị Trí Kệ Hàng</h3>
+                <h3 style={{ color: 'var(--text-main)', fontSize: '1.2rem', marginBottom: 6 }}>Chọn Vị Trí Kệ Hàng</h3>
                 <p style={{ fontSize: '0.92rem', lineHeight: 1.6, color: 'var(--text-muted)' }}>
                   Nhấp vào một ô kệ trên sơ đồ bên trái để kiểm tra chi tiết lô hàng đang lưu trữ, tỷ lệ lấp đầy và thông số kỹ thuật.
                 </p>

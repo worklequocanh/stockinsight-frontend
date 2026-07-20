@@ -207,7 +207,7 @@ export default function ReturnsPage() {
                     return (
                       <tr key={item.id}>
                         <td>
-                          <strong style={{ display: 'block', color: '#fff', fontSize: '0.98rem' }}>{item.code}</strong>
+                          <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.code}</strong>
                           <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>
                             📅 {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                           </span>
@@ -291,7 +291,7 @@ export default function ReturnsPage() {
 
             <div className="form-group full-width" style={{ marginTop: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <label style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>Danh mục SKU bị hoàn trả *</label>
+                <label style={{ fontSize: '1rem', color: 'var(--text-main)', margin: 0 }}>Danh mục SKU bị hoàn trả *</label>
                 <button type="button" className="btn-secondary" style={{ padding: '6px 14px', fontSize: '0.82rem' }} onClick={addItem}>
                   ➕ Thêm dòng SKU
                 </button>
@@ -304,7 +304,7 @@ export default function ReturnsPage() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 320, overflowY: 'auto', paddingRight: 4 }}>
                   {form.items.map((item, idx) => (
-                    <div key={idx} className="return-item-box" style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid var(--border-glass)', borderRadius: 12, padding: 14 }}>
+                    <div key={idx} className="return-item-box" style={{ background: 'var(--bg-surface-elevated)', border: '1px solid var(--border-glass)', borderRadius: 12, padding: 14 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                         <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary-light)' }}>Dòng #{idx + 1}</span>
                         <button type="button" className="icon-btn delete" onClick={() => removeItem(idx)}>🗑️</button>

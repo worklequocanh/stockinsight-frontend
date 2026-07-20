@@ -49,7 +49,7 @@ export default function SidePanel({
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'rgba(2, 6, 23, 0.78)',
+          background: 'rgba(15, 23, 42, 0.35)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
           transition: 'opacity 0.3s ease'
@@ -66,8 +66,8 @@ export default function SidePanel({
           maxWidth: '96vw',
           height: '100vh',
           background: 'var(--bg-surface)',
-          borderLeft: '1px solid rgba(56, 189, 248, 0.35)',
-          boxShadow: '-15px 0 50px rgba(0, 0, 0, 0.85), 0 0 40px rgba(14, 165, 233, 0.18)',
+          borderLeft: '1px solid var(--border-glass)',
+          boxShadow: '-8px 0 32px rgba(15, 23, 42, 0.12), 0 0 24px rgba(14, 165, 233, 0.08)',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 10001
@@ -77,7 +77,7 @@ export default function SidePanel({
         <div style={{
           padding: '22px 28px',
           borderBottom: '1px solid var(--border-glass)',
-          background: 'rgba(14, 21, 36, 0.65)',
+          background: 'var(--bg-surface-elevated)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
           display: 'flex',
@@ -92,7 +92,7 @@ export default function SidePanel({
                 {subtitle}
               </span>
             )}
-            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#ffffff', fontWeight: 800 }}>
+            <h2 style={{ fontSize: '1.35rem', margin: 0, color: 'var(--text-main)', fontWeight: 800 }}>
               {title}
             </h2>
           </div>
@@ -146,7 +146,7 @@ export default function SidePanel({
           <div style={{
             padding: '16px 28px',
             borderTop: '1px solid var(--border-glass)',
-            background: 'rgba(14, 21, 36, 0.8)',
+            background: 'var(--bg-surface-elevated)',
             display: 'flex',
             justifyContent: 'flex-end',
             gap: '12px',

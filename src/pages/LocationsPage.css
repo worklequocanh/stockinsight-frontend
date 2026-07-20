@@ -19,13 +19,13 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 16px 40px rgba(15,23,42,0.04);
 }
 
 .locations-hero-info h1 {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-main);
   margin: 0 0 6px 0;
 }
 
@@ -50,7 +50,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 50px rgba(15,23,42,0.04);
 }
 
 .location-icon-box {
@@ -73,7 +73,7 @@
   padding: 28px;
   position: sticky;
   top: 96px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 25px 60px rgba(15,23,42,0.04);
 }
 
 @media (max-width: 1024px) {
@@ -81,3 +81,4 @@
     grid-template-columns: 1fr;
   }
 }
+

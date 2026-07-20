@@ -168,7 +168,7 @@ export default function SuppliersPage() {
                             🏢
                           </div>
                           <div>
-                            <strong style={{ display: 'block', color: '#fff', fontSize: '0.98rem' }}>{item.name}</strong>
+                            <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.name}</strong>
                             <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>ID: #{item.id.slice(0, 8)}</span>
                           </div>
                         </div>

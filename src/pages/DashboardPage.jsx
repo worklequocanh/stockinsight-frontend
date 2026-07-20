@@ -134,9 +134,9 @@ export default function DashboardPage() {
         labels: { color: '#e2e8f0', font: { family: 'Outfit', weight: '600', size: 13 } } 
       },
       tooltip: {
-        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+        backgroundColor: 'var(--bg-surface-elevated)',
         titleColor: '#38bdf8',
-        bodyColor: '#fff',
+        bodycolor: 'var(--text-main)',
         borderColor: 'rgba(56, 189, 248, 0.3)',
         borderWidth: 1,
         padding: 14,

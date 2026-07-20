@@ -28,12 +28,13 @@ export default function Modal({
       top: 0,
       left: 0,
       right: 0,
+      bottom: 0,
       zIndex: 10000,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '16px',
-      background: 'rgba(2, 6, 23, 0.78)',
+      background: 'rgba(15, 23, 42, 0.40)',
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)'
     }}>
@@ -51,8 +52,8 @@ export default function Modal({
         display: 'flex',
         flexDirection: 'column',
         zIndex: 10001,
-        border: '1px solid rgba(56, 189, 248, 0.28)',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(14, 165, 233, 0.15)'
+        border: '1px solid var(--border-glass)',
+        boxShadow: 'var(--shadow-lg)'
       }}>
         {/* Header */}
         <div style={{
@@ -61,9 +62,9 @@ export default function Modal({
           alignItems: 'center',
           padding: '20px 24px',
           borderBottom: '1px solid var(--border-glass)',
-          background: 'rgba(15, 23, 42, 0.6)'
+          background: 'var(--bg-surface-elevated)'
         }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#ffffff' }}>{title}</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)' }}>{title}</h3>
           <button 
             type="button" 
             onClick={onClose} 
@@ -88,7 +89,7 @@ export default function Modal({
           <div style={{
             padding: '16px 24px',
             borderTop: '1px solid var(--border-glass)',
-            background: 'rgba(15, 23, 42, 0.6)',
+            background: 'var(--bg-surface-elevated)',
             display: 'flex',
             justifyContent: 'flex-end',
             gap: '12px'

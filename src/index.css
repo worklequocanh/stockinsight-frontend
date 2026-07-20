@@ -6,56 +6,56 @@
    ========================================================================== */
 
 :root {
-  /* Core HSL Deep Cyber WMS Palette */
-  --bg-dark-h: 222;
-  --bg-dark-s: 47%;
-  --bg-dark-l: 5%;
-  --bg-dark: hsl(var(--bg-dark-h), var(--bg-dark-s), var(--bg-dark-l));           /* #060b14 */
+  /* Core HSL Modern Clean Light WMS Palette (Linear/Apple Venture Slate Glass) */
+  --bg-dark-h: 210;
+  --bg-dark-s: 33%;
+  --bg-dark-l: 96%;
+  --bg-dark: hsl(var(--bg-dark-h), var(--bg-dark-s), var(--bg-dark-l));           /* #f1f5f9 Slate 100 */
   
-  --bg-surface-h: 222;
-  --bg-surface-s: 42%;
-  --bg-surface-l: 9%;
-  --bg-surface: hsl(var(--bg-surface-h), var(--bg-surface-s), var(--bg-surface-l)); /* #0e1524 */
+  --bg-surface-h: 0;
+  --bg-surface-s: 0%;
+  --bg-surface-l: 100%;
+  --bg-surface: hsl(var(--bg-surface-h), var(--bg-surface-s), var(--bg-surface-l)); /* #ffffff Pure White */
   
-  --bg-surface-elevated: hsl(222, 40%, 13%);
-  --bg-glass: rgba(14, 21, 36, 0.72);
-  --bg-glass-heavy: rgba(8, 13, 24, 0.88);
-  --bg-glass-light: rgba(255, 255, 255, 0.04);
+  --bg-surface-elevated: hsl(210, 40%, 98%); /* #f8fafc Slate 50 */
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-glass-heavy: rgba(255, 255, 255, 0.95);
+  --bg-glass-light: rgba(15, 23, 42, 0.03);
 
-  /* Primary Cyber Cyan Accent */
+  /* Primary Cyber Blue Accent for Light Theme */
   --primary-h: 199;
   --primary-s: 89%;
-  --primary-l: 48%;
-  --primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
-  --primary-light: hsl(199, 95%, 65%);
-  --primary-dark: hsl(200, 95%, 38%);
-  --primary-glow: rgba(14, 165, 233, 0.35);
+  --primary-l: 44%;
+  --primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));          /* #0284c7 */
+  --primary-light: hsl(199, 89%, 48%);                                          /* #0ea5e9 */
+  --primary-dark: hsl(200, 95%, 32%);                                           /* #0369a1 */
+  --primary-glow: rgba(14, 165, 233, 0.16);
 
   /* Functional Accents */
-  --success: hsl(158, 64%, 52%);       /* Emerald (Nhập kho / Hoàn tất) */
+  --success: hsl(158, 75%, 38%);       /* Emerald #059669 */
   --success-bg: rgba(16, 185, 129, 0.12);
-  --warning: hsl(38, 92%, 50%);        /* Amber (Chờ duyệt / Tồn thấp) */
+  --warning: hsl(38, 92%, 45%);        /* Amber #d97706 */
   --warning-bg: rgba(245, 158, 11, 0.14);
-  --danger: hsl(343, 88%, 58%);        /* Crimson (Xuất kho FEFO / Hết hạn) */
-  --danger-bg: rgba(244, 63, 94, 0.14);
-  --info: hsl(217, 91%, 60%);          /* Blue (Điều chuyển / Thông báo) */
-  --info-bg: rgba(59, 130, 246, 0.14);
-  --purple: hsl(258, 90%, 66%);        /* AI Engine / Analytics */
-  --purple-bg: rgba(168, 85, 247, 0.14);
+  --danger: hsl(343, 85%, 52%);        /* Rose #e11d48 */
+  --danger-bg: rgba(244, 63, 94, 0.12);
+  --info: hsl(217, 91%, 52%);          /* Blue #2563eb */
+  --info-bg: rgba(59, 130, 246, 0.12);
+  --purple: hsl(258, 85%, 58%);        /* Violet #9333ea */
+  --purple-bg: rgba(168, 85, 247, 0.12);
 
   /* Text & Border Tokens */
-  --text-main: hsl(210, 40%, 98%);
-  --text-muted: hsl(215, 20%, 68%);
-  --text-dim: hsl(215, 16%, 46%);
-  --border-glass: rgba(255, 255, 255, 0.08);
-  --border-glass-hover: rgba(56, 189, 248, 0.38);
-  --border-subtle: rgba(148, 163, 184, 0.12);
+  --text-main: hsl(222, 47%, 11%);     /* #0f172a Slate 900 (High-contrast primary) */
+  --text-muted: hsl(215, 25%, 38%);    /* #475569 Slate 600 */
+  --text-dim: hsl(215, 16%, 52%);      /* #64748b Slate 500 */
+  --border-glass: rgba(203, 213, 225, 0.85); /* #cbd5e1 Slate 300 */
+  --border-glass-hover: rgba(14, 165, 233, 0.55);
+  --border-subtle: rgba(226, 232, 240, 0.9); /* #e2e8f0 Slate 200 */
 
   /* Shadows & Elevations */
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 8px 24px rgba(2, 8, 23, 0.45);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.65);
-  --shadow-glow: 0 0 25px var(--primary-glow);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 32px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  --shadow-glow: 0 0 25px rgba(14, 165, 233, 0.18);
 
   /* Transitions */
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -115,14 +115,14 @@ button {
   cursor: pointer;
 }
 
-/* Ensure ALL inputs across the application have explicit, clear cyber glass borders */
+/* Ensure ALL inputs across the application have explicit, clean light borders */
 input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
 select,
 textarea {
   font: inherit;
-  border: 1px solid rgba(56, 189, 248, 0.45) !important;
-  background: rgba(10, 16, 28, 0.85);
-  color: #ffffff;
+  border: 1px solid var(--border-glass) !important;
+  background: #ffffff;
+  color: var(--text-main);
   outline: none;
   border-radius: 12px;
   padding: 10px 14px;
@@ -133,8 +133,8 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type=
 select:focus,
 textarea:focus {
   border-color: var(--primary-light) !important;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.28), 0 0 16px rgba(14, 165, 233, 0.2) !important;
-  background: rgba(6, 11, 20, 0.98);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16), 0 0 12px rgba(14, 165, 233, 0.1) !important;
+  background: #ffffff;
 }
 
 button {
@@ -146,7 +146,7 @@ button {
    ========================================================================== */
 
 .glass-panel {
-  background: var(--bg-glass);
+  background: var(--bg-surface);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-glass);
@@ -154,21 +154,19 @@ button {
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(22, 32, 51, 0.78), rgba(13, 20, 36, 0.88));
+  background: linear-gradient(135deg, #ffffff, var(--bg-surface-elevated));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-glass);
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   box-shadow: var(--shadow-md);
   transition: all var(--transition-smooth);
 }
 
 .glass-card-interactive {
-  background: linear-gradient(135deg, rgba(22, 32, 51, 0.78), rgba(13, 20, 36, 0.88));
+  background: linear-gradient(135deg, #ffffff, var(--bg-surface-elevated));
   backdrop-filter: blur(16px);
   border: 1px solid var(--border-glass);
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   box-shadow: var(--shadow-md);
   transition: all var(--transition-smooth);
@@ -177,7 +175,7 @@ button {
 .glass-card-interactive:hover {
   transform: translateY(-4px);
   border-color: var(--border-glass-hover);
-  box-shadow: var(--shadow-lg), 0 0 30px rgba(56, 189, 248, 0.18);
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(14, 165, 233, 0.12);
 }
 
 /* ==========================================================================
@@ -297,8 +295,8 @@ button {
 .input-cyber, .select-cyber, .textarea-cyber,
 .form-control {
   width: 100%;
-  background: rgba(10, 16, 28, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.45) !important;
+  background: #ffffff;
+  border: 1px solid var(--border-glass) !important;
   border-radius: 12px;
   padding: 11px 16px;
   color: var(--text-main);
@@ -311,16 +309,16 @@ button {
 .input-field:hover, .select-field:hover, .textarea-field:hover,
 .input-cyber:hover, .select-cyber:hover, .textarea-cyber:hover,
 .form-control:hover {
-  border-color: rgba(56, 189, 248, 0.75) !important;
-  background: rgba(10, 16, 28, 0.95);
+  border-color: var(--primary-light) !important;
+  background: #ffffff;
 }
 
 .input-field:focus, .select-field:focus, .textarea-field:focus,
 .input-cyber:focus, .select-cyber:focus, .textarea-cyber:focus,
 .form-control:focus {
   border-color: var(--primary-light) !important;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3), 0 0 18px rgba(14, 165, 233, 0.25) !important;
-  background: rgba(6, 11, 20, 0.98);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16), 0 0 12px rgba(14, 165, 233, 0.1) !important;
+  background: #ffffff;
 }
 
 .input-field:disabled, .select-field:disabled, .textarea-field:disabled,
@@ -328,13 +326,13 @@ button {
 .form-control:disabled {
   opacity: 0.55;
   cursor: not-allowed;
-  background: rgba(0, 0, 0, 0.45);
-  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: var(--bg-surface-elevated);
+  border-color: var(--border-subtle) !important;
 }
 
 .select-field option, .select-cyber option, .form-control option {
-  background: #0f1626;
-  color: #ffffff;
+  background: #ffffff;
+  color: var(--text-main);
   padding: 8px;
 }
 
@@ -380,7 +378,7 @@ button {
 
 .table-search input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.45);
+  background: #ffffff;
   border: 1px solid var(--border-glass);
   border-radius: 12px;
   padding: 10px 16px 10px 42px;
@@ -391,8 +389,8 @@ button {
 
 .table-search input:focus {
   border-color: var(--primary-light);
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.18);
-  background: rgba(0, 0, 0, 0.65);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
+  background: #ffffff;
 }
 
 .table-search input::placeholder {
@@ -419,9 +417,8 @@ button {
   gap: 20px;
   padding: 24px 28px;
   border-radius: 20px;
-  background: linear-gradient(135deg, rgba(22, 32, 51, 0.88), rgba(13, 20, 36, 0.95));
+  background: linear-gradient(135deg, #ffffff, var(--bg-surface-elevated));
   border: 1px solid var(--border-glass);
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
@@ -435,14 +432,14 @@ button {
   width: 380px;
   height: 380px;
   background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-  opacity: 0.28;
+  opacity: 0.35;
   pointer-events: none;
 }
 
 .hero-title h1 {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-main);
   letter-spacing: -0.02em;
   margin-bottom: 6px;
 }
@@ -507,14 +504,15 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.3);
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.22);
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: #94a3b8;
 }
+

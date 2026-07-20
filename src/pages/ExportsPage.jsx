@@ -242,7 +242,7 @@ export default function ExportsPage() {
                     return (
                       <tr key={item.id}>
                         <td>
-                          <strong style={{ display: 'block', color: '#fff', fontSize: '0.98rem' }}>{item.code}</strong>
+                          <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.code}</strong>
                           <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>
                             📅 {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                           </span>

@@ -94,7 +94,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <span className="status-pill info" style={{ marginBottom: 4 }}>📝 THÔNG TIN ĐỊNH DANH</span>
-              <h2 style={{ fontSize: '1.4rem', margin: 0, color: '#fff' }}>Chỉnh Sửa Hồ Sơ</h2>
+              <h2 style={{ fontSize: '1.4rem', margin: 0, color: 'var(--text-main)' }}>Chỉnh Sửa Hồ Sơ</h2>
             </div>
           </div>
 
@@ -149,7 +149,7 @@ export default function ProfilePage() {
         <div className="profile-card">
           <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 24 }}>
             <span className="status-pill warning" style={{ marginBottom: 6 }}>🔐 BẢO MẬT TÀI KHOẢN</span>
-            <h2 style={{ fontSize: '1.4rem', margin: 0, color: '#fff' }}>Thay Đổi Mật Khẩu</h2>
+            <h2 style={{ fontSize: '1.4rem', margin: 0, color: 'var(--text-main)' }}>Thay Đổi Mật Khẩu</h2>
           </div>
 
           {pwMsg && (

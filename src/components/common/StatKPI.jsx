@@ -64,7 +64,7 @@ export default function StatKPI({
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap' }}>
-        <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#ffffff', fontFamily: "'Outfit', sans-serif" }}>
+        <div style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-main)', fontFamily: "'Outfit', sans-serif" }}>
           {value}
         </div>
         {trend && (

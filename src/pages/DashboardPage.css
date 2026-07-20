@@ -1,5 +1,5 @@
 /* ==========================================================================
-   STOCKINSIGHT COMMAND CENTER DASHBOARD STYLES (v3.0)
+   STOCKINSIGHT COMMAND CENTER DASHBOARD STYLES (v3.0 - Light Theme)
    ========================================================================== */
 
 .dashboard-container {
@@ -23,7 +23,7 @@
   flex-wrap: wrap;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-md);
 }
 
 .command-hero::before {
@@ -45,7 +45,7 @@
 .command-hero-info h1 {
   font-size: 1.65rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-main);
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -78,14 +78,14 @@
 }
 
 .chart-card {
-  background: var(--bg-glass);
+  background: var(--bg-surface);
   border: 1px solid var(--border-glass);
   border-radius: 24px;
   padding: 26px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-md);
 }
 
 .chart-header {
@@ -99,7 +99,7 @@
 .chart-header h2 {
   font-size: 1.3rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-main);
   margin: 4px 0 0 0;
 }
 
@@ -111,25 +111,25 @@
 
 /* Top Selling Section */
 .top-selling-card {
-  background: var(--bg-glass);
+  background: var(--bg-surface);
   border: 1px solid var(--border-glass);
   border-radius: 24px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-md);
 }
 
 .top-selling-header {
   padding: 20px 24px;
   border-bottom: 1px solid var(--border-glass);
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--bg-surface-elevated);
 }
 
 .top-selling-header h3 {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-main);
   margin: 0;
 }
 
@@ -144,7 +144,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
   transition: background var(--transition-fast);
 }
 
@@ -153,7 +153,7 @@
 }
 
 .top-item-row:hover {
-  background: rgba(56, 189, 248, 0.06);
+  background: rgba(14, 165, 233, 0.05);
 }
 
 .top-item-left {
@@ -173,20 +173,20 @@
   font-size: 0.82rem;
 }
 
-.rank-1 { background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; box-shadow: 0 0 14px rgba(245, 158, 11, 0.4); }
+.rank-1 { background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; box-shadow: 0 0 14px rgba(245, 158, 11, 0.35); }
 .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #ffffff; }
 .rank-3 { background: linear-gradient(135deg, #b45309, #78350f); color: #ffffff; }
-.rank-other { background: rgba(255, 255, 255, 0.06); color: var(--text-muted); }
+.rank-other { background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--text-muted); }
 
 .top-item-info strong {
   display: block;
   font-size: 0.94rem;
-  color: #ffffff;
+  color: var(--text-main);
 }
 
 .top-item-info span {
   font-size: 0.78rem;
-  color: var(--primary-light);
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -194,7 +194,7 @@
   text-align: right;
   font-size: 1.05rem;
   font-weight: 800;
-  color: #38bdf8;
+  color: var(--primary);
 }
 
 .top-item-stat span {
@@ -206,14 +206,14 @@
 
 /* AI Forecast Card */
 .ai-forecast-card {
-  background: var(--bg-glass);
+  background: var(--bg-surface);
   border: 1px solid rgba(16, 185, 129, 0.35);
   border-radius: 24px;
   padding: 26px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(16, 185, 129, 0.12);
+  box-shadow: var(--shadow-md), 0 0 30px rgba(16, 185, 129, 0.08);
   position: relative;
   overflow: hidden;
 }
@@ -228,7 +228,7 @@
   padding: 14px 24px;
   border-radius: 16px;
   z-index: 9999;
-  box-shadow: 0 12px 36px rgba(2, 132, 199, 0.5);
+  box-shadow: 0 12px 36px rgba(2, 132, 199, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.25);
   font-weight: 600;
   font-size: 0.92rem;
@@ -259,3 +259,4 @@
     height: 280px;
   }
 }
+

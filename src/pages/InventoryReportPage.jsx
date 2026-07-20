@@ -102,7 +102,7 @@ export default function InventoryReportPage() {
                     inventory.map((item) => (
                       <tr key={item.id} className={item.isLowStock ? 'low-stock-row' : ''}>
                         <td>
-                          <strong style={{ display: 'block', color: '#fff', fontSize: '0.96rem' }}>{item.name}</strong>
+                          <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.96rem' }}>{item.name}</strong>
                           <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>SKU: {item.sku}</span>
                         </td>
                         <td>
@@ -177,13 +177,13 @@ export default function InventoryReportPage() {
                       return (
                         <tr key={batch.id} className="expiry-alert-row">
                           <td>
-                            <strong style={{ display: 'block', color: '#fff', fontSize: '0.96rem' }}>{batch.productName}</strong>
+                            <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.96rem' }}>{batch.productName}</strong>
                             <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>SKU: {batch.productSku}</span>
                           </td>
                           <td>
                             <strong style={{ color: '#fb7185', fontSize: '0.94rem' }}>Lot: {batch.lotNumber}</strong>
                           </td>
-                          <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.05rem', color: '#fff' }}>
+                          <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-main)' }}>
                             {batch.remainingQuantity}
                           </td>
                           <td style={{ textAlign: 'center', color: '#cbd5e1', fontWeight: 600 }}>

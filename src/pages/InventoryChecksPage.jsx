@@ -244,7 +244,7 @@ export default function InventoryChecksPage() {
                   return (
                     <tr key={item.id}>
                       <td>
-                        <strong style={{ display: 'block', color: '#fff', fontSize: '0.98rem' }}>{item.code}</strong>
+                        <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.code}</strong>
                         <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>
                           📅 {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                         </span>
@@ -302,7 +302,7 @@ export default function InventoryChecksPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
               <div>
                 <span className="status-pill info" style={{ marginBottom: 6 }}>📋 THIẾT LẬP ĐỢT KIỂM KÊ</span>
-                <h2 style={{ fontSize: '1.4rem', margin: 0, color: '#fff' }}>Tạo Phiếu Kiểm Kê Mới</h2>
+                <h2 style={{ fontSize: '1.4rem', margin: 0, color: 'var(--text-main)' }}>Tạo Phiếu Kiểm Kê Mới</h2>
               </div>
               <button type="button" className="icon-btn" onClick={() => { setCreating(false); setSelectedProductIds([]); }}>✕</button>
             </div>
@@ -365,7 +365,7 @@ export default function InventoryChecksPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
               <div>
                 <span className="status-pill info" style={{ marginBottom: 6 }}>🔍 BẢNG ĐỐI SOÁT CHI TIẾT</span>
-                <h2 style={{ fontSize: '1.45rem', margin: 0, color: '#fff' }}>Phiếu {detail.code}</h2>
+                <h2 style={{ fontSize: '1.45rem', margin: 0, color: 'var(--text-main)' }}>Phiếu {detail.code}</h2>
                 <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4 }}>
                   Tạo bởi {detail.createdBy?.name} lúc {new Date(detail.createdAt).toLocaleString('vi-VN')} {detail.note && `(${detail.note})`}
                 </div>
@@ -400,7 +400,7 @@ export default function InventoryChecksPage() {
                     return (
                       <tr key={item.id} style={{ background: isDiff ? 'rgba(251, 113, 133, 0.04)' : 'transparent' }}>
                         <td>
-                          <strong style={{ display: 'block', color: '#fff', fontSize: '0.95rem' }}>{item.product?.name}</strong>
+                          <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.95rem' }}>{item.product?.name}</strong>
                           <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>SKU: {item.product?.sku}</span>
                         </td>
                         <td>
@@ -435,7 +435,7 @@ export default function InventoryChecksPage() {
                               }}
                             />
                           ) : (
-                            <strong style={{ fontSize: '1.05rem', color: '#fff' }}>
+                            <strong style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>
                               {item.actualQty !== null ? item.actualQty : 'Chưa đếm'}
                             </strong>
                           )}

@@ -224,7 +224,7 @@ export default function DashboardLayout() {
         {/* Desktop Header */}
         <header className="desktop-header">
           <div className="header-left">
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
               {getPageTitle()}
             </h3>
             <div className="header-search">
