@@ -156,6 +156,7 @@ export default function SidePanel({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
