@@ -25,26 +25,20 @@ export default function Modal({
   return createPortal(
     <div style={{
       position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
+      top: 0, left: 0, right: 0, bottom: 0,
       zIndex: 10000,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '16px',
+      padding: '20px',
       background: 'rgba(15, 23, 42, 0.40)',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)'
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)'
     }}>
       {/* Backdrop click to close */}
-      <div 
-        style={{ position: 'absolute', inset: 0 }} 
-        onClick={onClose} 
-      />
+      <div style={{ position: 'absolute', inset: 0 }} onClick={onClose} />
 
-      <div className="glass-card animate-slide-up" style={{
+      <div className="animate-slide-up" style={{
         position: 'relative',
         width: '100%',
         maxWidth,
@@ -52,24 +46,27 @@ export default function Modal({
         display: 'flex',
         flexDirection: 'column',
         zIndex: 10001,
-        border: '1px solid var(--border-glass)',
-        boxShadow: 'var(--shadow-lg)'
+        background: 'var(--bg-surface)',
+        borderRadius: '24px',
+        border: '1.5px solid var(--border-light)',
+        boxShadow: 'var(--shadow-xl)',
+        overflow: 'hidden'
       }}>
         {/* Header */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '20px 24px',
-          borderBottom: '1px solid var(--border-glass)',
+          padding: '18px 24px',
+          borderBottom: '1.5px solid var(--border-light)',
           background: 'var(--bg-surface-elevated)'
         }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)' }}>{title}</h3>
+          <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>{title}</h3>
           <button 
             type="button" 
             onClick={onClose} 
             className="btn-icon" 
-            style={{ width: '32px', height: '32px', fontSize: '1.1rem' }}
+            style={{ width: '32px', height: '32px', fontSize: '1rem' }}
           >
             ✕
           </button>
@@ -87,12 +84,12 @@ export default function Modal({
         {/* Footer */}
         {footer && (
           <div style={{
-            padding: '16px 24px',
-            borderTop: '1px solid var(--border-glass)',
+            padding: '14px 24px',
+            borderTop: '1.5px solid var(--border-light)',
             background: 'var(--bg-surface-elevated)',
             display: 'flex',
             justifyContent: 'flex-end',
-            gap: '12px'
+            gap: '10px'
           }}>
             {footer}
           </div>

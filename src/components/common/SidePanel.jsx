@@ -50,8 +50,8 @@ export default function SidePanel({
           position: 'absolute',
           inset: 0,
           background: 'rgba(15, 23, 42, 0.35)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
           transition: 'opacity 0.3s ease'
         }}
         onClick={onClose}
@@ -66,8 +66,8 @@ export default function SidePanel({
           maxWidth: '96vw',
           height: '100vh',
           background: 'var(--bg-surface)',
-          borderLeft: '1px solid var(--border-glass)',
-          boxShadow: '-8px 0 32px rgba(15, 23, 42, 0.12), 0 0 24px rgba(14, 165, 233, 0.08)',
+          borderLeft: '1.5px solid var(--border-light)',
+          boxShadow: '-8px 0 32px rgba(15, 23, 42, 0.10)',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 10001
@@ -75,11 +75,9 @@ export default function SidePanel({
       >
         {/* Header */}
         <div style={{
-          padding: '22px 28px',
-          borderBottom: '1px solid var(--border-glass)',
-          background: 'var(--bg-surface-elevated)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
+          padding: '20px 26px',
+          borderBottom: '1.5px solid var(--border-light)',
+          background: 'var(--bg-surface)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
@@ -92,7 +90,7 @@ export default function SidePanel({
                 {subtitle}
               </span>
             )}
-            <h2 style={{ fontSize: '1.35rem', margin: 0, color: 'var(--text-main)', fontWeight: 800 }}>
+            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', margin: 0, color: 'var(--text-main)', fontWeight: 800, letterSpacing: '-0.02em' }}>
               {title}
             </h2>
           </div>
@@ -144,12 +142,12 @@ export default function SidePanel({
         {/* Footer */}
         {footer && (
           <div style={{
-            padding: '16px 28px',
-            borderTop: '1px solid var(--border-glass)',
+            padding: '14px 26px',
+            borderTop: '1.5px solid var(--border-light)',
             background: 'var(--bg-surface-elevated)',
             display: 'flex',
             justifyContent: 'flex-end',
-            gap: '12px',
+            gap: '10px',
             flexShrink: 0
           }}>
             {footer}
