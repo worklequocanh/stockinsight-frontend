@@ -107,7 +107,8 @@ export default function ExportsPage() {
       if (field === 'productId') {
         const product = products.find(p => p.id === value)
         if (product) {
-          newItems[index].unitPrice = product.salePrice || 0
+          newItems[index].unitPrice = product.sellingPrice || product.salePrice || product.price || 0
+          newItems[index].costPrice = product.costPrice || 0
         }
       }
       return { ...prev, items: newItems }
@@ -402,6 +403,29 @@ export default function ExportsPage() {
                 </div>
               )}
             </div>
+
+            {/* Revenue & Profit Summary */}
+            {(() => {
+              const totalRev = form.items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.unitPrice || 0)), 0)
+              const totalCost = form.items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.costPrice || i.unitPrice * 0.7 || 0)), 0)
+              const estProfit = totalRev - totalCost
+              const marginPct = totalRev > 0 ? Math.round((estProfit / totalRev) * 100) : 0
+
+              if (form.exportType !== 'SALE' || form.items.length === 0) return null
+
+              return (
+                <div style={{ background: 'var(--bg-surface-elevated)', border: '1.5px solid var(--border-light)', padding: '16px 20px', borderRadius: '16px', marginTop: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: 6 }}>
+                    <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>🛍️ Tổng Doanh Thu Đơn Xuất Bán:</span>
+                    <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem' }}>{totalRev.toLocaleString('vi-VN')} đ</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                    <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>📈 Lợi Nhuận Gộp Dự Kiến:</span>
+                    <strong style={{ color: '#059669', fontSize: '1.1rem' }}>+{estProfit.toLocaleString('vi-VN')} đ ({marginPct}%)</strong>
+                  </div>
+                </div>
+              )
+            })()}
 
             <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving || form.items.length === 0}>
