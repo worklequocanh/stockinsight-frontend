@@ -131,26 +131,46 @@ export default function AuditLogsPage() {
 
           <select
             className="select-field"
-            style={{ width: 220, margin: 0 }}
+            style={{ width: 230, margin: 0 }}
             value={actionFilter}
             onChange={(e) => { setPage(1); setActionFilter(e.target.value) }}
           >
             <option value="">⚡ Tất cả hành động</option>
+            <option value="LOGIN">🔐 Đăng nhập hệ thống</option>
+            <option value="SYSTEM_STARTUP">🚀 Khởi động hệ thống</option>
+            <option value="CREATE_PRODUCT">📦 Tạo mới sản phẩm</option>
+            <option value="UPDATE_PRODUCT">✏ Cập nhật sản phẩm</option>
+            <option value="CREATE_CATEGORY">📁 Tạo mới danh mục</option>
+            <option value="CREATE_LOCATION">📍 Tạo mới vị trí kho</option>
+            <option value="CREATE_IMPORT">📥 Tạo phiếu nhập kho</option>
             <option value="APPROVE_IMPORT">✔ Duyệt phiếu nhập kho</option>
+            <option value="CREATE_EXPORT">📤 Tạo phiếu xuất kho</option>
             <option value="APPROVE_EXPORT">✔ Duyệt phiếu xuất kho</option>
+            <option value="REJECT_EXPORT">✖ Từ chối phiếu xuất</option>
+            <option value="CREATE_TRANSFER">🔄 Tạo phiếu điều chuyển</option>
+            <option value="APPROVE_TRANSFER">✔ Duyệt phiếu điều chuyển</option>
             <option value="COMPLETE_INVENTORY_CHECK">✔ Chốt kiểm kê kho</option>
             <option value="UPDATE_RETURN_STATUS">✔ Cập nhật hoàn trả</option>
+            <option value="CREATE_USER">👤 Tạo mới tài khoản</option>
+            <option value="UPDATE_USER">✏ Cập nhật tài khoản</option>
+            <option value="CHANGE_PASSWORD">🔑 Đổi mật khẩu</option>
           </select>
 
           <select
             className="select-field"
-            style={{ width: 220, margin: 0 }}
+            style={{ width: 230, margin: 0 }}
             value={resourceFilter}
             onChange={(e) => { setPage(1); setResourceFilter(e.target.value) }}
           >
             <option value="">📁 Tất cả tài nguyên</option>
-            <option value="ImportReceipt">📦 Phiếu Nhập (ImportReceipt)</option>
-            <option value="ExportReceipt">🚀 Phiếu Xuất (ExportReceipt)</option>
+            <option value="User">👤 Tài khoản (User)</option>
+            <option value="System">⚙ Hệ thống (System)</option>
+            <option value="Product">📦 Sản phẩm (Product)</option>
+            <option value="Category">📁 Danh mục (Category)</option>
+            <option value="Location">📍 Vị trí (Location)</option>
+            <option value="ImportReceipt">📥 Phiếu Nhập (ImportReceipt)</option>
+            <option value="ExportReceipt">📤 Phiếu Xuất (ExportReceipt)</option>
+            <option value="InternalTransfer">🔄 Điều Chuyển (InternalTransfer)</option>
             <option value="InventoryCheck">🔍 Kiểm Kê (InventoryCheck)</option>
             <option value="ReturnReceipt">↩ Hoàn Trả (ReturnReceipt)</option>
           </select>
@@ -160,18 +180,19 @@ export default function AuditLogsPage() {
           <table className="modern-table">
             <thead>
               <tr>
-                <th style={{ width: 170 }}>Thời Gian Ghi Nhận</th>
-                <th style={{ width: 200 }}>Hành Động (Action)</th>
-                <th style={{ width: 160 }}>Đối Tượng</th>
-                <th style={{ width: 140 }}>ID Tài Nguyên</th>
+                <th style={{ width: 160 }}>Thời Gian Ghi Nhận</th>
+                <th style={{ width: 180 }}>Người Thực Hiện</th>
+                <th style={{ width: 190 }}>Hành Động (Action)</th>
+                <th style={{ width: 150 }}>Đối Tượng</th>
+                <th style={{ width: 130 }}>ID Tài Nguyên</th>
                 <th>Thông Tin & Dữ Liệu Thay Đổi (Diff Details)</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <TableEmpty colSpan={5} text="⏳ Đang rà soát và tải chuỗi nhật ký bảo mật từ cloud..." />
+                <TableEmpty colSpan={6} text="⏳ Đang rà soát và tải chuỗi nhật ký bảo mật từ cloud..." />
               ) : items.length === 0 ? (
-                <TableEmpty colSpan={5} text="❌ Không tìm thấy bản ghi nhật ký nào phù hợp với điều kiện lọc" />
+                <TableEmpty colSpan={6} text="❌ Không tìm thấy bản ghi nhật ký nào phù hợp với điều kiện lọc" />
               ) : (
                 items.map((item) => (
                   <tr key={item.id}>
@@ -182,6 +203,22 @@ export default function AuditLogsPage() {
                       <span style={{ color: 'var(--primary-light)', fontSize: '0.78rem' }}>
                         🕒 {new Date(item.createdAt).toLocaleTimeString('vi-VN')}
                       </span>
+                    </td>
+                    <td>
+                      {item.user ? (
+                        <div>
+                          <strong style={{ color: '#fff', fontSize: '0.88rem', display: 'block' }}>
+                            🧑‍💻 {item.user.name}
+                          </strong>
+                          <span style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+                            {item.user.email}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="status-pill purple" style={{ fontSize: '0.75rem', padding: '3px 8px' }}>
+                          🤖 Hệ Thống
+                        </span>
+                      )}
                     </td>
                     <td>
                       <span className="status-pill info" style={{ fontWeight: 800, fontSize: '0.75rem', padding: '4px 10px', letterSpacing: '0.02em' }}>
