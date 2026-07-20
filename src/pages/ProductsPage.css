@@ -1,0 +1,203 @@
+/* ==========================================================================
+   STOCKINSIGHT SKU MASTER / PRODUCTS PAGE STYLES (v3.0)
+   ========================================================================== */
+
+.products-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+/* Products Hero */
+.products-hero {
+  background: var(--bg-glass-heavy);
+  border: 1px solid var(--border-glass);
+  border-radius: 24px;
+  padding: 26px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.products-hero-info h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.products-hero-info p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.products-kpi-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+/* Products Layout Grid */
+.products-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(380px, 1fr);
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Table Card */
+.products-table-card {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.products-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.products-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+}
+
+.products-search-box svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--text-dim);
+}
+
+.products-search-box input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-glass);
+  border-radius: 14px;
+  padding: 10px 16px 10px 42px;
+  font-size: 0.9rem;
+  color: #ffffff;
+  transition: all var(--transition-fast);
+}
+
+.products-search-box input:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+}
+
+.products-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.products-filter-select {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.86rem;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.products-filter-select:focus {
+  border-color: var(--primary-light);
+}
+
+.sku-tag {
+  display: inline-block;
+  font-family: 'Outfit', monospace;
+  font-size: 0.76rem;
+  color: var(--primary-light);
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+.price-pill {
+  display: inline-block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.cost-pill {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* Side Form Card */
+.products-side-form {
+  background: var(--bg-glass-heavy);
+  border: 1px solid var(--border-glass);
+  border-radius: 24px;
+  padding: 28px;
+  position: sticky;
+  top: 96px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+}
+
+.side-form-header {
+  border-bottom: 1px solid var(--border-glass);
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+}
+
+.side-form-header h2 {
+  font-size: 1.35rem;
+  margin: 0;
+  color: #ffffff;
+}
+
+.product-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.product-form-grid .full-col {
+  grid-column: span 2;
+}
+
+@media (max-width: 1100px) {
+  .products-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .product-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .product-form-grid .full-col {
+    grid-column: span 1;
+  }
+}

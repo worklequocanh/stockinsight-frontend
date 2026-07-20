@@ -16,26 +16,26 @@ Hệ thống quản lý kho hàng - Đồ án thực tập (Giai đoạn 1 - 7)
 
 ## Hướng dẫn Triển khai (Deploy lên Production)
 
-Dự án được cấu hình sẵn để dễ dàng deploy miễn phí lên **Render** (cho Backend + DB) và **Vercel** (cho Frontend).
+Dự án được cấu hình sẵn để triển khai dễ dàng lên **Fly.io** (cho cả Backend và Frontend) hoặc kết hợp **Fly.io (Backend) + Vercel (Frontend)**.
 
-### 1. Triển khai Backend (Render.com)
-1. Đăng ký tài khoản tại [Render](https://render.com).
-2. Tạo một **PostgreSQL Database** mới (đợi Render tạo xong, lấy chuỗi kết nối - `Internal Database URL`).
-3. Tạo một **Web Service**, kết nối với Repository Github `stockinsight-backend`.
-4. Render sẽ tự động đọc file `render.yaml` trong repo và cài đặt ứng dụng Node.js.
-5. Truy cập phần **Environment** của Web Service, điền giá trị cho các biến:
-   - `JWT_SECRET`: Một chuỗi bí mật (ví dụ: `my-super-secret-key-123`).
-   - `DATABASE_URL`: Lấy từ bước 2.
-   - `CORS_ORIGIN`: Tạm để `*` (Sau khi deploy xong Frontend, hãy quay lại đây cập nhật thành URL của Frontend).
-6. Ở bước `Build Command`, Render sẽ tự chạy `npm install` và bạn cần chạy `npm run prisma:generate && npm run db:push && npm run prisma:seed`. (Hoặc truy cập Shell của Render để chạy `npx prisma db push` và `npm run prisma:seed`).
+### 1. Triển khai Frontend lên Fly.io (Docker Nginx Container)
+Dự án đã tích hợp sẵn `Dockerfile` multi-stage, `nginx.conf` (hỗ trợ React Router SPA, nén Gzip) và `fly.toml` giúp chạy trực tiếp trên Fly.io:
+1. Mở terminal tại `stockinsight-frontend` và gõ:
+   ```bash
+   fly launch --no-deploy
+   ```
+2. Triển khai và truyền URL API của Backend đã deploy trên Fly.io vào build-arg:
+   ```bash
+   fly deploy --build-arg VITE_API_BASE_URL="https://stockinsight-backend.fly.dev/api"
+   ```
 
-### 2. Triển khai Frontend (Vercel.com)
+### 2. Triển khai Frontend lên Vercel.com (Khuyên dùng cho Frontend tĩnh)
 1. Đăng ký tài khoản tại [Vercel](https://vercel.com).
 2. Chọn **Add New Project**, liên kết với Repository Github `stockinsight-frontend`.
-3. Vercel tự động nhận diện đây là dự án `Vite` (mặc định Framework Preset là Vite).
+3. Vercel tự động nhận diện preset **Vite**.
 4. Mở phần **Environment Variables**, thêm biến:
-   - `VITE_API_URL`: Điền URL của Backend vừa deploy ở bước trên (ví dụ: `https://stockinsight-backend.onrender.com/api`).
-5. Bấm **Deploy**. Vercel sẽ đọc file `vercel.json` để cấu hình Rewrite URL cho React Router.
+   - `VITE_API_BASE_URL`: Điền URL của Backend đã deploy trên Fly.io (ví dụ: `https://stockinsight-backend.fly.dev/api`).
+5. Bấm **Deploy**. Vercel tự động đọc file `vercel.json` để xử lý React Router SPA rewrite.
 
 ---
 

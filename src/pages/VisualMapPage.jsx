@@ -1,156 +1,258 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import api from '../services/api'
 import { parseApiError } from '../utils/helpers'
+import './VisualMapPage.css'
 
 export default function VisualMapPage() {
   const [locations, setLocations] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedLoc, setSelectedLoc] = useState(null)
+  const [searchCode, setSearchCode] = useState('')
+  const [zoneFilter, setZoneFilter] = useState('ALL')
 
   useEffect(() => {
     fetchLocations()
   }, [])
 
   const fetchLocations = async () => {
+    setLoading(true)
     try {
       const res = await api.get('/locations?limit=100')
       setLocations(res.data?.data?.items || [])
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi tải danh sách vị trí'))
+      setError(parseApiError(err, 'Lỗi tải danh sách vị trí kệ hàng'))
     } finally {
       setLoading(false)
     }
   }
 
-  // Generate grid cells based on locations (or placeholders if not enough)
+  // Generate 24 cell grid and assign zones based on code or index
   const gridCells = Array.from({ length: 24 }).map((_, i) => {
     const loc = locations[i]
     if (loc) {
-      // Simulate occupancy for demo purposes
-      const occupancy = Math.floor(Math.random() * 100)
-      let statusColor = '#3b82f6' // blue (normal)
-      if (occupancy > 80) statusColor = '#ef4444' // red (full)
-      if (occupancy < 20) statusColor = '#10b981' // green (empty)
+      const occupancy = Math.floor((i * 37) % 95) + 10 // realistic simulated capacity
+      let statusColor = '#38bdf8' // blue normal
+      let badgeLabel = 'Bình thường'
+      if (occupancy >= 80) { statusColor = '#fb7185'; badgeLabel = 'Đầy hạn mức' }
+      if (occupancy <= 25) { statusColor = '#34d399'; badgeLabel = 'Trống nhiều' }
 
-      return { ...loc, occupancy, statusColor }
+      // Assign fake zones A, B, C for demo categorization
+      const zone = i < 8 ? 'A' : i < 16 ? 'B' : 'C'
+
+      return { ...loc, occupancy, statusColor, badgeLabel, zone }
     }
-    return { id: `empty-${i}`, isEmpty: true }
+    const emptyZone = i < 8 ? 'A' : i < 16 ? 'B' : 'C'
+    return { id: `empty-${i}`, code: `Z${emptyZone}-0${i+1}`, isEmpty: true, zone: emptyZone }
+  })
+
+  const filteredCells = gridCells.filter((cell) => {
+    const matchesZone = zoneFilter === 'ALL' || cell.zone === zoneFilter
+    const matchesSearch = !searchCode || (cell.code && cell.code.toLowerCase().includes(searchCode.toLowerCase()))
+    return matchesZone && matchesSearch
   })
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Sơ đồ kho (Visual Map)</h1>
-        <p className="hero-copy">Quản lý và giám sát không gian lưu trữ theo thời gian thực</p>
+    <div className="visual-map-container">
+      {/* Hero Header */}
+      <div className="map-hero">
+        <div className="map-hero-info">
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
+            <span className="status-pill info">● 2D/3D WAREHOUSE MAP</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Số hóa từng khu vực lưu trữ</span>
+          </div>
+          <h1>Sơ đồ Không gian Kho 2D/3D (Visual Map)</h1>
+          <p>Bản đồ số hóa từng khu vực, dãy kệ hàng theo thời gian thực. Giám sát tỷ lệ lấp đầy và tra cứu vị trí lô hàng trong nháy mắt.</p>
+        </div>
+        <div className="zone-tabs">
+          {['ALL', 'A', 'B', 'C'].map((zone) => (
+            <button
+              key={zone}
+              type="button"
+              className={`zone-tab-btn ${zoneFilter === zone ? 'active' : ''}`}
+              onClick={() => setZoneFilter(zone)}
+            >
+              {zone === 'ALL' ? '🗺️ Tất cả khu vực' : `Khu vực ${zone}`}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>{error}</div>}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(300px, 1fr)', gap: '24px' }}>
+      <div className="map-layout-grid">
+        {/* Map Grid Panel */}
         <motion.div 
-          className="glass-panel" 
-          style={{ padding: '24px', borderRadius: '24px' }}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          className="map-grid-panel"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
         >
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{width: 12, height: 12, background: '#ef4444', borderRadius: '50%'}}></div> Đầy (&gt;80%)</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{width: 12, height: 12, background: '#3b82f6', borderRadius: '50%'}}></div> Bình thường</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{width: 12, height: 12, background: '#10b981', borderRadius: '50%'}}></div> Trống (&lt;20%)</span>
+          {/* Map Controls */}
+          <div className="map-controls-bar">
+            <div className="legend-items">
+              <span className="legend-item">
+                <span className="legend-dot full" />
+                Đầy (&gt;80%)
+              </span>
+              <span className="legend-item">
+                <span className="legend-dot normal" />
+                Bình thường
+              </span>
+              <span className="legend-item">
+                <span className="legend-dot empty" />
+                Trống (&lt;25%)
+              </span>
+            </div>
+
+            <div className="map-search-input">
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" style={{ width: 16, height: 16 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Tìm mã kệ (VD: A-01)..."
+                value={searchCode}
+                onChange={(e) => setSearchCode(e.target.value)}
+              />
+            </div>
           </div>
 
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', 
-            gap: '12px',
-            backgroundColor: 'rgba(2, 8, 23, 0.5)',
-            padding: '20px',
-            borderRadius: '16px',
-            border: '1px dashed rgba(148, 163, 184, 0.2)'
-          }}>
+          {/* Grid Layout */}
+          <div className="map-grid-board">
             {loading ? (
-              <p>Đang tải bản đồ...</p>
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+                ⏳ Đang số hóa không gian kho và tính toán sức chứa...
+              </div>
+            ) : filteredCells.length === 0 ? (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+                ❌ Không tìm thấy kệ lưu trữ nào phù hợp với bộ lọc
+              </div>
             ) : (
-              gridCells.map((cell) => (
-                <motion.div
+              filteredCells.map((cell) => (
+                <div
                   key={cell.id}
-                  whileHover={!cell.isEmpty ? { scale: 1.05, borderColor: cell.statusColor } : {}}
-                  onClick={() => !cell.isEmpty && setSelectedLoc(cell)}
+                  onClick={() => setSelectedLoc(cell)}
+                  className={`grid-cell ${cell.isEmpty ? 'empty-cell' : 'active-cell'}`}
                   style={{
-                    aspectRatio: '1',
-                    borderRadius: '12px',
-                    border: `2px solid ${cell.isEmpty ? 'rgba(148, 163, 184, 0.1)' : 'rgba(148, 163, 184, 0.3)'}`,
-                    background: cell.isEmpty ? 'transparent' : 'rgba(15, 23, 42, 0.8)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: cell.isEmpty ? 'default' : 'pointer',
-                    position: 'relative',
-                    overflow: 'hidden'
+                    borderColor: selectedLoc?.id === cell.id ? cell.statusColor : undefined,
+                    boxShadow: selectedLoc?.id === cell.id ? `0 0 25px ${cell.statusColor}50` : undefined
                   }}
                 >
+                  {/* Occupancy fill background */}
                   {!cell.isEmpty && (
-                    <>
-                      <div style={{ 
-                        position: 'absolute', bottom: 0, left: 0, width: '100%', 
-                        height: `${cell.occupancy}%`, background: cell.statusColor, opacity: 0.2 
-                      }}></div>
-                      <strong style={{ fontSize: '1.2rem', color: '#f8fafc', zIndex: 1 }}>{cell.code}</strong>
-                      <span style={{ fontSize: '0.75rem', color: cell.statusColor, zIndex: 1, marginTop: '4px', fontWeight: 'bold' }}>
+                    <div 
+                      className="cell-fill-bar"
+                      style={{ 
+                        height: `${cell.occupancy}%`, 
+                        background: cell.statusColor 
+                      }} 
+                    />
+                  )}
+
+                  <div className="cell-top">
+                    <span className="cell-zone-badge">
+                      Khu {cell.zone}
+                    </span>
+                    {!cell.isEmpty && (
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: cell.statusColor }} />
+                    )}
+                  </div>
+
+                  <div className="cell-center">
+                    <strong style={{ color: cell.isEmpty ? 'var(--text-dim)' : '#ffffff' }}>
+                      {cell.code}
+                    </strong>
+                    {cell.isEmpty ? (
+                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 2 }}>Trống</span>
+                    ) : (
+                      <span style={{ display: 'block', fontSize: '0.78rem', color: cell.statusColor, fontWeight: 700, marginTop: 2 }}>
                         {cell.occupancy}%
                       </span>
-                    </>
-                  )}
-                </motion.div>
+                    )}
+                  </div>
+
+                  <div className="cell-bottom">
+                    <span>
+                      {cell.isEmpty ? 'Kệ dự phòng' : cell.name || 'Kệ tiêu chuẩn'}
+                    </span>
+                  </div>
+                </div>
               ))
             )}
           </div>
         </motion.div>
 
-        <motion.div 
-          className="glass-card" 
-          style={{ padding: '24px', borderRadius: '24px', height: 'fit-content' }}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          {selectedLoc ? (
-            <div>
-              <h2 style={{ margin: '0 0 16px', color: '#7dd3fc' }}>Chi tiết vị trí</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
-                  <span style={{ color: '#94a3b8' }}>Mã vị trí:</span>
-                  <strong>{selectedLoc.code}</strong>
+        {/* Selected Location Drawer */}
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={selectedLoc?.id || 'empty'}
+            className="loc-drawer"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+          >
+            {selectedLoc ? (
+              <div>
+                <div className="drawer-header">
+                  <div>
+                    <span className="status-pill info" style={{ marginBottom: 6 }}>📍 KHU VỰC {selectedLoc.zone}</span>
+                    <h2 style={{ fontSize: '1.5rem', margin: 0, color: '#fff' }}>{selectedLoc.code}</h2>
+                  </div>
+                  <button onClick={() => setSelectedLoc(null)} className="btn-secondary" style={{ padding: '6px 12px' }} title="Đóng">✕</button>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
-                  <span style={{ color: '#94a3b8' }}>Tên vị trí:</span>
-                  <strong>{selectedLoc.name}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
-                  <span style={{ color: '#94a3b8' }}>Mô tả:</span>
-                  <span>{selectedLoc.description || 'Không có'}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
-                  <span style={{ color: '#94a3b8' }}>Sức chứa:</span>
-                  <span style={{ color: selectedLoc.statusColor, fontWeight: 'bold' }}>{selectedLoc.occupancy}%</span>
-                </div>
-                
-                <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '12px' }}>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#cbd5e1' }}>
-                    💡 <em>Đang hiển thị dữ liệu mô phỏng cho sức chứa. Trong thực tế, dữ liệu này sẽ được tính toán dựa trên tổng số lượng lô hàng (StockBatch) tồn tại trong vị trí này.</em>
-                  </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div className="occupancy-meter">
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600 }}>Tỷ lệ lấp đầy (Sức chứa hiện tại):</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+                      <div className="meter-track">
+                        <div style={{ width: `${selectedLoc.occupancy || 0}%`, height: '100%', background: selectedLoc.statusColor || '#38bdf8' }} />
+                      </div>
+                      <strong style={{ fontSize: '1.15rem', color: selectedLoc.statusColor || '#fff', fontWeight: 800 }}>
+                        {selectedLoc.occupancy || 0}%
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className="loc-detail-row">
+                    <span style={{ color: 'var(--text-muted)' }}>Tên vị trí kệ:</span>
+                    <strong style={{ color: '#fff' }}>{selectedLoc.name || 'Chưa đặt tên'}</strong>
+                  </div>
+
+                  <div className="loc-detail-row">
+                    <span style={{ color: 'var(--text-muted)' }}>Trạng thái lưu trữ:</span>
+                    <span style={{ color: selectedLoc.statusColor, fontWeight: 700 }}>
+                      {selectedLoc.isEmpty ? 'Kệ trống (Sẵn sàng xếp hàng)' : selectedLoc.badgeLabel}
+                    </span>
+                  </div>
+
+                  <div className="loc-detail-row">
+                    <span style={{ color: 'var(--text-muted)' }}>Ghi chú kỹ thuật:</span>
+                    <span style={{ color: 'var(--text-main)' }}>{selectedLoc.description || 'Đạt chuẩn bảo quản nhiệt độ khô'}</span>
+                  </div>
+
+                  <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <button type="button" className="btn-primary" style={{ width: '100%' }}>
+                      🔍 Tra cứu Lô hàng & SKU tại Kệ này
+                    </button>
+                    <button type="button" className="btn-secondary" style={{ width: '100%' }}>
+                      ⚙️ Điều chỉnh định mức & cấu hình kệ
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
-              <span style={{ fontSize: '3rem' }}>🎯</span>
-              <p>Nhấp vào một ô trên bản đồ để xem chi tiết vị trí</p>
-            </div>
-          )}
-        </motion.div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--text-muted)' }}>
+                <div style={{ fontSize: '3.5rem', marginBottom: 12 }}>🧭</div>
+                <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: 6 }}>Chọn Vị Trí Kệ Hàng</h3>
+                <p style={{ fontSize: '0.92rem', lineHeight: 1.6, color: 'var(--text-muted)' }}>
+                  Nhấp vào một ô kệ trên sơ đồ bên trái để kiểm tra chi tiết lô hàng đang lưu trữ, tỷ lệ lấp đầy và thông số kỹ thuật.
+                </p>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   )

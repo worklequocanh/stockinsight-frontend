@@ -3,6 +3,8 @@ import api from '../services/api'
 import { buildQuery, parseApiError } from '../utils/helpers'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
+import StatKPI from '../components/common/StatKPI'
+import './CustomersPage.css'
 
 const emptyForm = { id: '', name: '', phone: '', email: '', address: '' }
 
@@ -57,7 +59,7 @@ export default function CustomersPage() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa khách hàng này?')) return
+    if (!window.confirm('Bạn có chắc chắn muốn xóa khách hàng này khỏi hệ thống?')) return
     try {
       await api.delete(`/customers/${id}`)
       if (form.id === id) setForm(emptyForm)
@@ -79,67 +81,106 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Khách hàng</h1>
-        <p className="hero-copy">Quản lý thông tin khách hàng và liên hệ</p>
+    <div className="customers-container">
+      {/* Hero Header */}
+      <div className="customers-hero">
+        <div className="customers-hero-info">
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
+            <span className="status-pill info">● CUSTOMER DIRECTORY</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Quản lý điểm đến & đối tác đầu ra</span>
+          </div>
+          <h1>Đối Tác Khách Hàng (Customer Directory)</h1>
+          <p>Quản lý thông tin khách hàng, đại lý phân phối, số điện thoại và địa chỉ nhận hàng cho các đơn xuất kho theo phương thức FEFO.</p>
+        </div>
+        <div>
+          <button type="button" className="btn-primary" onClick={() => setForm(emptyForm)}>
+            ✨ Thêm Khách Hàng Mới
+          </button>
+        </div>
       </div>
 
-      <div className="resource-layout">
-        <section className="resource-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">Dữ liệu gốc</p>
-              <h2>Danh sách khách hàng</h2>
+      {/* KPI Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+        <StatKPI
+          title="Tổng Số Khách Hàng / Đại Lý"
+          value={meta.total || items.length}
+          unit="đối tác"
+          trend="↑ Mạng lưới phân phối"
+          status="success"
+          icon="🧑‍💼"
+        />
+        <StatKPI
+          title="Độ Sẵn Sàng Xuất Kho"
+          value="100%"
+          unit="đơn hàng"
+          trend="Chuẩn hóa theo FEFO"
+          status="info"
+          icon="🚚"
+        />
+      </div>
+
+      {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>⚠️ {error}</div>}
+
+      <div className="customers-layout-grid">
+        {/* Table Container */}
+        <div className="customers-table-card">
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+            <div className="table-search" style={{ flex: 1 }}>
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <input
+                placeholder="Tìm kiếm khách hàng, SĐT, email..."
+                value={search}
+                onChange={(e) => {
+                  setPage(1)
+                  setSearch(e.target.value)
+                }}
+              />
             </div>
-            <button type="button" className="secondary-button" onClick={() => setForm(emptyForm)}>
-              Thêm khách hàng
-            </button>
           </div>
 
-          <div className="filter-row">
-            <input
-              className="field-input"
-              placeholder="Tìm kiếm khách hàng"
-              value={search}
-              onChange={(event) => {
-                setPage(1)
-                setSearch(event.target.value)
-              }}
-            />
-          </div>
-
-          {error && <p className="error-banner">{error}</p>}
-
-          <div className="table-wrap">
-            <table className="data-table">
+          <div className="modern-table-wrapper" style={{ flex: 1 }}>
+            <table className="modern-table">
               <thead>
                 <tr>
-                  <th>Tên</th>
-                  <th>Liên lạc</th>
-                  <th>Địa chỉ</th>
-                  <th>Thao tác</th>
+                  <th>Tên khách hàng / Đại lý</th>
+                  <th>Thông tin liên hệ</th>
+                  <th>Địa chỉ giao hàng</th>
+                  <th style={{ textAlign: 'center' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <TableEmpty colSpan={4} text="Đang tải danh sách khách hàng..." />
+                  <TableEmpty colSpan={4} text="⏳ Đang tải danh sách đối tác khách hàng..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={4} text="Không tìm thấy khách hàng nào" />
+                  <TableEmpty colSpan={4} text="❌ Chưa tìm thấy khách hàng nào khớp với từ khóa" />
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
-                      <td data-label="Tên">
-                        <strong>{item.name}</strong>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                          <div className="customer-icon-box">
+                            🧑‍💼
+                          </div>
+                          <div>
+                            <strong style={{ display: 'block', color: '#fff', fontSize: '0.98rem' }}>{item.name}</strong>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--accent-purple)' }}>ID: #{item.id.slice(0, 8)}</span>
+                          </div>
+                        </div>
                       </td>
-                      <td data-label="Liên lạc">
-                        <div className="muted-line">{item.phone || '-'}</div>
-                        <div className="muted-line">{item.email || '-'}</div>
+                      <td>
+                        <div style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>📞 {item.phone || 'Chưa có SĐT'}</div>
+                        <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 2 }}>✉️ {item.email || 'Chưa có email'}</div>
                       </td>
-                      <td data-label="Địa chỉ">{item.address || '-'}</td>
-                      <td data-label="Thao tác" className="actions-cell">
-                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
-                        <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Xóa</button>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: 260 }}>
+                        {item.address || <span style={{ fontStyle: 'italic', color: 'var(--text-dim)' }}>Chưa cập nhật địa chỉ</span>}
+                      </td>
+                      <td>
+                        <div className="action-buttons" style={{ justifyContent: 'center' }}>
+                          <button type="button" className="icon-btn edit" title="Sửa thông tin" onClick={() => handleEdit(item)}>✏️</button>
+                          <button type="button" className="icon-btn delete" title="Xóa khách hàng" onClick={() => handleDelete(item.id)}>🗑️</button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -148,44 +189,76 @@ export default function CustomersPage() {
             </table>
           </div>
 
-          <Pagination meta={meta} onPageChange={setPage} loading={loading} />
-        </section>
+          <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-subtle)' }}>
+            <Pagination meta={meta} onPageChange={setPage} loading={loading} />
+          </div>
+        </div>
 
-        <aside className="resource-panel form-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">{form.id ? 'Sửa khách hàng' : 'Tạo khách hàng mới'}</p>
-              <h2>{form.id ? form.name || 'Chi tiết khách hàng' : 'Khách hàng mới'}</h2>
-            </div>
+        {/* Side Form Card */}
+        <div className="customers-side-form">
+          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
+            <span className="status-pill info" style={{ marginBottom: 6 }}>
+              {form.id ? '✏️ CHỈNH SỬA KHÁCH HÀNG' : '✨ THÊM KHÁCH HÀNG MỚI'}
+            </span>
+            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>
+              {form.id ? form.name : 'Hồ sơ khách hàng / Đại lý'}
+            </h2>
           </div>
 
-          <form className="resource-form" onSubmit={handleSubmit}>
-            <label>
-              Tên
-              <input className="field-input" value={form.name} onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))} required />
-            </label>
-            <div className="two-col">
-              <label>
-                Số điện thoại
-                <input className="field-input" value={form.phone} onChange={(e) => setForm(prev => ({ ...prev, phone: e.target.value }))} />
-              </label>
-              <label>
-                Email
-                <input type="email" className="field-input" value={form.email} onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))} />
-              </label>
+          <form className="form-grid" onSubmit={handleSubmit}>
+            <div className="form-group full-width">
+              <label>Tên khách hàng / Đại lý *</label>
+              <input
+                className="input-field"
+                value={form.name}
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                required
+                placeholder="VD: Siêu thị Co.opmart Nguyễn Đình Chiểu"
+              />
             </div>
-            <label>
-              Địa chỉ
-              <textarea className="field-textarea" rows="4" value={form.address} onChange={(e) => setForm(prev => ({ ...prev, address: e.target.value }))} />
-            </label>
-            <div className="form-actions">
-              <button type="submit" className="primary-button" disabled={saving}>
-                {saving ? 'Đang lưu...' : form.id ? 'Cập nhật' : 'Tạo mới'}
+
+            <div className="form-group">
+              <label>Số điện thoại liên hệ</label>
+              <input
+                className="input-field"
+                value={form.phone}
+                onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                placeholder="VD: 0909 123 456"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Email thông báo</label>
+              <input
+                type="email"
+                className="input-field"
+                value={form.email}
+                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                placeholder="agent@store.com"
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>Địa chỉ nhận hàng (Phiếu xuất)</label>
+              <textarea
+                className="select-field"
+                style={{ height: 100, resize: 'vertical' }}
+                value={form.address}
+                onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
+                placeholder="VD: 168 Nguyễn Đình Chiểu, Phường 6, Quận 3, TP.HCM..."
+              />
+            </div>
+
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 14 }}>
+              <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
+                {saving ? '⏳ Đang lưu...' : form.id ? '💾 Cập Nhật Khách Hàng' : '➕ Tạo Khách Hàng'}
               </button>
-              <button type="button" className="secondary-button" onClick={() => setForm(emptyForm)}>Làm mới</button>
+              <button type="button" className="btn-secondary" onClick={() => setForm(emptyForm)}>
+                🔄 Làm Mới
+              </button>
             </div>
           </form>
-        </aside>
+        </div>
       </div>
     </div>
   )

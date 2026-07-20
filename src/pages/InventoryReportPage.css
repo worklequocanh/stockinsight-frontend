@@ -1,0 +1,175 @@
+/* ==========================================================================
+   STOCKINSIGHT INVENTORY & EXPIRY BI REPORT STYLES (v3.0)
+   ========================================================================== */
+
+.report-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+/* Hero Header */
+.report-hero {
+  background: var(--bg-glass-heavy);
+  border: 1px solid var(--border-glass);
+  border-radius: 24px;
+  padding: 26px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.report-hero-info h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.report-hero-info p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Tab Pill Switcher */
+.report-tabs-switcher {
+  display: flex;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.65);
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--border-glass);
+}
+
+.report-tab-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.report-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.report-tab-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.35);
+}
+
+.report-tab-btn.active.expiry-tab {
+  background: linear-gradient(135deg, #f43f5e, #be123c);
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.35);
+}
+
+.tab-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+}
+
+/* Table Card Panel */
+.report-table-card {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.report-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.report-table-header h3 {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.low-stock-row {
+  background: rgba(245, 158, 11, 0.08) !important;
+}
+
+.low-stock-row:hover {
+  background: rgba(245, 158, 11, 0.14) !important;
+}
+
+.expiry-alert-row {
+  background: rgba(244, 63, 94, 0.06) !important;
+}
+
+.expiry-alert-row:hover {
+  background: rgba(244, 63, 94, 0.12) !important;
+}
+
+.urgent-order-box {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 8px 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.urgent-order-box strong {
+  color: #f87171;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.urgent-order-box span {
+  font-size: 0.96rem;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .report-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .report-tabs-switcher {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .report-tab-btn {
+    justify-content: center;
+  }
+}

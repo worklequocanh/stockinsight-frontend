@@ -1,8 +1,16 @@
 import axios from 'axios'
 import { clearStoredToken, getStoredToken } from './storage'
 
+const getBaseUrl = () => {
+  if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL
+  if (typeof window !== 'undefined' && window.location.hostname.includes('fly.dev')) {
+    return 'https://stockinsight-backend.fly.dev/api'
+  }
+  return 'http://localhost:3001/api'
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },

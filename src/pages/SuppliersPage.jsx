@@ -3,6 +3,8 @@ import api from '../services/api'
 import { buildQuery, parseApiError } from '../utils/helpers'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
+import StatKPI from '../components/common/StatKPI'
+import './SuppliersPage.css'
 
 const emptySupplierForm = { id: '', name: '', phone: '', email: '', address: '' }
 
@@ -57,7 +59,7 @@ export default function SuppliersPage() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa nhà cung cấp này?')) return
+    if (!window.confirm('Bạn có chắc chắn muốn xóa nhà cung cấp này khỏi hệ thống?')) return
     try {
       await api.delete(`/suppliers/${id}`)
       if (form.id === id) setForm(emptySupplierForm)
@@ -79,67 +81,106 @@ export default function SuppliersPage() {
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Nhà cung cấp</h1>
-        <p className="hero-copy">Quản lý nhà cung cấp và thông tin liên lạc</p>
+    <div className="suppliers-container">
+      {/* Hero Header */}
+      <div className="suppliers-hero">
+        <div className="suppliers-hero-info">
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
+            <span className="status-pill info">● SUPPLIER NETWORK</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Quản lý chuỗi cung ứng đầu vào</span>
+          </div>
+          <h1>Đối Tác Nhà Cung Cấp (Suppliers Master)</h1>
+          <p>Quản lý hồ sơ đối tác, thông tin liên lạc, địa chỉ kho bãi và theo dõi luồng nhập khẩu hàng hóa vào chuỗi cung ứng.</p>
+        </div>
+        <div>
+          <button type="button" className="btn-primary" onClick={() => setForm(emptySupplierForm)}>
+            ✨ Thêm Nhà Cung Cấp Mới
+          </button>
+        </div>
       </div>
 
-      <div className="resource-layout">
-        <section className="resource-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">Dữ liệu gốc</p>
-              <h2>Danh sách nhà cung cấp</h2>
+      {/* KPI Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+        <StatKPI
+          title="Tổng Số Nhà Cung Cấp"
+          value={meta.total || items.length}
+          unit="đối tác"
+          trend="↑ Đã kết nối chuỗi cung ứng"
+          status="success"
+          icon="🏢"
+        />
+        <StatKPI
+          title="Tình Trạng Hợp Tác"
+          value="Liên Tục"
+          unit="đáp ứng SLA"
+          trend="Bảo đảm nguồn hàng nhập"
+          status="info"
+          icon="🤝"
+        />
+      </div>
+
+      {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>⚠️ {error}</div>}
+
+      <div className="suppliers-layout-grid">
+        {/* Table Container */}
+        <div className="suppliers-table-card">
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+            <div className="table-search" style={{ flex: 1 }}>
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <input
+                placeholder="Tìm kiếm tên đối tác, số điện thoại, email..."
+                value={search}
+                onChange={(e) => {
+                  setPage(1)
+                  setSearch(e.target.value)
+                }}
+              />
             </div>
-            <button type="button" className="secondary-button" onClick={() => setForm(emptySupplierForm)}>
-              Thêm nhà cung cấp
-            </button>
           </div>
 
-          <div className="filter-row">
-            <input
-              className="field-input"
-              placeholder="Tìm kiếm nhà cung cấp"
-              value={search}
-              onChange={(event) => {
-                setPage(1)
-                setSearch(event.target.value)
-              }}
-            />
-          </div>
-
-          {error && <p className="error-banner">{error}</p>}
-
-          <div className="table-wrap">
-            <table className="data-table">
+          <div className="modern-table-wrapper" style={{ flex: 1 }}>
+            <table className="modern-table">
               <thead>
                 <tr>
-                  <th>Tên</th>
-                  <th>Liên lạc</th>
-                  <th>Địa chỉ</th>
-                  <th>Thao tác</th>
+                  <th>Đối tác & Tên thương hiệu</th>
+                  <th>Thông tin liên hệ</th>
+                  <th>Địa chỉ kho / Trụ sở</th>
+                  <th style={{ textAlign: 'center' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <TableEmpty colSpan={4} text="Đang tải danh sách nhà cung cấp..." />
+                  <TableEmpty colSpan={4} text="⏳ Đang tải dữ liệu hồ sơ nhà cung cấp..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={4} text="Không tìm thấy nhà cung cấp nào" />
+                  <TableEmpty colSpan={4} text="❌ Chưa tìm thấy nhà cung cấp nào khớp với từ khóa" />
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
-                      <td data-label="Tên">
-                        <strong>{item.name}</strong>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                          <div className="supplier-icon-box">
+                            🏢
+                          </div>
+                          <div>
+                            <strong style={{ display: 'block', color: '#fff', fontSize: '0.98rem' }}>{item.name}</strong>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>ID: #{item.id.slice(0, 8)}</span>
+                          </div>
+                        </div>
                       </td>
-                      <td data-label="Liên lạc">
-                        <div className="muted-line">{item.phone || '-'}</div>
-                        <div className="muted-line">{item.email || '-'}</div>
+                      <td>
+                        <div style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>📞 {item.phone || 'Chưa có SĐT'}</div>
+                        <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 2 }}>✉️ {item.email || 'Chưa có email'}</div>
                       </td>
-                      <td data-label="Địa chỉ">{item.address || '-'}</td>
-                      <td data-label="Thao tác" className="actions-cell">
-                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
-                        <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Xóa</button>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: 260 }}>
+                        {item.address || <span style={{ fontStyle: 'italic', color: 'var(--text-dim)' }}>Chưa cập nhật địa chỉ</span>}
+                      </td>
+                      <td>
+                        <div className="action-buttons" style={{ justifyContent: 'center' }}>
+                          <button type="button" className="icon-btn edit" title="Sửa thông tin" onClick={() => handleEdit(item)}>✏️</button>
+                          <button type="button" className="icon-btn delete" title="Xóa nhà cung cấp" onClick={() => handleDelete(item.id)}>🗑️</button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -148,44 +189,76 @@ export default function SuppliersPage() {
             </table>
           </div>
 
-          <Pagination meta={meta} onPageChange={setPage} loading={loading} />
-        </section>
+          <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-subtle)' }}>
+            <Pagination meta={meta} onPageChange={setPage} loading={loading} />
+          </div>
+        </div>
 
-        <aside className="resource-panel form-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">{form.id ? 'Sửa nhà cung cấp' : 'Tạo nhà cung cấp mới'}</p>
-              <h2>{form.id ? form.name || 'Chi tiết nhà cung cấp' : 'Nhà cung cấp mới'}</h2>
-            </div>
+        {/* Side Form Card */}
+        <div className="suppliers-side-form">
+          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
+            <span className="status-pill info" style={{ marginBottom: 6 }}>
+              {form.id ? '✏️ CHỈNH SỬA NCC' : '✨ THÊM ĐỐI TÁC MỚI'}
+            </span>
+            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>
+              {form.id ? form.name : 'Hồ sơ nhà cung cấp'}
+            </h2>
           </div>
 
-          <form className="resource-form" onSubmit={handleSubmit}>
-            <label>
-              Tên
-              <input className="field-input" value={form.name} onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))} required />
-            </label>
-            <div className="two-col">
-              <label>
-                Số điện thoại
-                <input className="field-input" value={form.phone} onChange={(e) => setForm(prev => ({ ...prev, phone: e.target.value }))} />
-              </label>
-              <label>
-                Email
-                <input type="email" className="field-input" value={form.email} onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))} />
-              </label>
+          <form className="form-grid" onSubmit={handleSubmit}>
+            <div className="form-group full-width">
+              <label>Tên doanh nghiệp / Nhà cung cấp *</label>
+              <input
+                className="input-field"
+                value={form.name}
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                required
+                placeholder="VD: Công ty Cổ phần Sữa Việt Nam"
+              />
             </div>
-            <label>
-              Địa chỉ
-              <textarea className="field-textarea" rows="4" value={form.address} onChange={(e) => setForm(prev => ({ ...prev, address: e.target.value }))} />
-            </label>
-            <div className="form-actions">
-              <button type="submit" className="primary-button" disabled={saving}>
-                {saving ? 'Đang lưu...' : form.id ? 'Cập nhật' : 'Tạo mới'}
+
+            <div className="form-group">
+              <label>Số điện thoại liên hệ</label>
+              <input
+                className="input-field"
+                value={form.phone}
+                onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                placeholder="VD: 028 5415 5555"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Email liên hệ</label>
+              <input
+                type="email"
+                className="input-field"
+                value={form.email}
+                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                placeholder="contact@company.com"
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>Địa chỉ kho hoặc văn phòng trụ sở</label>
+              <textarea
+                className="select-field"
+                style={{ height: 100, resize: 'vertical' }}
+                value={form.address}
+                onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
+                placeholder="VD: 10 Tân Trào, P. Tân Phú, Q.7, TP.HCM..."
+              />
+            </div>
+
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 14 }}>
+              <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
+                {saving ? '⏳ Đang lưu...' : form.id ? '💾 Cập Nhật NCC' : '➕ Tạo Đối Tác'}
               </button>
-              <button type="button" className="secondary-button" onClick={() => setForm(emptySupplierForm)}>Làm mới</button>
+              <button type="button" className="btn-secondary" onClick={() => setForm(emptySupplierForm)}>
+                🔄 Làm Mới
+              </button>
             </div>
           </form>
-        </aside>
+        </div>
       </div>
     </div>
   )

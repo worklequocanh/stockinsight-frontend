@@ -1,23 +1,32 @@
-# fly.toml app configuration file generated for stockinsight-frontend on 2026-07-18T17:21:27Z
+# fly.toml app configuration file generated for stockinsight-frontend on Fly.io
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'stockinsight-frontend'
-primary_region = 'sin'
+app = "stockinsight-frontend"
+primary_region = "sin" # Singapore
 
 [build]
+  dockerfile = "Dockerfile"
+  # Bạn có thể truyền VITE_API_BASE_URL lúc build thông qua lệnh:
+  # fly deploy --build-arg VITE_API_BASE_URL="https://stockinsight-backend.fly.dev/api"
 
 [http_service]
-  internal_port = 8080
+  internal_port = 80
   force_https = true
-  auto_stop_machines = 'stop'
+  auto_stop_machines = true # Frontend tĩnh có thể tắt khi không có traffic để tiết kiệm
   auto_start_machines = true
   min_machines_running = 0
-  processes = ['app']
+  processes = ["app"]
+
+[[http_service.checks]]
+  grace_period = "5s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/"
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
+  memory = "256mb"
+  cpu_kind = "shared"
   cpus = 1
-  memory_mb = 256

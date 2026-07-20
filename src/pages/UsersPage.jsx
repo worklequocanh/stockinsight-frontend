@@ -4,6 +4,8 @@ import { buildQuery, parseApiError } from '../utils/helpers'
 import { translateRole } from '../utils/translations'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
+import StatKPI from '../components/common/StatKPI'
+import './UsersPage.css'
 
 const emptyForm = { id: '', name: '', email: '', password: '', role: 'EMPLOYEE' }
 
@@ -35,6 +37,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     loadData({ search, page })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, page])
 
   async function handleSubmit(event) {
@@ -79,10 +82,10 @@ export default function UsersPage() {
 
   async function handleResetPassword() {
     if (!resetPwId) return
-    const password = window.prompt('Nhập mật khẩu mới (tối thiểu 6 ký tự):')
+    const password = window.prompt('Nhập mật khẩu mới cho người dùng (tối thiểu 6 ký tự):')
     if (!password) return
     if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự')
+      setError('Mật khẩu mới phải có ít nhất 6 ký tự')
       return
     }
     setSaving(true)
@@ -90,7 +93,7 @@ export default function UsersPage() {
     try {
       await api.put(`/users/${resetPwId}/reset-password`, { password })
       setResetPwId(null)
-      alert('Đặt lại mật khẩu thành công!')
+      alert('✅ Đặt lại mật khẩu thành công!')
     } catch (err) {
       setError(parseApiError(err, 'Lỗi khi đặt lại mật khẩu'))
     } finally {
@@ -108,148 +111,241 @@ export default function UsersPage() {
     })
   }
 
+  const adminCount = items.filter(i => i.role === 'ADMIN').length
+  const activeCount = items.filter(i => i.isActive).length
+
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Quản lý tài khoản</h1>
-        <p className="hero-copy">Quản lý tài khoản người dùng hệ thống (chỉ Quản trị viên)</p>
+    <div className="users-container">
+      {/* Hero Header */}
+      <div className="users-hero">
+        <div className="users-hero-info">
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
+            <span className="status-pill info">● IAM ROLE-BASED ACCESS CONTROL</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Hệ thống định danh và bảo mật WMS</span>
+          </div>
+          <h1>Quản Lý Tài Khoản & Phân Quyền (Identity & IAM)</h1>
+          <p>Phân quyền định danh theo vai trò (Quản trị viên, Quản lý kho, Nhân viên thao tác), kiểm soát quyền truy cập nghiệp vụ và đặt lại mật khẩu bảo mật (dành riêng cho Admin).</p>
+        </div>
+        <div>
+          <button type="button" className="btn-primary" onClick={() => setForm(emptyForm)}>
+            ✨ Cấp Tài Khoản Mới
+          </button>
+        </div>
       </div>
 
-      {error && <p className="error-banner">{error}</p>}
+      {/* KPI Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+        <StatKPI
+          title="Tổng Tài Khoản IAM"
+          value={meta.total || items.length}
+          unit="users"
+          trend="↑ Định danh hệ thống"
+          status="success"
+          icon="👥"
+        />
+        <StatKPI
+          title="Tài Khoản Hoạt Động"
+          value={activeCount}
+          unit="active"
+          trend="Đang trực tuyến / Hợp lệ"
+          status="success"
+          icon="🟢"
+        />
+        <StatKPI
+          title="Quản Trị Viên (Admin)"
+          value={adminCount}
+          unit="root"
+          trend="Toàn quyền hệ thống"
+          status="danger"
+          icon="🛡️"
+        />
+        <StatKPI
+          title="Độ Cứng Bảo Mật"
+          value="JWT / IAM"
+          unit="auth"
+          trend="Mã hóa BCrypt"
+          status="info"
+          icon="🔒"
+        />
+      </div>
 
-      <div className="resource-layout">
-        <section className="resource-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">Người dùng</p>
-              <h2>Danh sách tài khoản</h2>
+      {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>⚠️ {error}</div>}
+
+      <div className="users-layout-grid">
+        {/* Table Container */}
+        <div className="users-table-card">
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+            <div className="table-search" style={{ flex: 1 }}>
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <input
+                placeholder="Tìm kiếm tài khoản theo tên hoặc địa chỉ email..."
+                value={search}
+                onChange={(e) => {
+                  setPage(1)
+                  setSearch(e.target.value)
+                }}
+              />
             </div>
-            <button type="button" className="secondary-button" onClick={() => setForm(emptyForm)}>
-              Thêm tài khoản
-            </button>
           </div>
 
-          <div className="filter-row">
-            <input
-              className="field-input"
-              placeholder="Tìm theo tên hoặc email"
-              value={search}
-              onChange={(event) => {
-                setPage(1)
-                setSearch(event.target.value)
-              }}
-            />
-          </div>
-
-          <div className="table-wrap">
-            <table className="data-table">
+          <div className="modern-table-wrapper" style={{ flex: 1 }}>
+            <table className="modern-table">
               <thead>
                 <tr>
-                  <th>Tên</th>
-                  <th>Email</th>
-                  <th>Vai trò</th>
-                  <th>Trạng thái</th>
-                  <th>Thao tác</th>
+                  <th>Tên người dùng</th>
+                  <th>Địa chỉ Email</th>
+                  <th>Vai Trò Phân Quyền</th>
+                  <th>Trạng Thái</th>
+                  <th style={{ textAlign: 'center' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <TableEmpty colSpan={5} text="Đang tải danh sách..." />
+                  <TableEmpty colSpan={5} text="⏳ Đang tải danh sách người dùng hệ thống từ cloud..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={5} text="Không tìm thấy tài khoản nào" />
+                  <TableEmpty colSpan={5} text="❌ Không tìm thấy tài khoản người dùng nào" />
                 ) : (
-                  items.map((item) => (
-                    <tr key={item.id}>
-                      <td data-label="Tên">
-                        <strong>{item.name}</strong>
-                      </td>
-                      <td data-label="Email">
-                        <span className="muted-line">{item.email}</span>
-                      </td>
-                      <td data-label="Vai trò">
-                        <span className={`badge badge--role badge--role-${item.role.toLowerCase()}`}>
-                          {translateRole(item.role)}
-                        </span>
-                      </td>
-                      <td data-label="Trạng thái">
-                        <span className={`badge ${item.isActive ? 'badge--approved' : 'badge--rejected'}`}>
-                          {item.isActive ? 'Hoạt động' : 'Đã khóa'}
-                        </span>
-                      </td>
-                      <td data-label="Thao tác" className="actions-cell">
-                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
-                        <button type="button" className="text-button" onClick={() => setResetPwId(item.id)}>Đặt lại MK</button>
-                        <button
-                          type="button"
-                          className={`text-button ${item.isActive ? 'danger' : ''}`}
-                          onClick={() => handleToggleActive(item)}
-                        >
-                          {item.isActive ? 'Khóa' : 'Mở khóa'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                  items.map((item) => {
+                    const roleBadgeClass = item.role === 'ADMIN' ? 'danger' : item.role === 'WAREHOUSE_MANAGER' ? 'info' : 'success'
+                    return (
+                      <tr key={item.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div className="user-avatar-circle">
+                              {item.name ? item.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                            <strong style={{ display: 'block', color: '#fff', fontSize: '0.98rem' }}>{item.name}</strong>
+                          </div>
+                        </td>
+                        <td style={{ color: '#cbd5e1', fontSize: '0.92rem' }}>
+                          ✉️ {item.email}
+                        </td>
+                        <td>
+                          <span className={`status-pill ${roleBadgeClass}`} style={{ fontSize: '0.78rem', padding: '4px 12px', fontWeight: 800 }}>
+                            {translateRole(item.role)}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`status-pill ${item.isActive ? 'success' : 'danger'}`} style={{ fontSize: '0.78rem' }}>
+                            {item.isActive ? '● Hoạt động' : '🔒 Đã khóa'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="action-buttons" style={{ justifyContent: 'center' }}>
+                            <button type="button" className="icon-btn edit" title="Sửa thông tin" onClick={() => handleEdit(item)}>✏️</button>
+                            <button type="button" className="status-pill info" style={{ cursor: 'pointer', border: 'none', padding: '4px 10px', fontSize: '0.78rem' }} onClick={() => setResetPwId(item.id)}>
+                              🔑 Đặt MK
+                            </button>
+                            <button
+                              type="button"
+                              className={`status-pill ${item.isActive ? 'danger' : 'success'}`}
+                              style={{ cursor: 'pointer', border: 'none', padding: '4px 10px', fontSize: '0.78rem' }}
+                              onClick={() => handleToggleActive(item)}
+                            >
+                              {item.isActive ? '🔒 Khóa' : '🔓 Mở khóa'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>
           </div>
 
-          <Pagination meta={meta} onPageChange={setPage} loading={loading} />
-        </section>
+          <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-subtle)' }}>
+            <Pagination meta={meta} onPageChange={setPage} loading={loading} />
+          </div>
+        </div>
 
-        <aside className="resource-panel form-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">{form.id ? 'Sửa tài khoản' : 'Tạo tài khoản mới'}</p>
-              <h2>{form.id ? form.name || 'Chi tiết tài khoản' : 'Tài khoản mới'}</h2>
-            </div>
+        {/* Side Form Card */}
+        <div className="users-side-form">
+          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
+            <span className="status-pill info" style={{ marginBottom: 6 }}>
+              {form.id ? '✏️ CHỈNH SỬA TÀI KHOẢN' : '✨ TẠO TÀI KHOẢN MỚI'}
+            </span>
+            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>
+              {form.id ? form.name : 'Cấp Quyền Truy Cập'}
+            </h2>
           </div>
 
           {resetPwId && (
-            <div className="error-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>Đặt lại mật khẩu cho người dùng đã chọn</span>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button type="button" className="primary-button" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={handleResetPassword} disabled={saving}>
-                  Xác nhận
+            <div style={{ background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.4)', padding: 16, borderRadius: 16, marginBottom: 20 }}>
+              <span style={{ fontSize: '0.85rem', color: '#38bdf8', fontWeight: 700, display: 'block', marginBottom: 8 }}>
+                🔑 Khởi tạo lại mật khẩu cho người dùng đã chọn
+              </span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button type="button" className="btn-primary" style={{ padding: '6px 14px', fontSize: '0.8rem', flex: 1 }} onClick={handleResetPassword} disabled={saving}>
+                  Xác nhận đặt lại
                 </button>
-                <button type="button" className="secondary-button" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => setResetPwId(null)}>
+                <button type="button" className="btn-secondary" style={{ padding: '6px 14px', fontSize: '0.8rem' }} onClick={() => setResetPwId(null)}>
                   Hủy
                 </button>
               </div>
             </div>
           )}
 
-          <form className="resource-form" onSubmit={handleSubmit}>
-            <label>
-              Tên hiển thị
-              <input className="field-input" value={form.name} onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))} required />
-            </label>
-            <label>
-              Email
-              <input type="email" className="field-input" value={form.email} onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))} required />
-            </label>
-            <label>
-              Vai trò
-              <select className="field-select" value={form.role} onChange={(e) => setForm(prev => ({ ...prev, role: e.target.value }))}>
-                <option value="EMPLOYEE">Nhân viên</option>
-                <option value="WAREHOUSE_MANAGER">Quản lý kho</option>
-                <option value="ADMIN">Quản trị viên</option>
+          <form className="form-grid" onSubmit={handleSubmit}>
+            <div className="form-group full-width">
+              <label>Tên hiển thị (Full Name) *</label>
+              <input
+                className="input-field"
+                value={form.name}
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                required
+                placeholder="VD: Nguyễn Văn A..."
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>Địa chỉ Email (Tên đăng nhập) *</label>
+              <input
+                type="email"
+                className="input-field"
+                value={form.email}
+                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                required
+                placeholder="VD: nguyenvana@stockinsight.vn"
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>Vai trò phân quyền (IAM Role) *</label>
+              <select className="select-field" value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}>
+                <option value="EMPLOYEE">🟢 Nhân viên thao tác (Employee)</option>
+                <option value="WAREHOUSE_MANAGER">🔵 Quản lý kho (Warehouse Manager)</option>
+                <option value="ADMIN">🔴 Quản trị viên hệ thống (Admin)</option>
               </select>
-            </label>
+            </div>
+
             {!form.id && (
-              <label>
-                Mật khẩu
-                <input type="password" className="field-input" value={form.password} onChange={(e) => setForm(prev => ({ ...prev, password: e.target.value }))} required={!form.id} minLength={6} placeholder="Tối thiểu 6 ký tự" />
-              </label>
+              <div className="form-group full-width">
+                <label>Mật khẩu khởi tạo *</label>
+                <input
+                  type="password"
+                  className="input-field"
+                  value={form.password}
+                  onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+                  required={!form.id}
+                  minLength={6}
+                  placeholder="Tối thiểu 6 ký tự bảo mật"
+                />
+              </div>
             )}
-            <div className="form-actions">
-              <button type="submit" className="primary-button" disabled={saving}>
-                {saving ? 'Đang lưu...' : form.id ? 'Cập nhật' : 'Tạo mới'}
+
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+              <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
+                {saving ? '⏳ Đang xử lý...' : form.id ? '💾 Cập Nhật Tài Khoản' : '🚀 Khởi Tạo Tài Khoản'}
               </button>
-              <button type="button" className="secondary-button" onClick={() => setForm(emptyForm)}>Làm mới</button>
+              <button type="button" className="btn-secondary" onClick={() => setForm(emptyForm)}>
+                🔄 Làm Mới
+              </button>
             </div>
           </form>
-        </aside>
+        </div>
       </div>
     </div>
   )

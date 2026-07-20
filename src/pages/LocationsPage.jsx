@@ -3,6 +3,8 @@ import api from '../services/api'
 import { buildQuery, parseApiError } from '../utils/helpers'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
+import StatKPI from '../components/common/StatKPI'
+import './LocationsPage.css'
 
 const emptyForm = { id: '', code: '', name: '', description: '' }
 
@@ -57,7 +59,7 @@ export default function LocationsPage() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa vị trí này?')) return
+    if (!window.confirm('Bạn có chắc chắn muốn xóa vị trí lưu kho này?')) return
     try {
       await api.delete(`/locations/${id}`)
       if (form.id === id) setForm(emptyForm)
@@ -78,64 +80,107 @@ export default function LocationsPage() {
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Vị trí lưu kho</h1>
-        <p className="hero-copy">Quản lý vị trí lưu trữ hàng hóa trong kho</p>
+    <div className="locations-container">
+      {/* Hero Header */}
+      <div className="locations-hero">
+        <div className="locations-hero-info">
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
+            <span className="status-pill info">● WAREHOUSE GRID LOCATIONS</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Định vị tọa độ & cấu trúc dãy kệ</span>
+          </div>
+          <h1>Quản Lý Vị Trí Lưu Kho (Warehouse Locations)</h1>
+          <p>Thiết lập danh mục các khu vực, dãy kệ (A1, B2, C3...) để định hướng lô hàng chính xác khi nhập kho, nâng cao hiệu suất lấy hàng theo định vị 3D.</p>
+        </div>
+        <div>
+          <button type="button" className="btn-primary" onClick={() => setForm(emptyForm)}>
+            ✨ Thêm Vị Trí Kệ Mới
+          </button>
+        </div>
       </div>
 
-      <div className="resource-layout">
-        <section className="resource-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">Dữ liệu gốc</p>
-              <h2>Danh sách vị trí lưu kho</h2>
+      {/* KPI Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+        <StatKPI
+          title="Tổng Số Vị Trí Kệ"
+          value={meta.total || items.length}
+          unit="tọa độ kệ"
+          trend="↑ Đồng bộ với Sơ đồ 3D"
+          status="success"
+          icon="📍"
+        />
+        <StatKPI
+          title="Khả Năng Định Vị"
+          value="Chuẩn xác"
+          unit="grid"
+          trend="Tối ưu Picking & Putaway"
+          status="info"
+          icon="🗺️"
+        />
+      </div>
+
+      {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>⚠️ {error}</div>}
+
+      <div className="locations-layout-grid">
+        {/* Table Container */}
+        <div className="locations-table-card">
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+            <div className="table-search" style={{ flex: 1 }}>
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <input
+                placeholder="Tìm mã kệ, tên khu vực lưu kho..."
+                value={search}
+                onChange={(e) => {
+                  setPage(1)
+                  setSearch(e.target.value)
+                }}
+              />
             </div>
-            <button type="button" className="secondary-button" onClick={() => setForm(emptyForm)}>
-              Thêm vị trí
-            </button>
           </div>
 
-          <div className="filter-row">
-            <input
-              className="field-input"
-              placeholder="Tìm kiếm vị trí"
-              value={search}
-              onChange={(event) => {
-                setPage(1)
-                setSearch(event.target.value)
-              }}
-            />
-          </div>
-
-          {error && <p className="error-banner">{error}</p>}
-
-          <div className="table-wrap">
-            <table className="data-table">
+          <div className="modern-table-wrapper" style={{ flex: 1 }}>
+            <table className="modern-table">
               <thead>
                 <tr>
-                  <th>Mã vị trí</th>
-                  <th>Tên vị trí</th>
-                  <th>Mô tả</th>
-                  <th>Thao tác</th>
+                  <th>Mã định vị (Location Code)</th>
+                  <th>Tên khu vực / Kệ hàng</th>
+                  <th>Đặc tính & Điều kiện bảo quản</th>
+                  <th style={{ textAlign: 'center' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <TableEmpty colSpan={4} text="Đang tải danh sách vị trí..." />
+                  <TableEmpty colSpan={4} text="⏳ Đang tải sơ đồ định vị vị trí kho..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={4} text="Không tìm thấy vị trí nào" />
+                  <TableEmpty colSpan={4} text="❌ Chưa tìm thấy vị trí lưu kho nào phù hợp" />
                 ) : (
                   items.map((item) => (
                     <tr key={item.id}>
-                      <td data-label="Mã vị trí">
-                        <strong>{item.code}</strong>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                          <div className="location-icon-box">
+                            📍
+                          </div>
+                          <div>
+                            <strong style={{ display: 'block', color: '#fff', fontSize: '1.02rem', letterSpacing: '0.04em', fontFamily: "'Outfit', monospace" }}>
+                              {item.code}
+                            </strong>
+                            <span style={{ fontSize: '0.78rem', color: '#34d399' }}>ID: #{item.id.slice(0, 8)}</span>
+                          </div>
+                        </div>
                       </td>
-                      <td data-label="Tên vị trí">{item.name}</td>
-                      <td data-label="Mô tả">{item.description || '-'}</td>
-                      <td data-label="Thao tác" className="actions-cell">
-                        <button type="button" className="text-button" onClick={() => handleEdit(item)}>Sửa</button>
-                        <button type="button" className="text-button danger" onClick={() => handleDelete(item.id)}>Xóa</button>
+                      <td>
+                        <strong style={{ color: '#e2e8f0', fontSize: '0.96rem' }}>{item.name}</strong>
+                      </td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: 300 }}>
+                        {item.description || <span style={{ fontStyle: 'italic', color: 'var(--text-dim)' }}>Kệ tiêu chuẩn đa năng</span>}
+                      </td>
+                      <td>
+                        <div className="action-buttons" style={{ justifyContent: 'center' }}>
+                          <button type="button" className="icon-btn edit" title="Sửa tọa độ" onClick={() => handleEdit(item)}>✏️</button>
+                          <button type="button" className="icon-btn delete" title="Xóa tọa độ" onClick={() => handleDelete(item.id)}>🗑️</button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -144,40 +189,66 @@ export default function LocationsPage() {
             </table>
           </div>
 
-          <Pagination meta={meta} onPageChange={setPage} loading={loading} />
-        </section>
+          <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-subtle)' }}>
+            <Pagination meta={meta} onPageChange={setPage} loading={loading} />
+          </div>
+        </div>
 
-        <aside className="resource-panel form-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">{form.id ? 'Sửa vị trí' : 'Tạo vị trí mới'}</p>
-              <h2>{form.id ? form.code || 'Chi tiết vị trí' : 'Vị trí mới'}</h2>
-            </div>
+        {/* Side Form Card */}
+        <div className="locations-side-form">
+          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
+            <span className="status-pill info" style={{ marginBottom: 6 }}>
+              {form.id ? '✏️ CHỈNH SỬA VỊ TRÍ' : '✨ THÊM VỊ TRÍ KỆ MỚI'}
+            </span>
+            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>
+              {form.id ? form.code : 'Thiết lập tọa độ kệ'}
+            </h2>
           </div>
 
-          <form className="resource-form" onSubmit={handleSubmit}>
-            <div className="two-col">
-              <label>
-                Mã vị trí
-                <input className="field-input" value={form.code} onChange={(e) => setForm(prev => ({ ...prev, code: e.target.value }))} required placeholder="VD: A1-R2-S3" />
-              </label>
-              <label>
-                Tên vị trí
-                <input className="field-input" value={form.name} onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))} required placeholder="VD: Kệ A1" />
-              </label>
+          <form className="form-grid" onSubmit={handleSubmit}>
+            <div className="form-group full-width">
+              <label>Mã vị trí (Location Code) *</label>
+              <input
+                className="input-field"
+                value={form.code}
+                onChange={(e) => setForm((p) => ({ ...p, code: e.target.value.toUpperCase() }))}
+                required
+                placeholder="VD: A1-02-C3 hoặc KHO-LANH-01"
+              />
             </div>
-            <label>
-              Mô tả
-              <textarea className="field-textarea" rows="3" value={form.description} onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))} placeholder="Mô tả vị trí..."/>
-            </label>
-            <div className="form-actions">
-              <button type="submit" className="primary-button" disabled={saving}>
-                {saving ? 'Đang lưu...' : form.id ? 'Cập nhật' : 'Tạo mới'}
+
+            <div className="form-group full-width">
+              <label>Tên khu vực / dãy kệ *</label>
+              <input
+                className="input-field"
+                value={form.name}
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                required
+                placeholder="VD: Kệ lạnh Tầng 2 - Khu B"
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>Mô tả & điều kiện bảo quản</label>
+              <textarea
+                className="select-field"
+                style={{ height: 110, resize: 'vertical' }}
+                value={form.description}
+                onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                placeholder="VD: Nhiệt độ < 15 độ C, độ ẩm 50%, dành cho hàng sữa và chế phẩm sữa..."
+              />
+            </div>
+
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 14 }}>
+              <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
+                {saving ? '⏳ Đang lưu...' : form.id ? '💾 Cập Nhật Vị Trí' : '➕ Tạo Vị Trí Kệ'}
               </button>
-              <button type="button" className="secondary-button" onClick={() => setForm(emptyForm)}>Làm mới</button>
+              <button type="button" className="btn-secondary" onClick={() => setForm(emptyForm)}>
+                🔄 Làm Mới
+              </button>
             </div>
           </form>
-        </aside>
+        </div>
       </div>
     </div>
   )

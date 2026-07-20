@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import Modal from './common/Modal';
 
 export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
   const [error, setError] = useState(null);
@@ -34,24 +35,15 @@ export default function QRScannerModal({ isOpen, onClose, onScanSuccess }) {
     };
   }, [isOpen, onScanSuccess]);
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      <div className="modal-backdrop" onClick={onClose}></div>
-      <div className="modal-content" style={{ maxWidth: '400px' }}>
-        <div className="modal-header">
-          <h2>Quét mã QR / Barcode</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {error && <p className="error-banner">{error}</p>}
-          <div id="qr-reader" style={{ width: '100%', maxWidth: '350px' }}></div>
-          <p style={{ marginTop: '1rem', color: '#94a3b8', fontSize: '0.85rem', textAlign: 'center' }}>
-            Đưa mã vạch hoặc mã QR vào khung ngắm để tự động quét.
-          </p>
-        </div>
+    <Modal isOpen={isOpen} onClose={onClose} title="Quét mã QR / Barcode" maxWidth="420px">
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {error && <p className="error-banner" style={{ color: 'var(--danger)', marginBottom: 10 }}>{error}</p>}
+        <div id="qr-reader" style={{ width: '100%', maxWidth: '350px' }}></div>
+        <p style={{ marginTop: '1rem', color: '#94a3b8', fontSize: '0.85rem', textAlign: 'center' }}>
+          Đưa mã vạch hoặc mã QR vào khung ngắm camera để tự động quét & nhận dạng sản phẩm.
+        </p>
       </div>
-    </>
+    </Modal>
   );
 }

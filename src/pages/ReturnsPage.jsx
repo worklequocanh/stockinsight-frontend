@@ -4,6 +4,8 @@ import { buildQuery, parseApiError } from '../utils/helpers'
 import { translateReturnStatus } from '../utils/translations'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
+import StatKPI from '../components/common/StatKPI'
+import './ReturnsPage.css'
 
 const QUALITY_OPTIONS = ['Mới', 'Tốt', 'Hư hỏng', 'Mất niêm phong']
 
@@ -68,8 +70,8 @@ export default function ReturnsPage() {
   }
 
   async function handleProcess(id, action) {
-    const label = action === 'RETURNED_TO_STOCK' ? 'nhập lại kho' : 'tiêu hủy'
-    if (!window.confirm(`Xác nhận ${label} phiếu trả hàng này?`)) return
+    const label = action === 'RETURNED_TO_STOCK' ? 'nhập lại kho (cộng tăng tồn khả dụng)' : 'tiêu hủy (không cộng tồn kho)'
+    if (!window.confirm(`⚡ Xác nhận ${label} đối với phiếu trả hàng này?`)) return
     try {
       await api.put(`/returns/${id}/process`, { action })
       await loadData({ search, page })
@@ -100,143 +102,239 @@ export default function ReturnsPage() {
     }))
   }
 
+  const pendingCount = items.filter(i => i.status === 'PENDING').length
+  const restockedCount = items.filter(i => i.status === 'RETURNED_TO_STOCK').length
+  const discardedCount = items.filter(i => i.status === 'DISCARDED').length
+
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Trả hàng</h1>
-        <p className="hero-copy">Quản lý hàng hóa khách trả lại</p>
+    <div className="returns-container">
+      {/* Hero Header */}
+      <div className="returns-hero">
+        <div className="returns-hero-info">
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
+            <span className="status-pill info">● REVERSE LOGISTICS ENGINE</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Quy trình thu hồi & tái nhập kho</span>
+          </div>
+          <h1>Quản Lý Hàng Trả & Thu Hồi (Reverse Logistics)</h1>
+          <p>Tiếp nhận, thẩm định chất lượng hàng hóa do khách hàng hoặc đối tác hoàn trả. Quyết định tái nhập kho (sản phẩm nguyên vẹn) hoặc tiêu hủy (hàng lỗi/mất niêm phong).</p>
+        </div>
+        <div>
+          <button type="button" className="btn-primary" onClick={() => setForm({ reason: '', originalExportId: '', items: [] })}>
+            ✨ Lập Phiếu Trả Hàng Mới
+          </button>
+        </div>
       </div>
 
-      {error && <p className="error-banner" style={{ marginBottom: '1rem' }}>{error}</p>}
+      {/* KPI Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+        <StatKPI
+          title="Tổng Phiếu Tiếp Nhận"
+          value={meta.total || items.length}
+          unit="phiếu trả"
+          trend="↑ Reverse logistics"
+          status="success"
+          icon="↩️"
+        />
+        <StatKPI
+          title="Chờ Thẩm Định (Pending)"
+          value={pendingCount}
+          unit="phiếu chờ"
+          trend={pendingCount > 0 ? 'Cần phán quyết chất lượng' : 'Đã thẩm định hết'}
+          status={pendingCount > 0 ? 'warning' : 'success'}
+          icon="⏳"
+        />
+        <StatKPI
+          title="Đã Tái Nhập Kho"
+          value={restockedCount}
+          unit="lô hàng tốt"
+          trend="Cộng tăng tồn khả dụng"
+          status="success"
+          icon="📦"
+        />
+        <StatKPI
+          title="Đã Tiêu Hủy / Loại Bỏ"
+          value={discardedCount}
+          unit="lô hàng lỗi"
+          trend="Loại khỏi kho chính"
+          status="danger"
+          icon="🔥"
+        />
+      </div>
 
-      <div className="resource-layout">
-        <section className="resource-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">Nghiệp vụ</p>
-              <h2>Danh sách phiếu trả</h2>
+      {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>⚠️ {error}</div>}
+
+      <div className="returns-layout-grid">
+        {/* Table Container */}
+        <div className="returns-table-card">
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+            <div className="table-search" style={{ flex: 1 }}>
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <input
+                placeholder="Tìm mã phiếu hoàn trả (VD: RET-2026), lý do..."
+                value={search}
+                onChange={(e) => {
+                  setPage(1)
+                  setSearch(e.target.value)
+                }}
+              />
             </div>
-            <button type="button" className="secondary-button" onClick={() => setForm({ reason: '', originalExportId: '', items: [] })}>
-              Tạo phiếu mới
-            </button>
           </div>
 
-          <div className="filter-row">
-            <input
-              className="field-input"
-              placeholder="Tìm theo mã phiếu"
-              value={search}
-              onChange={(event) => {
-                setPage(1)
-                setSearch(event.target.value)
-              }}
-            />
-          </div>
-
-          <div className="table-wrap">
-            <table className="data-table">
+          <div className="modern-table-wrapper" style={{ flex: 1 }}>
+            <table className="modern-table">
               <thead>
                 <tr>
-                  <th>Mã phiếu</th>
-                  <th>Lý do</th>
-                  <th>Trạng thái</th>
-                  <th>Người tạo</th>
-                  <th>Thao tác</th>
+                  <th>Mã Phiếu & Ngày tiếp nhận</th>
+                  <th>Lý do hoàn trả</th>
+                  <th>Trạng thái & Phân loại</th>
+                  <th>Khởi tạo bởi</th>
+                  <th style={{ textAlign: 'center' }}>Thao tác xử lý</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <TableEmpty colSpan={5} text="Đang tải dữ liệu..." />
+                  <TableEmpty colSpan={5} text="⏳ Đang tải danh sách hoàn trả hàng hóa từ cloud..." />
                 ) : items.length === 0 ? (
-                  <TableEmpty colSpan={5} text="Không tìm thấy phiếu trả nào" />
+                  <TableEmpty colSpan={5} text="❌ Chưa ghi nhận phiếu hoàn trả hàng nào" />
                 ) : (
-                  items.map((item) => (
-                    <tr key={item.id}>
-                      <td data-label="Mã phiếu">
-                        <strong>{item.code}</strong>
-                        <div className="muted-line">{new Date(item.createdAt).toLocaleDateString()}</div>
-                      </td>
-                      <td data-label="Lý do">{item.reason}</td>
-                      <td data-label="Trạng thái">
-                        <span className={`badge badge--${item.status.toLowerCase()}`}>
-                          {translateReturnStatus(item.status)}
-                        </span>
-                      </td>
-                      <td data-label="Người tạo">{item.createdBy?.name || '-'}</td>
-                      <td data-label="Thao tác" className="actions-cell">
-                        {item.status === 'PENDING' && (
-                          <>
-                            <button type="button" className="text-button" onClick={() => handleProcess(item.id, 'RETURNED_TO_STOCK')}>
-                              Nhập lại kho
-                            </button>
-                            <button type="button" className="text-button danger" onClick={() => handleProcess(item.id, 'DISCARDED')}>
-                              Tiêu hủy
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))
+                  items.map((item) => {
+                    const statusClass = item.status === 'RETURNED_TO_STOCK' ? 'success' : item.status === 'DISCARDED' ? 'danger' : 'warning'
+                    return (
+                      <tr key={item.id}>
+                        <td>
+                          <strong style={{ display: 'block', color: '#fff', fontSize: '0.98rem' }}>{item.code}</strong>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>
+                            📅 {new Date(item.createdAt).toLocaleDateString('vi-VN')}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ color: '#e2e8f0', fontSize: '0.92rem', fontWeight: 600 }}>{item.reason || 'Khách hàng hoàn trả'}</div>
+                          {item.originalExportId && (
+                            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                              🔗 Từ lệnh xuất: <strong style={{ color: '#38bdf8' }}>{item.originalExportId}</strong>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          <span className={`status-pill ${statusClass}`} style={{ fontSize: '0.75rem', padding: '3px 10px' }}>
+                            {translateReturnStatus(item.status)}
+                          </span>
+                        </td>
+                        <td style={{ color: '#cbd5e1', fontSize: '0.88rem' }}>
+                          👤 {item.createdBy?.name || '-'}
+                        </td>
+                        <td>
+                          <div className="action-buttons" style={{ justifyContent: 'center' }}>
+                            {item.status === 'PENDING' ? (
+                              <>
+                                <button type="button" className="status-pill success" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => handleProcess(item.id, 'RETURNED_TO_STOCK')}>
+                                  ↩ Nhập lại kho
+                                </button>
+                                <button type="button" className="status-pill danger" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => handleProcess(item.id, 'DISCARDED')}>
+                                  🔥 Tiêu hủy
+                                </button>
+                              </>
+                            ) : (
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontStyle: 'italic' }}>Đã kết án</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>
           </div>
 
-          <Pagination meta={meta} onPageChange={setPage} loading={loading} />
-        </section>
+          <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-subtle)' }}>
+            <Pagination meta={meta} onPageChange={setPage} loading={loading} />
+          </div>
+        </div>
 
-        <aside className="resource-panel form-panel">
-          <div className="resource-header">
-            <div>
-              <p className="section-label">Tạo phiếu trả</p>
-              <h2>Phiếu trả mới</h2>
-            </div>
+        {/* Side Form Card */}
+        <div className="returns-side-form">
+          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
+            <span className="status-pill info" style={{ marginBottom: 6 }}>↩ TIẾP NHẬN HOÀN TRẢ</span>
+            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>Lập Phiếu Trả Hàng</h2>
           </div>
 
-          <form className="resource-form" onSubmit={handleSubmit}>
-            <label>
-              Lý do trả hàng
-              <textarea className="field-textarea" rows="2" value={form.reason} onChange={(e) => setForm(prev => ({ ...prev, reason: e.target.value }))} required placeholder="VD: Hàng hư hỏng, sai quy cách..." />
-            </label>
-            <label>
-              Mã phiếu xuất gốc (tuỳ chọn)
-              <input className="field-input" value={form.originalExportId} onChange={(e) => setForm(prev => ({ ...prev, originalExportId: e.target.value }))} placeholder="Nhập mã phiếu xuất bán gốc" />
-            </label>
+          <form className="form-grid" onSubmit={handleSubmit}>
+            <div className="form-group full-width">
+              <label>Lý do hoàn trả từ khách/đối tác *</label>
+              <textarea
+                className="select-field"
+                style={{ height: 80, resize: 'vertical' }}
+                value={form.reason}
+                onChange={(e) => setForm((p) => ({ ...p, reason: e.target.value }))}
+                required
+                placeholder="VD: Hàng bị móp méo vỏ hộp khi vận chuyển, khách hàng đổi ý..."
+              />
+            </div>
 
-            <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <h3 style={{ margin: 0, fontSize: '1rem' }}>Sản phẩm trả</h3>
-                <button type="button" className="text-button" onClick={addItem}>+ Thêm sản phẩm</button>
+            <div className="form-group full-width">
+              <label>Mã phiếu xuất gốc (Nếu có)</label>
+              <input
+                className="input-field"
+                value={form.originalExportId}
+                onChange={(e) => setForm((p) => ({ ...p, originalExportId: e.target.value }))}
+                placeholder="VD: EXP-2026/04..."
+              />
+            </div>
+
+            {/* Products Dynamic List */}
+            <div className="form-group full-width" style={{ marginTop: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', color: '#f59e0b' }}>📦 Danh sách SKU hoàn trả</h3>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Ghi nhận số lượng và thẩm định tình trạng</span>
+                </div>
+                <button type="button" className="btn-secondary" style={{ padding: '6px 14px', fontSize: '0.82rem' }} onClick={addItem}>
+                  + Thêm SKU trả
+                </button>
               </div>
-              
-              {form.items.length === 0 ? (
-                <div className="muted-line">Chưa có sản phẩm nào.</div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {form.items.map((item, index) => (
-                    <div key={index} style={{ border: '1px solid #e2e8f0', padding: '0.75rem', borderRadius: '4px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <strong>Sản phẩm {index + 1}</strong>
-                        <button type="button" className="text-button danger" onClick={() => removeItem(index)}>Xóa</button>
-                      </div>
-                      
-                      <select className="field-select" value={item.productId} onChange={(e) => updateItem(index, 'productId', e.target.value)} required style={{ marginBottom: '0.5rem' }}>
-                        <option value="">Chọn sản phẩm</option>
-                        {products.map(p => (
-                          <option key={p.id} value={p.id}>{p.sku} - {p.name}</option>
-                        ))}
-                      </select>
 
-                      <div className="two-col" style={{ marginBottom: '0.5rem' }}>
-                        <label>Số lượng <input type="number" min="1" className="field-input" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', e.target.value)} required /></label>
-                        <label>
-                          Tình trạng
-                          <select className="field-select" value={item.qualityStatus} onChange={(e) => updateItem(index, 'qualityStatus', e.target.value)}>
-                            {QUALITY_OPTIONS.map(q => (
+              {form.items.length === 0 ? (
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border-subtle)', padding: '24px', borderRadius: 16, textAlign: 'center', color: 'var(--text-muted)' }}>
+                  Chưa chọn sản phẩm hoàn trả. Nhấp "+ Thêm SKU trả" để bắt đầu khai báo.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {form.items.map((item, index) => (
+                    <div key={index} className="return-item-card">
+                      <div className="return-item-header">
+                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fbbf24' }}># Sản phẩm trả {index + 1}</span>
+                        <button type="button" className="icon-btn delete" style={{ width: 28, height: 28 }} onClick={() => removeItem(index)}>
+                          ✕
+                        </button>
+                      </div>
+
+                      <div className="form-grid" style={{ gap: 12 }}>
+                        <div className="form-group full-width">
+                          <label style={{ fontSize: '0.8rem' }}>Chọn SKU Sản phẩm *</label>
+                          <select className="select-field" value={item.productId} onChange={(e) => updateItem(index, 'productId', e.target.value)} required>
+                            <option value="">-- Chọn sản phẩm --</option>
+                            {products.map((p) => (
+                              <option key={p.id} value={p.id}>{p.sku} - {p.name}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="form-group">
+                          <label style={{ fontSize: '0.8rem' }}>Số lượng trả *</label>
+                          <input type="number" min="1" className="input-field" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', e.target.value)} required />
+                        </div>
+
+                        <div className="form-group">
+                          <label style={{ fontSize: '0.8rem' }}>Thẩm định ngoại quan *</label>
+                          <select className="select-field" value={item.qualityStatus} onChange={(e) => updateItem(index, 'qualityStatus', e.target.value)}>
+                            {QUALITY_OPTIONS.map((q) => (
                               <option key={q} value={q}>{q}</option>
                             ))}
                           </select>
-                        </label>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -244,13 +342,16 @@ export default function ReturnsPage() {
               )}
             </div>
 
-            <div className="form-actions">
-              <button type="submit" className="primary-button" disabled={saving || form.items.length === 0}>
-                {saving ? 'Đang lưu...' : 'Tạo phiếu trả'}
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+              <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving || form.items.length === 0}>
+                {saving ? '⏳ Đang xử lý...' : '🚀 Hoàn Tất Lập Phiếu Trả'}
+              </button>
+              <button type="button" className="btn-secondary" onClick={() => setForm({ reason: '', originalExportId: '', items: [] })}>
+                🔄 Làm Mới
               </button>
             </div>
           </form>
-        </aside>
+        </div>
       </div>
     </div>
   )
