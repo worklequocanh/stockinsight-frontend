@@ -379,9 +379,9 @@ export default function ProductsPage() {
             </div>
 
             <div className="form-group">
-              <label>Nhà cung cấp / Brand</label>
-              <select className="select-field" value={form.supplierId} onChange={(e) => setForm((p) => ({ ...p, supplierId: e.target.value }))}>
-                <option value="">-- Tất cả NCC --</option>
+              <label>Nhà cung cấp / Brand *</label>
+              <select className="select-field" value={form.supplierId} onChange={(e) => setForm((p) => ({ ...p, supplierId: e.target.value }))} required>
+                <option value="">-- Chọn nhà cung cấp --</option>
                 {suppliers.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}

@@ -372,8 +372,8 @@ export default function TransfersPage() {
                         </div>
 
                         <div className="form-group">
-                          <label style={{ fontSize: '0.8rem' }}>ID Lô Hàng (Batch ID) *</label>
-                          <input type="text" className="input-field" value={item.fromBatchId} onChange={(e) => updateItem(index, 'fromBatchId', e.target.value)} required placeholder="VD: batch-xxx..." />
+                          <label style={{ fontSize: '0.8rem' }}>Mã Lô Hàng (Để trống tự trích lô cũ nhất FEFO)</label>
+                          <input type="text" className="input-field" value={item.fromBatchId} onChange={(e) => updateItem(index, 'fromBatchId', e.target.value)} placeholder="Tùy chọn: Nhập Batch ID hoặc để trống tự động..." />
                         </div>
 
                         <div className="form-group">
