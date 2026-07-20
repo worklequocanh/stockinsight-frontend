@@ -37,7 +37,7 @@
 
 .returns-layout-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.75fr) minmax(420px, 1.25fr);
+  grid-template-columns: 1fr;
   gap: 24px;
   align-items: flex-start;
 }

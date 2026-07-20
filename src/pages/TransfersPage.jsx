@@ -6,6 +6,7 @@ import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import QRScannerModal from '../components/QRScannerModal'
+import SidePanel from '../components/common/SidePanel'
 import './TransfersPage.css'
 
 export default function TransfersPage() {
@@ -17,6 +18,7 @@ export default function TransfersPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ id: '', note: '', items: [] })
+  const [isFormOpen, setIsFormOpen] = useState(false)
   
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [targetItemIndex, setTargetItemIndex] = useState(null)
@@ -59,6 +61,7 @@ export default function TransfersPage() {
         items: form.items,
       })
       setForm({ id: '', note: '', items: [] })
+      setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
@@ -147,7 +150,7 @@ export default function TransfersPage() {
           <p>Dịch chuyển vị trí lưu trữ hàng hóa giữa các khu vực kệ (VD: Từ kho tổng A1 sang kệ bán lẻ B2) để tối ưu không gian và thuận tiện soạn hàng.</p>
         </div>
         <div>
-          <button type="button" className="btn-primary" onClick={() => setForm({ id: '', note: '', items: [] })}>
+          <button type="button" className="btn-primary" onClick={() => { setForm({ id: '', note: '', items: [] }); setIsFormOpen(true); }}>
             ✨ Lập Phiếu Điều Chuyển
           </button>
         </div>
@@ -282,14 +285,17 @@ export default function TransfersPage() {
             <Pagination meta={meta} onPageChange={setPage} loading={loading} />
           </div>
         </div>
+      </div>
 
-        {/* Side Form Card */}
+      {/* SidePanel Drawer */}
+      <SidePanel
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title="Dịch Chuyển Kệ Hàng"
+        subtitle="Lập Phiếu Điều Chuyển Vị Trí Kho"
+        width="680px"
+      >
         <div className="transfers-side-form">
-          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
-            <span className="status-pill info" style={{ marginBottom: 6 }}>🔄 LẬP PHIẾU ĐIỀU CHUYỂN</span>
-            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>Dịch Chuyển Kệ Hàng</h2>
-          </div>
-
           <form className="form-grid" onSubmit={handleSubmit}>
             <div className="form-group full-width">
               <label>Ghi chú lệnh điều chuyển *</label>
@@ -316,7 +322,7 @@ export default function TransfersPage() {
 
               {form.items.length === 0 ? (
                 <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border-subtle)', padding: '24px', borderRadius: 16, textAlign: 'center', color: 'var(--text-muted)' }}>
-                  Chưa chọn sản phẩm chuyển. Nhấp "+ Thêm dòng chuyển" hoặc quét QR để bắt đầu.
+                  Chưa chọn sản phẩm chuyển. Nhấp &quot;+ Thêm dòng chuyển&quot; hoặc quét QR để bắt đầu.
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -350,7 +356,7 @@ export default function TransfersPage() {
                           <select className="select-field" value={item.fromLocationId} onChange={(e) => updateItem(index, 'fromLocationId', e.target.value)} required>
                             <option value="">-- Chọn vị trí từ --</option>
                             {locations.map((loc) => (
-                              <option key={loc.id} value={loc.id}>{loc.code} - {loc.name}</option>
+                              <option key={loc.id} value={loc.id}>{loc.code} ({loc.name})</option>
                             ))}
                           </select>
                         </div>
@@ -360,7 +366,7 @@ export default function TransfersPage() {
                           <select className="select-field" value={item.toLocationId} onChange={(e) => updateItem(index, 'toLocationId', e.target.value)} required>
                             <option value="">-- Chọn vị trí đến --</option>
                             {locations.map((loc) => (
-                              <option key={loc.id} value={loc.id}>{loc.code} - {loc.name}</option>
+                              <option key={loc.id} value={loc.id}>{loc.code} ({loc.name})</option>
                             ))}
                           </select>
                         </div>
@@ -381,17 +387,17 @@ export default function TransfersPage() {
               )}
             </div>
 
-            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving || form.items.length === 0}>
                 {saving ? '⏳ Đang xử lý...' : '🚀 Hoàn Tất Chuyển Kệ'}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => setForm({ id: '', note: '', items: [] })}>
-                🔄 Làm Mới
+              <button type="button" className="btn-secondary" onClick={() => setIsFormOpen(false)}>
+                ✕ Đóng
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </SidePanel>
 
       <QRScannerModal 
         isOpen={isScannerOpen} 

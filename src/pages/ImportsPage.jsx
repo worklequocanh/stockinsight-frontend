@@ -6,6 +6,7 @@ import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import QRScannerModal from '../components/QRScannerModal'
+import SidePanel from '../components/common/SidePanel'
 import './ImportsPage.css'
 
 export default function ImportsPage() {
@@ -17,6 +18,7 @@ export default function ImportsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ id: '', supplierId: '', note: '', items: [] })
+  const [isFormOpen, setIsFormOpen] = useState(false)
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [targetItemIndex, setTargetItemIndex] = useState(null)
 
@@ -68,6 +70,7 @@ export default function ImportsPage() {
         })),
       })
       setForm({ id: '', supplierId: '', note: '', items: [] })
+      setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
@@ -162,7 +165,7 @@ export default function ImportsPage() {
           <p>Tạo phiếu tiếp nhận hàng hóa từ đối tác cung ứng, gán số lô Lot/Batch, hạn sử dụng FEFO, quét mã QR/Barcode và định vị vị trí lưu trữ kệ hàng.</p>
         </div>
         <div>
-          <button type="button" className="btn-primary" onClick={() => setForm({ id: '', supplierId: '', note: '', items: [] })}>
+          <button type="button" className="btn-primary" onClick={() => { setForm({ id: '', supplierId: '', note: '', items: [] }); setIsFormOpen(true); }}>
             ✨ Lập Phiếu Nhập Mới
           </button>
         </div>
@@ -298,14 +301,17 @@ export default function ImportsPage() {
             <Pagination meta={meta} onPageChange={setPage} loading={loading} />
           </div>
         </div>
+      </div>
 
-        {/* Side Form Card */}
+      {/* SidePanel Drawer */}
+      <SidePanel
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title="Tiếp Nhận Hàng Hóa"
+        subtitle="Lập Phiếu Nhập Kho & Quét QR"
+        width="680px"
+      >
         <div className="imports-side-form">
-          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
-            <span className="status-pill info" style={{ marginBottom: 6 }}>✨ LẬP PHIẾU NHẬP KHO</span>
-            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>Tiếp Nhận Hàng Hóa</h2>
-          </div>
-
           <form className="form-grid" onSubmit={handleSubmit}>
             <div className="form-group full-width">
               <label>Nhà cung cấp hàng hóa *</label>
@@ -358,7 +364,7 @@ export default function ImportsPage() {
 
                       <div className="form-grid" style={{ gap: 12 }}>
                         <div className="form-group full-width">
-                          <label style={{ fontSize: '0.8rem' }}>Sản phẩm SKU *</label>
+                          <label style={{ fontSize: '0.8rem' }}>Chọn sản phẩm SKU *</label>
                           <select className="select-field" value={item.productId} onChange={(e) => updateItem(index, 'productId', e.target.value)} required>
                             <option value="">-- Chọn sản phẩm --</option>
                             {products.map((p) => (
@@ -373,26 +379,26 @@ export default function ImportsPage() {
                         </div>
 
                         <div className="form-group">
-                          <label style={{ fontSize: '0.8rem' }}>Giá nhập (VNĐ) *</label>
+                          <label style={{ fontSize: '0.8rem' }}>Giá nhập đơn vị (VNĐ) *</label>
                           <input type="number" min="0" step="0.01" className="input-field" value={item.unitPrice} onChange={(e) => updateItem(index, 'unitPrice', e.target.value)} required />
                         </div>
 
                         <div className="form-group">
-                          <label style={{ fontSize: '0.8rem' }}>Số lô (Lot Number) *</label>
-                          <input className="input-field" value={item.lotNumber} onChange={(e) => updateItem(index, 'lotNumber', e.target.value)} required placeholder="VD: LOT-0126" />
+                          <label style={{ fontSize: '0.8rem' }}>Số Lot / Batch *</label>
+                          <input className="input-field" value={item.lotNumber} onChange={(e) => updateItem(index, 'lotNumber', e.target.value)} required placeholder="VD: LOT-2026-05" />
                         </div>
 
                         <div className="form-group">
-                          <label style={{ fontSize: '0.8rem' }}>Hạn sử dụng (FEFO) *</label>
+                          <label style={{ fontSize: '0.8rem' }}>Hạn sử dụng (Expiry Date) *</label>
                           <input type="date" className="input-field" value={item.expiryDate} onChange={(e) => updateItem(index, 'expiryDate', e.target.value)} required />
                         </div>
 
                         <div className="form-group full-width">
-                          <label style={{ fontSize: '0.8rem' }}>Vị trí xếp kệ (Tuỳ chọn)</label>
-                          <select className="select-field" value={item.locationId || ''} onChange={(e) => updateItem(index, 'locationId', e.target.value)}>
-                            <option value="">-- Tự động bố trí kệ --</option>
+                          <label style={{ fontSize: '0.8rem' }}>Định vị kệ / Vị trí lưu kho (Location)</label>
+                          <select className="select-field" value={item.locationId} onChange={(e) => updateItem(index, 'locationId', e.target.value)}>
+                            <option value="">-- Kho chung (Chưa gán vị trí) --</option>
                             {locations.map((loc) => (
-                              <option key={loc.id} value={loc.id}>{loc.code} - {loc.name}</option>
+                              <option key={loc.id} value={loc.id}>{loc.code} ({loc.name})</option>
                             ))}
                           </select>
                         </div>
@@ -403,17 +409,17 @@ export default function ImportsPage() {
               )}
             </div>
 
-            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving || form.items.length === 0}>
                 {saving ? '⏳ Đang lưu...' : '🚀 Hoàn Tất Gửi Phiếu Nhập'}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => setForm({ id: '', supplierId: '', note: '', items: [] })}>
-                🔄 Làm Mới
+              <button type="button" className="btn-secondary" onClick={() => setIsFormOpen(false)}>
+                ✕ Đóng
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </SidePanel>
 
       <QRScannerModal 
         isOpen={isScannerOpen} 

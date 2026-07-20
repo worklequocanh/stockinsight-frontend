@@ -6,6 +6,7 @@ import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import QRScannerModal from '../components/QRScannerModal'
+import SidePanel from '../components/common/SidePanel'
 import './ExportsPage.css'
 
 export default function ExportsPage() {
@@ -17,6 +18,7 @@ export default function ExportsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ id: '', exportType: 'SALE', note: '', customerId: '', items: [] })
+  const [isFormOpen, setIsFormOpen] = useState(false)
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [targetItemIndex, setTargetItemIndex] = useState(null)
 
@@ -60,6 +62,7 @@ export default function ExportsPage() {
         items: form.items,
       })
       setForm({ id: '', exportType: 'SALE', note: '', customerId: '', items: [] })
+      setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
@@ -154,7 +157,7 @@ export default function ExportsPage() {
           <p>Xuất hàng tự động theo thuật toán First Expired, First Out (lô cận date xuất trước). Hỗ trợ xuất bán hàng cho đại lý, điều chuyển nội bộ và xử lý hàng hư hỏng.</p>
         </div>
         <div>
-          <button type="button" className="btn-primary" onClick={() => setForm({ id: '', exportType: 'SALE', note: '', customerId: '', items: [] })}>
+          <button type="button" className="btn-primary" onClick={() => { setForm({ id: '', exportType: 'SALE', note: '', customerId: '', items: [] }); setIsFormOpen(true); }}>
             ✨ Lập Phiếu Xuất Mới
           </button>
         </div>
@@ -297,14 +300,17 @@ export default function ExportsPage() {
             <Pagination meta={meta} onPageChange={setPage} loading={loading} />
           </div>
         </div>
+      </div>
 
-        {/* Side Form Card */}
+      {/* SidePanel Drawer */}
+      <SidePanel
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title="Xuất Hàng FEFO"
+        subtitle="Lập Phiếu Xuất Kho & FEFO Engine"
+        width="680px"
+      >
         <div className="exports-side-form">
-          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
-            <span className="status-pill info" style={{ marginBottom: 6 }}>🚀 LẬP PHIẾU XUẤT KHO</span>
-            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>Xuất Hàng FEFO</h2>
-          </div>
-
           <form className="form-grid" onSubmit={handleSubmit}>
             <div className="form-group full-width">
               <label>Loại nghiệp vụ xuất *</label>
@@ -382,7 +388,7 @@ export default function ExportsPage() {
                         </div>
 
                         <div className="form-group">
-                          <label style={{ fontSize: '0.8rem' }}>Số lượng xuất *</label>
+                          <label style={{ fontSize: '0.8rem' }}>Số lượng yêu cầu xuất *</label>
                           <input type="number" min="1" className="input-field" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', e.target.value)} required />
                         </div>
 
@@ -397,17 +403,17 @@ export default function ExportsPage() {
               )}
             </div>
 
-            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving || form.items.length === 0}>
                 {saving ? '⏳ Đang xử lý...' : '🚀 Hoàn Tất Lệnh Xuất Kho'}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => setForm({ id: '', exportType: 'SALE', note: '', customerId: '', items: [] })}>
-                🔄 Làm Mới
+              <button type="button" className="btn-secondary" onClick={() => setIsFormOpen(false)}>
+                ✕ Đóng
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </SidePanel>
 
       <QRScannerModal 
         isOpen={isScannerOpen} 

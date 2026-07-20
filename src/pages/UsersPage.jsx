@@ -5,6 +5,7 @@ import { translateRole } from '../utils/translations'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
+import SidePanel from '../components/common/SidePanel'
 import './UsersPage.css'
 
 const emptyForm = { id: '', name: '', email: '', password: '', role: 'EMPLOYEE' }
@@ -18,6 +19,7 @@ export default function UsersPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
+  const [isFormOpen, setIsFormOpen] = useState(false)
   const [resetPwId, setResetPwId] = useState(null)
 
   async function loadData(params = {}) {
@@ -60,6 +62,7 @@ export default function UsersPage() {
         })
       }
       setForm(emptyForm)
+      setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
@@ -109,6 +112,7 @@ export default function UsersPage() {
       password: '',
       role: item.role || 'EMPLOYEE',
     })
+    setIsFormOpen(true)
   }
 
   const adminCount = items.filter(i => i.role === 'ADMIN').length
@@ -127,7 +131,7 @@ export default function UsersPage() {
           <p>Phân quyền định danh theo vai trò (Quản trị viên, Quản lý kho, Nhân viên thao tác), kiểm soát quyền truy cập nghiệp vụ và đặt lại mật khẩu bảo mật (dành riêng cho Admin).</p>
         </div>
         <div>
-          <button type="button" className="btn-primary" onClick={() => setForm(emptyForm)}>
+          <button type="button" className="btn-primary" onClick={() => { setForm(emptyForm); setIsFormOpen(true); }}>
             ✨ Cấp Tài Khoản Mới
           </button>
         </div>
@@ -260,65 +264,39 @@ export default function UsersPage() {
             <Pagination meta={meta} onPageChange={setPage} loading={loading} />
           </div>
         </div>
+      </div>
 
-        {/* Side Form Card */}
+      {/* SidePanel Drawer - Form Thêm / Sửa User */}
+      <SidePanel
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={form.id ? 'Cập Nhật Tài Khoản' : 'Cấp Tài Khoản Mới'}
+        subtitle={form.id ? `ID: #${form.id.slice(0, 8)}` : 'Hồ sơ người dùng IAM'}
+        width="480px"
+      >
         <div className="users-side-form">
-          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
-            <span className="status-pill info" style={{ marginBottom: 6 }}>
-              {form.id ? '✏️ CHỈNH SỬA TÀI KHOẢN' : '✨ TẠO TÀI KHOẢN MỚI'}
-            </span>
-            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>
-              {form.id ? form.name : 'Cấp Quyền Truy Cập'}
-            </h2>
-          </div>
-
-          {resetPwId && (
-            <div style={{ background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.4)', padding: 16, borderRadius: 16, marginBottom: 20 }}>
-              <span style={{ fontSize: '0.85rem', color: '#38bdf8', fontWeight: 700, display: 'block', marginBottom: 8 }}>
-                🔑 Khởi tạo lại mật khẩu cho người dùng đã chọn
-              </span>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button type="button" className="btn-primary" style={{ padding: '6px 14px', fontSize: '0.8rem', flex: 1 }} onClick={handleResetPassword} disabled={saving}>
-                  Xác nhận đặt lại
-                </button>
-                <button type="button" className="btn-secondary" style={{ padding: '6px 14px', fontSize: '0.8rem' }} onClick={() => setResetPwId(null)}>
-                  Hủy
-                </button>
-              </div>
-            </div>
-          )}
-
           <form className="form-grid" onSubmit={handleSubmit}>
             <div className="form-group full-width">
-              <label>Tên hiển thị (Full Name) *</label>
+              <label>Họ và tên *</label>
               <input
                 className="input-field"
                 value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                 required
-                placeholder="VD: Nguyễn Văn A..."
+                placeholder="VD: Nguyễn Văn Anh"
               />
             </div>
 
             <div className="form-group full-width">
-              <label>Địa chỉ Email (Tên đăng nhập) *</label>
+              <label>Địa chỉ Email (Đăng nhập) *</label>
               <input
                 type="email"
                 className="input-field"
                 value={form.email}
                 onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
                 required
-                placeholder="VD: nguyenvana@stockinsight.vn"
+                placeholder="VD: anh.nguyen@company.com"
               />
-            </div>
-
-            <div className="form-group full-width">
-              <label>Vai trò phân quyền (IAM Role) *</label>
-              <select className="select-field" value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}>
-                <option value="EMPLOYEE">🟢 Nhân viên thao tác (Employee)</option>
-                <option value="WAREHOUSE_MANAGER">🔵 Quản lý kho (Warehouse Manager)</option>
-                <option value="ADMIN">🔴 Quản trị viên hệ thống (Admin)</option>
-              </select>
             </div>
 
             {!form.id && (
@@ -329,24 +307,79 @@ export default function UsersPage() {
                   className="input-field"
                   value={form.password}
                   onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-                  required={!form.id}
-                  minLength={6}
-                  placeholder="Tối thiểu 6 ký tự bảo mật"
+                  required
+                  placeholder="Tối thiểu 6 ký tự bảo mật..."
                 />
               </div>
             )}
 
-            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+            <div className="form-group full-width">
+              <label>Vai trò phân quyền (Role) *</label>
+              <select
+                className="select-field"
+                value={form.role}
+                onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
+                required
+              >
+                <option value="EMPLOYEE">🧑‍🔧 Nhân viên kho (Thao tác cơ bản)</option>
+                <option value="WAREHOUSE_MANAGER">📦 Quản lý kho (Duyệt phiếu & báo cáo)</option>
+                <option value="ADMIN">🛡️ Quản trị viên (Toàn quyền hệ thống)</option>
+              </select>
+            </div>
+
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
                 {saving ? '⏳ Đang xử lý...' : form.id ? '💾 Cập Nhật Tài Khoản' : '🚀 Khởi Tạo Tài Khoản'}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => setForm(emptyForm)}>
-                🔄 Làm Mới
+              <button type="button" className="btn-secondary" onClick={() => setIsFormOpen(false)}>
+                ✕ Đóng
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </SidePanel>
+
+      {/* SidePanel Drawer - Đặt lại mật khẩu */}
+      <SidePanel
+        isOpen={!!resetPwId}
+        onClose={() => setResetPwId(null)}
+        title="🔑 Khởi Tạo Lại Mật Khẩu"
+        subtitle="Bảo mật tài khoản người dùng"
+        width="440px"
+      >
+        <div className="users-side-form" style={{ padding: '8px 0' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginBottom: 16 }}>
+            Bạn đang yêu cầu đặt lại mật khẩu cho tài khoản. Vui lòng nhập mật khẩu mới và xác nhận bên dưới.
+          </p>
+          <div className="form-group full-width">
+            <label>Mật khẩu mới (Tối thiểu 6 ký tự) *</label>
+            <input
+              type="password"
+              className="input-field"
+              id="new-password-input"
+              placeholder="Nhập mật khẩu mới tại đây..."
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+            <button
+              type="button"
+              className="btn-primary"
+              style={{ flex: 1 }}
+              disabled={saving}
+              onClick={() => {
+                const input = document.getElementById('new-password-input')
+                const pwd = input ? input.value : ''
+                handleResetPassword(pwd)
+              }}
+            >
+              {saving ? '⏳ Đang lưu...' : '💾 Xác Nhận Đặt Lại'}
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => setResetPwId(null)}>
+              ✕ Hủy
+            </button>
+          </div>
+        </div>
+      </SidePanel>
     </div>
   )
 }

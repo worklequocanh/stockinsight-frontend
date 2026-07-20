@@ -4,6 +4,7 @@ import { buildQuery, parseApiError } from '../utils/helpers'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
+import SidePanel from '../components/common/SidePanel'
 import './CategoriesPage.css'
 
 const emptyCategoryForm = { id: '', name: '', description: '' }
@@ -17,6 +18,7 @@ export default function CategoriesPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyCategoryForm)
+  const [isFormOpen, setIsFormOpen] = useState(false)
 
   async function loadData(params = {}) {
     setLoading(true)
@@ -49,6 +51,7 @@ export default function CategoriesPage() {
         await api.post('/categories', { name: form.name, description: form.description })
       }
       setForm(emptyCategoryForm)
+      setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
@@ -76,6 +79,7 @@ export default function CategoriesPage() {
       name: item.name || '',
       description: item.description || '',
     })
+    setIsFormOpen(true)
   }
 
   return (
@@ -91,7 +95,7 @@ export default function CategoriesPage() {
           <p>Phân nhóm nhóm ngành hàng để tối ưu hóa việc định vị kệ, tra cứu báo cáo tồn kho và kiểm soát SKU.</p>
         </div>
         <div>
-          <button type="button" className="btn-primary" onClick={() => setForm(emptyCategoryForm)}>
+          <button type="button" className="btn-primary" onClick={() => { setForm(emptyCategoryForm); setIsFormOpen(true); }}>
             ✨ Thêm Nhóm Danh Mục Mới
           </button>
         </div>
@@ -186,18 +190,17 @@ export default function CategoriesPage() {
             <Pagination meta={meta} onPageChange={setPage} loading={loading} />
           </div>
         </div>
+      </div>
 
-        {/* Side Form Card */}
+      {/* SidePanel Drawer */}
+      <SidePanel
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={form.id ? 'Cập Nhật Danh Mục' : 'Thêm Danh Mục Mới'}
+        subtitle={form.id ? `ID: #${form.id}` : 'Nhóm ngành hàng SKU'}
+        width="480px"
+      >
         <div className="categories-side-form">
-          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
-            <span className="status-pill info" style={{ marginBottom: 6 }}>
-              {form.id ? '✏️ SỬA DANH MỤC' : '✨ THÊM DANH MỤC MỚI'}
-            </span>
-            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>
-              {form.id ? form.name : 'Tạo nhóm ngành hàng'}
-            </h2>
-          </div>
-
           <form className="form-grid" onSubmit={handleSubmit}>
             <div className="form-group full-width">
               <label>Tên danh mục *</label>
@@ -221,17 +224,17 @@ export default function CategoriesPage() {
               />
             </div>
 
-            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 14 }}>
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
-                {saving ? '⏳ Đang xử lý...' : form.id ? '💾 Cập Nhật Danh Mục' : '➕ Tạo Danh Mục'}
+                {saving ? '⏳ Đang xử lý...' : form.id ? '💾 Cập Nhật' : '➕ Tạo Danh Mục'}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => setForm(emptyCategoryForm)}>
-                🔄 Làm Mới
+              <button type="button" className="btn-secondary" onClick={() => setIsFormOpen(false)}>
+                ✕ Đóng
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </SidePanel>
     </div>
   )
 }

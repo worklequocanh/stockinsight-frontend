@@ -4,6 +4,7 @@ import { buildQuery, parseApiError } from '../utils/helpers'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
+import SidePanel from '../components/common/SidePanel'
 import './SuppliersPage.css'
 
 const emptySupplierForm = { id: '', name: '', phone: '', email: '', address: '' }
@@ -17,6 +18,7 @@ export default function SuppliersPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptySupplierForm)
+  const [isFormOpen, setIsFormOpen] = useState(false)
 
   async function loadData(params = {}) {
     setLoading(true)
@@ -49,6 +51,7 @@ export default function SuppliersPage() {
         await api.post('/suppliers', { name: form.name, phone: form.phone, email: form.email, address: form.address })
       }
       setForm(emptySupplierForm)
+      setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
@@ -78,6 +81,7 @@ export default function SuppliersPage() {
       email: item.email || '',
       address: item.address || '',
     })
+    setIsFormOpen(true)
   }
 
   return (
@@ -93,7 +97,7 @@ export default function SuppliersPage() {
           <p>Quản lý hồ sơ đối tác, thông tin liên lạc, địa chỉ kho bãi và theo dõi luồng nhập khẩu hàng hóa vào chuỗi cung ứng.</p>
         </div>
         <div>
-          <button type="button" className="btn-primary" onClick={() => setForm(emptySupplierForm)}>
+          <button type="button" className="btn-primary" onClick={() => { setForm(emptySupplierForm); setIsFormOpen(true); }}>
             ✨ Thêm Nhà Cung Cấp Mới
           </button>
         </div>
@@ -193,18 +197,17 @@ export default function SuppliersPage() {
             <Pagination meta={meta} onPageChange={setPage} loading={loading} />
           </div>
         </div>
+      </div>
 
-        {/* Side Form Card */}
+      {/* SidePanel Drawer */}
+      <SidePanel
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={form.id ? 'Cập Nhật Nhà Cung Cấp' : 'Thêm Nhà Cung Cấp Mới'}
+        subtitle={form.id ? `ID: #${form.id.slice(0, 8)}` : 'Hồ sơ nhà cung cấp / đối tác'}
+        width="500px"
+      >
         <div className="suppliers-side-form">
-          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
-            <span className="status-pill info" style={{ marginBottom: 6 }}>
-              {form.id ? '✏️ CHỈNH SỬA NCC' : '✨ THÊM ĐỐI TÁC MỚI'}
-            </span>
-            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>
-              {form.id ? form.name : 'Hồ sơ nhà cung cấp'}
-            </h2>
-          </div>
-
           <form className="form-grid" onSubmit={handleSubmit}>
             <div className="form-group full-width">
               <label>Tên doanh nghiệp / Nhà cung cấp *</label>
@@ -249,17 +252,17 @@ export default function SuppliersPage() {
               />
             </div>
 
-            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 14 }}>
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
                 {saving ? '⏳ Đang lưu...' : form.id ? '💾 Cập Nhật NCC' : '➕ Tạo Đối Tác'}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => setForm(emptySupplierForm)}>
-                🔄 Làm Mới
+              <button type="button" className="btn-secondary" onClick={() => setIsFormOpen(false)}>
+                ✕ Đóng
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </SidePanel>
     </div>
   )
 }

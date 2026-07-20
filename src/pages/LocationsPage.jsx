@@ -4,6 +4,7 @@ import { buildQuery, parseApiError } from '../utils/helpers'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
+import SidePanel from '../components/common/SidePanel'
 import './LocationsPage.css'
 
 const emptyForm = { id: '', code: '', name: '', description: '' }
@@ -17,6 +18,7 @@ export default function LocationsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
+  const [isFormOpen, setIsFormOpen] = useState(false)
 
   async function loadData(params = {}) {
     setLoading(true)
@@ -49,6 +51,7 @@ export default function LocationsPage() {
         await api.post('/locations', { code: form.code, name: form.name, description: form.description })
       }
       setForm(emptyForm)
+      setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
@@ -77,6 +80,7 @@ export default function LocationsPage() {
       name: item.name || '',
       description: item.description || '',
     })
+    setIsFormOpen(true)
   }
 
   return (
@@ -92,7 +96,7 @@ export default function LocationsPage() {
           <p>Thiết lập danh mục các khu vực, dãy kệ (A1, B2, C3...) để định hướng lô hàng chính xác khi nhập kho, nâng cao hiệu suất lấy hàng theo định vị 3D.</p>
         </div>
         <div>
-          <button type="button" className="btn-primary" onClick={() => setForm(emptyForm)}>
+          <button type="button" className="btn-primary" onClick={() => { setForm(emptyForm); setIsFormOpen(true); }}>
             ✨ Thêm Vị Trí Kệ Mới
           </button>
         </div>
@@ -193,18 +197,17 @@ export default function LocationsPage() {
             <Pagination meta={meta} onPageChange={setPage} loading={loading} />
           </div>
         </div>
+      </div>
 
-        {/* Side Form Card */}
+      {/* SidePanel Drawer */}
+      <SidePanel
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={form.id ? 'Cập Nhật Vị Trí Kệ' : 'Thêm Vị Trí Kệ Mới'}
+        subtitle={form.id ? `MÃ: ${form.code}` : 'Định vị tọa độ kho'}
+        width="480px"
+      >
         <div className="locations-side-form">
-          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
-            <span className="status-pill info" style={{ marginBottom: 6 }}>
-              {form.id ? '✏️ CHỈNH SỬA VỊ TRÍ' : '✨ THÊM VỊ TRÍ KỆ MỚI'}
-            </span>
-            <h2 style={{ fontSize: '1.35rem', margin: 0, color: '#fff' }}>
-              {form.id ? form.code : 'Thiết lập tọa độ kệ'}
-            </h2>
-          </div>
-
           <form className="form-grid" onSubmit={handleSubmit}>
             <div className="form-group full-width">
               <label>Mã vị trí (Location Code) *</label>
@@ -239,17 +242,17 @@ export default function LocationsPage() {
               />
             </div>
 
-            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 14 }}>
+            <div className="form-group full-width" style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
                 {saving ? '⏳ Đang lưu...' : form.id ? '💾 Cập Nhật Vị Trí' : '➕ Tạo Vị Trí Kệ'}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => setForm(emptyForm)}>
-                🔄 Làm Mới
+              <button type="button" className="btn-secondary" onClick={() => setIsFormOpen(false)}>
+                ✕ Đóng
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </SidePanel>
     </div>
   )
 }

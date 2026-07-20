@@ -4,6 +4,7 @@ import { buildQuery, parseApiError } from '../utils/helpers'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
+import SidePanel from '../components/common/SidePanel'
 import './ProductsPage.css'
 
 const emptyProductForm = { id: '', sku: '', barcode: '', name: '', unit: '', minStock: '0', costPrice: '', salePrice: '', currentStock: '0', categoryId: '', supplierId: '' }
@@ -19,6 +20,7 @@ export default function ProductsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyProductForm)
+  const [isFormOpen, setIsFormOpen] = useState(false)
 
   const [categories, setCategories] = useState([])
   const [suppliers, setSuppliers] = useState([])
@@ -87,6 +89,7 @@ export default function ProductsPage() {
         await api.post('/products', payload)
       }
       setForm(emptyProductForm)
+      setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1, categoryId: categoryFilter, supplierId: supplierFilter })
     } catch (err) {
@@ -137,6 +140,7 @@ export default function ProductsPage() {
       categoryId: item.categoryId || '',
       supplierId: item.supplierId || '',
     })
+    setIsFormOpen(true)
   }
 
   return (
@@ -155,7 +159,7 @@ export default function ProductsPage() {
           <button type="button" className="btn-secondary" onClick={handleExportExcel}>
             📊 Xuất Bảng SKU Excel
           </button>
-          <button type="button" className="btn-primary" onClick={() => setForm(emptyProductForm)}>
+          <button type="button" className="btn-primary" onClick={() => { setForm(emptyProductForm); setIsFormOpen(true); }}>
             ✨ Thêm Sản Phẩm Mới
           </button>
         </div>
@@ -320,18 +324,17 @@ export default function ProductsPage() {
             <Pagination meta={meta} onPageChange={setPage} loading={loading} />
           </div>
         </div>
+      </div>
 
-        {/* Side Form Card */}
+      {/* SidePanel Drawer */}
+      <SidePanel
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={form.id ? 'Cập Nhật SKU' : 'Tạo Mã SKU Mới'}
+        subtitle={form.id ? `SKU: ${form.sku}` : 'Thiết lập thông số sản phẩm'}
+        width="620px"
+      >
         <div className="products-side-form">
-          <div className="side-form-header">
-            <span className="status-pill info" style={{ marginBottom: 6 }}>
-              {form.id ? '✏️ CHỈNH SỬA SẢN PHẨM' : '✨ TẠO MÃ SKU MỚI'}
-            </span>
-            <h2>
-              {form.id ? form.name || 'Cập nhật thuộc tính' : 'Thiết lập thuộc tính hàng hóa'}
-            </h2>
-          </div>
-
           <form className="product-form-grid" onSubmit={handleSubmit}>
             <div className="form-group full-col">
               <label>Tên sản phẩm *</label>
@@ -376,9 +379,9 @@ export default function ProductsPage() {
             </div>
 
             <div className="form-group">
-              <label>Nhà cung cấp *</label>
-              <select className="select-field" value={form.supplierId} onChange={(e) => setForm((p) => ({ ...p, supplierId: e.target.value }))} required>
-                <option value="">-- Chọn nhà cung cấp --</option>
+              <label>Nhà cung cấp / Brand</label>
+              <select className="select-field" value={form.supplierId} onChange={(e) => setForm((p) => ({ ...p, supplierId: e.target.value }))}>
+                <option value="">-- Tất cả NCC --</option>
                 {suppliers.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
@@ -386,13 +389,13 @@ export default function ProductsPage() {
             </div>
 
             <div className="form-group">
-              <label>Đơn vị tính *</label>
+              <label>Đơn vị tính (Unit) *</label>
               <input 
                 className="input-field" 
                 value={form.unit} 
                 onChange={(e) => setForm((p) => ({ ...p, unit: e.target.value }))} 
                 required 
-                placeholder="Hộp, Thùng, Kg, Bao..." 
+                placeholder="VD: Thùng, Hộp, Cái..." 
               />
             </div>
 
@@ -418,17 +421,17 @@ export default function ProductsPage() {
               </div>
             )}
 
-            <div className="full-col" style={{ display: 'flex', gap: 12, marginTop: 14 }}>
+            <div className="full-col" style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
                 {saving ? '⏳ Đang lưu trữ...' : form.id ? '💾 Cập Nhật SKU' : '➕ Tạo Sản Phẩm Mới'}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => setForm(emptyProductForm)}>
-                🔄 Hủy / Mới
+              <button type="button" className="btn-secondary" onClick={() => setIsFormOpen(false)}>
+                ✕ Đóng
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </SidePanel>
     </div>
   )
 }
