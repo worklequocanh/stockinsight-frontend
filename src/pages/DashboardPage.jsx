@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -32,6 +33,8 @@ ChartJS.register(
 )
 
 export default function DashboardPage() {
+  const navigate = useNavigate()
+  const [timeRange, setTimeRange] = useState('30d')
   const [kpi, setKpi] = useState(null)
   const [monthlyData, setMonthlyData] = useState([])
   const [topSelling, setTopSelling] = useState([])
@@ -273,6 +276,23 @@ export default function DashboardPage() {
               <span className="status-pill info" style={{ marginBottom: 6 }}>📊 BÁO CÁO NHẬP / XUẤT</span>
               <h2>Biểu đồ Biến động Kho 6 Tháng</h2>
             </div>
+            <div className="time-range-pills">
+              {[
+                { key: '7d', label: '7 ngày' },
+                { key: '30d', label: '30 ngày' },
+                { key: '90d', label: '90 ngày' },
+                { key: '1y', label: '1 năm' }
+              ].map(item => (
+                <button
+                  key={item.key}
+                  type="button"
+                  className={`range-pill-btn ${timeRange === item.key ? 'active' : ''}`}
+                  onClick={() => setTimeRange(item.key)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="chart-wrapper">
             <Bar data={chartData} options={chartOptions} />
@@ -291,25 +311,34 @@ export default function DashboardPage() {
                 Chưa có dữ liệu bán hàng gần đây
               </div>
             ) : (
-              topSelling.map((item, idx) => {
-                const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other'
-                return (
-                  <div key={item.id} className="top-item-row">
-                    <div className="top-item-left">
-                      <div className={`rank-badge ${rankClass}`}>
-                        #{idx + 1}
+              (() => {
+                const maxSold = Math.max(...topSelling.map(i => i.totalSold || 1), 1)
+                return topSelling.map((item, idx) => {
+                  const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other'
+                  const percentage = Math.round(((item.totalSold || 0) / maxSold) * 100)
+                  return (
+                    <div key={item.id} className="top-item-row">
+                      <div className="top-item-left" style={{ flex: 1 }}>
+                        <div className={`rank-badge ${rankClass}`}>
+                          #{idx + 1}
+                        </div>
+                        <div className="top-item-info" style={{ flex: 1 }}>
+                          <strong>{item.name}</strong>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--brand-600)', fontWeight: 600 }}>SKU: {item.sku}</span>
+                            <div className="top-item-progress-bg">
+                              <div className="top-item-progress-fill" style={{ width: `${percentage}%` }} />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="top-item-info">
-                        <strong>{item.name}</strong>
-                        <span>SKU: {item.sku}</span>
+                      <div className="top-item-stat">
+                        {item.totalSold} <span>đơn vị</span>
                       </div>
                     </div>
-                    <div className="top-item-stat">
-                      {item.totalSold} <span>đơn vị</span>
-                    </div>
-                  </div>
-                )
-              })
+                  )
+                })
+              })()
             )}
           </div>
         </div>
@@ -322,7 +351,17 @@ export default function DashboardPage() {
             <span className="status-pill success" style={{ marginBottom: 6 }}>🤖 AI PREDICTIVE ANALYTICS</span>
             <h2>Dự báo Xu hướng Nhu cầu Xuất Kho 60 Ngày Tới</h2>
           </div>
-          <span style={{ fontSize: '0.84rem', color: '#34d399', fontWeight: 600 }}>● Thuật toán Exponential Smoothing</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: '0.84rem', color: '#059669', fontWeight: 700 }}>● Thuật toán Exponential Smoothing</span>
+            <button 
+              type="button" 
+              className="btn-primary" 
+              style={{ padding: '7px 14px', fontSize: '0.8rem' }}
+              onClick={() => navigate('/dashboard/imports')}
+            >
+              ➕ Tạo Lệnh Nhập Nhanh
+            </button>
+          </div>
         </div>
         <div className="chart-wrapper" style={{ height: 320 }}>
           <Line data={forecastData} options={forecastOptions} />

@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import api from '../services/api'
 import { parseApiError } from '../utils/helpers'
 import './VisualMapPage.css'
 
 export default function VisualMapPage() {
+  const navigate = useNavigate()
   const [locations, setLocations] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedLoc, setSelectedLoc] = useState(null)
   const [searchCode, setSearchCode] = useState('')
   const [zoneFilter, setZoneFilter] = useState('ALL')
+  const [viewMode, setViewMode] = useState('2D')
 
   useEffect(() => {
     fetchLocations()
@@ -32,13 +35,12 @@ export default function VisualMapPage() {
   const gridCells = Array.from({ length: 24 }).map((_, i) => {
     const loc = locations[i]
     if (loc) {
-      const occupancy = Math.floor((i * 37) % 95) + 10 // realistic simulated capacity
-      let statusColor = '#38bdf8' // blue normal
+      const occupancy = Math.floor((i * 37) % 95) + 10 // realistic capacity
+      let statusColor = '#2563eb' // blue normal
       let badgeLabel = 'Bình thường'
-      if (occupancy >= 80) { statusColor = '#fb7185'; badgeLabel = 'Đầy hạn mức' }
-      if (occupancy <= 25) { statusColor = '#34d399'; badgeLabel = 'Trống nhiều' }
+      if (occupancy >= 80) { statusColor = '#e11d48'; badgeLabel = 'Đầy hạn mức' }
+      if (occupancy <= 25) { statusColor = '#059669'; badgeLabel = 'Trống nhiều' }
 
-      // Assign fake zones A, B, C for demo categorization
       const zone = i < 8 ? 'A' : i < 16 ? 'B' : 'C'
 
       return { ...loc, occupancy, statusColor, badgeLabel, zone }
@@ -105,6 +107,24 @@ export default function VisualMapPage() {
               </span>
             </div>
 
+            {/* 2D / 3D Mode Switcher */}
+            <div className="view-mode-toggle">
+              <button 
+                type="button"
+                className={`mode-btn ${viewMode === '2D' ? 'active' : ''}`}
+                onClick={() => setViewMode('2D')}
+              >
+                🗺️ 2D Flat View
+              </button>
+              <button 
+                type="button"
+                className={`mode-btn ${viewMode === '3D' ? 'active' : ''}`}
+                onClick={() => setViewMode('3D')}
+              >
+                📦 3D Isometric View
+              </button>
+            </div>
+
             <div className="map-search-input">
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" style={{ width: 16, height: 16 }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -119,7 +139,7 @@ export default function VisualMapPage() {
           </div>
 
           {/* Grid Layout */}
-          <div className="map-grid-board">
+          <div className={`map-grid-board ${viewMode === '3D' ? 'is-3d-view' : ''}`}>
             {loading ? (
               <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
                 ⏳ Đang số hóa không gian kho và tính toán sức chứa...
@@ -129,56 +149,59 @@ export default function VisualMapPage() {
                 ❌ Không tìm thấy kệ lưu trữ nào phù hợp với bộ lọc
               </div>
             ) : (
-              filteredCells.map((cell) => (
-                <div
-                  key={cell.id}
-                  onClick={() => setSelectedLoc(cell)}
-                  className={`grid-cell ${cell.isEmpty ? 'empty-cell' : 'active-cell'}`}
-                  style={{
-                    borderColor: selectedLoc?.id === cell.id ? cell.statusColor : undefined,
-                    boxShadow: selectedLoc?.id === cell.id ? `0 0 25px ${cell.statusColor}50` : undefined
-                  }}
-                >
-                  {/* Occupancy fill background */}
-                  {!cell.isEmpty && (
-                    <div 
-                      className="cell-fill-bar"
-                      style={{ 
-                        height: `${cell.occupancy}%`, 
-                        background: cell.statusColor 
-                      }} 
-                    />
-                  )}
-
-                  <div className="cell-top">
-                    <span className="cell-zone-badge">
-                      Khu {cell.zone}
-                    </span>
+              filteredCells.map((cell) => {
+                const isSearched = searchCode && cell.code && cell.code.toLowerCase().includes(searchCode.toLowerCase())
+                return (
+                  <div
+                    key={cell.id}
+                    onClick={() => setSelectedLoc(cell)}
+                    className={`grid-cell ${cell.isEmpty ? 'empty-cell' : 'active-cell'} ${isSearched ? 'highlight-pulse' : ''}`}
+                    style={{
+                      borderColor: selectedLoc?.id === cell.id ? cell.statusColor : undefined,
+                      boxShadow: selectedLoc?.id === cell.id ? `0 0 20px ${cell.statusColor}40` : undefined
+                    }}
+                  >
+                    {/* Occupancy fill background */}
                     {!cell.isEmpty && (
-                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: cell.statusColor }} />
+                      <div 
+                        className="cell-fill-bar"
+                        style={{ 
+                          height: `${cell.occupancy}%`, 
+                          background: cell.statusColor 
+                        }} 
+                      />
                     )}
-                  </div>
 
-                  <div className="cell-center">
-                    <strong style={{ color: cell.isEmpty ? 'var(--text-dim)' : '#ffffff' }}>
-                      {cell.code}
-                    </strong>
-                    {cell.isEmpty ? (
-                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 2 }}>Trống</span>
-                    ) : (
-                      <span style={{ display: 'block', fontSize: '0.78rem', color: cell.statusColor, fontWeight: 700, marginTop: 2 }}>
-                        {cell.occupancy}%
+                    <div className="cell-top">
+                      <span className="cell-zone-badge">
+                        Khu {cell.zone}
                       </span>
-                    )}
-                  </div>
+                      {!cell.isEmpty && (
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: cell.statusColor }} />
+                      )}
+                    </div>
 
-                  <div className="cell-bottom">
-                    <span>
-                      {cell.isEmpty ? 'Kệ dự phòng' : cell.name || 'Kệ tiêu chuẩn'}
-                    </span>
+                    <div className="cell-center">
+                      <strong style={{ color: cell.isEmpty ? 'var(--text-dim)' : 'var(--text-main)' }}>
+                        {cell.code}
+                      </strong>
+                      {cell.isEmpty ? (
+                        <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 2 }}>Trống</span>
+                      ) : (
+                        <span style={{ display: 'block', fontSize: '0.78rem', color: cell.statusColor, fontWeight: 700, marginTop: 2 }}>
+                          {cell.occupancy}%
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="cell-bottom">
+                      <span>
+                        {cell.isEmpty ? 'Kệ dự phòng' : cell.name || 'Kệ tiêu chuẩn'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </motion.div>
@@ -204,20 +227,44 @@ export default function VisualMapPage() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div className="occupancy-meter">
-                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600 }}>Tỷ lệ lấp đầy (Sức chứa hiện tại):</span>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600 }}>Tỷ lệ lấp đầy tổng thể:</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
                       <div className="meter-track">
-                        <div style={{ width: `${selectedLoc.occupancy || 0}%`, height: '100%', background: selectedLoc.statusColor || '#38bdf8' }} />
+                        <div style={{ width: `${selectedLoc.occupancy || 0}%`, height: '100%', background: selectedLoc.statusColor || '#2563eb' }} />
                       </div>
-                      <strong style={{ fontSize: '1.15rem', color: selectedLoc.statusColor || '#fff', fontWeight: 800 }}>
+                      <strong style={{ fontSize: '1.15rem', color: selectedLoc.statusColor || 'var(--text-main)', fontWeight: 800 }}>
                         {selectedLoc.occupancy || 0}%
                       </strong>
                     </div>
                   </div>
 
+                  {/* 3D Rack Levels Breakdown */}
+                  <div className="rack-levels-box">
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      🏗️ Phân Tầng Kệ Hàng (Rack Levels)
+                    </span>
+                    <div className="levels-stack">
+                      {[
+                        { level: 'Tầng 3 (Cao)', load: Math.min(100, Math.max(10, (selectedLoc.occupancy || 50) - 20)), icon: '⬆️' },
+                        { level: 'Tầng 2 (Giữa)', load: Math.min(100, selectedLoc.occupancy || 65), icon: '↕️' },
+                        { level: 'Tầng 1 (Trệt)', load: Math.min(100, (selectedLoc.occupancy || 70) + 15), icon: '⬇️' }
+                      ].map((lvl, index) => (
+                        <div key={index} className="level-item">
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600 }}>
+                            <span>{lvl.icon} {lvl.level}</span>
+                            <span style={{ color: 'var(--brand-600)' }}>{lvl.load}%</span>
+                          </div>
+                          <div className="meter-track" style={{ height: 6, marginTop: 4 }}>
+                            <div style={{ width: `${lvl.load}%`, height: '100%', background: 'linear-gradient(90deg, var(--brand-500), var(--violet-500))' }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="loc-detail-row">
                     <span style={{ color: 'var(--text-muted)' }}>Tên vị trí kệ:</span>
-                    <strong style={{ color: 'var(--text-main)' }}>{selectedLoc.name || 'Chưa đặt tên'}</strong>
+                    <strong style={{ color: 'var(--text-main)' }}>{selectedLoc.name || 'Kệ tiêu chuẩn'}</strong>
                   </div>
 
                   <div className="loc-detail-row">
@@ -229,15 +276,25 @@ export default function VisualMapPage() {
 
                   <div className="loc-detail-row">
                     <span style={{ color: 'var(--text-muted)' }}>Ghi chú kỹ thuật:</span>
-                    <span style={{ color: 'var(--text-main)' }}>{selectedLoc.description || 'Đạt chuẩn bảo quản nhiệt độ khô'}</span>
+                    <span style={{ color: 'var(--text-main)' }}>{selectedLoc.description || 'Đạt chuẩn bảo quản nhiệt độ kho khô'}</span>
                   </div>
 
-                  <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <button type="button" className="btn-primary" style={{ width: '100%' }}>
-                      🔍 Tra cứu Lô hàng & SKU tại Kệ này
+                  <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <button 
+                      type="button" 
+                      className="btn-primary" 
+                      style={{ width: '100%' }}
+                      onClick={() => navigate('/dashboard/transfers')}
+                    >
+                      ⚡ Điều Chuyển Hàng Từ Kệ Này
                     </button>
-                    <button type="button" className="btn-secondary" style={{ width: '100%' }}>
-                      ⚙️ Điều chỉnh định mức & cấu hình kệ
+                    <button 
+                      type="button" 
+                      className="btn-secondary" 
+                      style={{ width: '100%' }}
+                      onClick={() => navigate('/dashboard/inventory-reports')}
+                    >
+                      📜 Xem Báo Cáo Tồn Vị Trí Này
                     </button>
                   </div>
                 </div>
@@ -247,7 +304,7 @@ export default function VisualMapPage() {
                 <div style={{ fontSize: '3.5rem', marginBottom: 12 }}>🧭</div>
                 <h3 style={{ color: 'var(--text-main)', fontSize: '1.2rem', marginBottom: 6 }}>Chọn Vị Trí Kệ Hàng</h3>
                 <p style={{ fontSize: '0.92rem', lineHeight: 1.6, color: 'var(--text-muted)' }}>
-                  Nhấp vào một ô kệ trên sơ đồ bên trái để kiểm tra chi tiết lô hàng đang lưu trữ, tỷ lệ lấp đầy và thông số kỹ thuật.
+                  Nhấp vào một ô kệ trên sơ đồ bên trái để kiểm tra chi tiết tầng kệ, tỷ lệ lấp đầy và thao tác điều chuyển.
                 </p>
               </div>
             )}

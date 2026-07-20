@@ -273,9 +273,92 @@
   font-size: 0.92rem;
 }
 
+/* ── View Mode Switcher ── */
+.view-mode-toggle {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-surface-elevated);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-medium);
+}
+
+.mode-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mode-btn:hover {
+  color: var(--brand-600);
+}
+
+.mode-btn.active {
+  background: var(--bg-surface);
+  color: var(--brand-600);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── 3D Isometric View Board ── */
+.map-grid-board.is-3d-view {
+  transform: perspective(900px) rotateX(28deg) rotateZ(-6deg) scale(0.96);
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.map-grid-board.is-3d-view .grid-cell {
+  transform-style: preserve-3d;
+  box-shadow: -4px 6px 14px rgba(15, 23, 42, 0.08);
+}
+
+.map-grid-board.is-3d-view .grid-cell:hover {
+  transform: translateZ(16px) scale(1.05);
+}
+
+/* ── Smart Locator Highlight Pulse ── */
+.grid-cell.highlight-pulse {
+  animation: pulseHighlight 1.5s infinite alternate;
+  border-color: var(--brand-500) !important;
+}
+
+@keyframes pulseHighlight {
+  0% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.4); transform: scale(1); }
+  100% { box-shadow: 0 0 28px rgba(99, 102, 241, 0.9); transform: scale(1.04); }
+}
+
+/* ── Rack Levels Box ── */
+.rack-levels-box {
+  background: var(--bg-surface-elevated);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.levels-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.level-item {
+  display: flex;
+  flex-direction: column;
+}
+
 @media (max-width: 1024px) {
   .map-layout-grid {
     grid-template-columns: 1fr;
   }
 }
+
 

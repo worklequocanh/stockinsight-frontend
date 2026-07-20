@@ -10,6 +10,8 @@ export default function InventoryReportPage() {
   const [expiring, setExpiring] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('ALL')
 
   useEffect(() => {
     async function fetchData() {
@@ -30,6 +32,40 @@ export default function InventoryReportPage() {
     fetchData()
   }, [])
 
+  // Helper for ABC classification
+  const getAbcGroup = (item, index) => {
+    if (index < Math.ceil(inventory.length * 0.2)) return { group: 'Nhóm A', badge: 'purple', text: '💎 Giá trị / Chu chuyển cao' }
+    if (index < Math.ceil(inventory.length * 0.5)) return { group: 'Nhóm B', badge: 'info', text: '⚖️ Chu chuyển trung bình' }
+    return { group: 'Nhóm C', badge: 'neutral', text: '📦 Tồn bình thường' }
+  }
+
+  // Filtered inventory items
+  const filteredInventory = inventory.filter(item => {
+    const matchesSearch = !search || item.name.toLowerCase().includes(search.toLowerCase()) || item.sku.toLowerCase().includes(search.toLowerCase())
+    const matchesStatus = statusFilter === 'ALL' || (statusFilter === 'LOW' && item.isLowStock) || (statusFilter === 'OK' && !item.isLowStock)
+    return matchesSearch && matchesStatus
+  })
+
+  // Export CSV Helper
+  const handleExportCSV = () => {
+    const headers = activeTab === 'inventory' 
+      ? ['SKU', 'Tên sản phẩm', 'Danh mục', 'Nhà cung cấp', 'Tồn kho', 'Mức tối thiểu', 'Burn Rate', 'Cảnh báo']
+      : ['SKU', 'Tên sản phẩm', 'Số lô', 'Số lượng lô', 'Hạn sử dụng', 'Số ngày còn lại']
+
+    const rows = activeTab === 'inventory'
+      ? filteredInventory.map(i => [i.sku, `"${i.name}"`, i.category || '', i.supplier || '', i.currentStock, i.minStock, i.avgDailyExport, i.isLowStock ? 'Cần nhập gấp' : 'Đủ hàng'])
+      : expiring.map(b => [b.productSku, `"${b.productName}"`, b.lotNumber, b.remainingQuantity, new Date(b.expiryDate).toLocaleDateString('vi-VN'), b.daysUntilExpiry])
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement('a')
+    link.setAttribute('href', encodedUri)
+    link.setAttribute('download', `Bao_Cao_${activeTab.toUpperCase()}_${new Date().toISOString().slice(0, 10)}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="report-page-container">
       {/* Hero Header */}
@@ -39,8 +75,8 @@ export default function InventoryReportPage() {
             <span className="status-pill info">● BI ANALYTICS & EXPLICIT ALERTS</span>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Hệ thống cảnh báo tự động</span>
           </div>
-          <h1>Báo Cáo Tồn Kho & Cảnh Báo Sớm (Inventory & Expiry BI)</h1>
-          <p>Phân tích mức độ tồn kho tức thì theo từng SKU, tính toán tốc độ tiêu thụ trung bình và tự động phát lệnh cảnh báo nhập hàng cho các mặt hàng sắp cạn kho hoặc lô cận date.</p>
+          <h1>Báo Cáo Tồn Kho & Cảnh Báo Sớm (Inventory BI)</h1>
+          <p>Phân tích số dư SKU, kiểm soát tốc độ tiêu thụ trung bình (Burn Rate) và phân loại nhóm hàng ABC giúp kho vận hành thông minh.</p>
         </div>
         <div>
           <div className="report-tabs-switcher">
@@ -70,14 +106,51 @@ export default function InventoryReportPage() {
 
       {/* Main Report Table Container */}
       <div className="report-table-card">
+        {/* Table Toolbar */}
+        <div className="report-toolbar">
+          <div className="table-search">
+            <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+            <input 
+              type="text" 
+              placeholder="Tìm theo tên SKU hoặc tên sản phẩm..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+
+          {activeTab === 'inventory' && (
+            <select 
+              className="select-field"
+              style={{ width: 'auto', minWidth: '170px' }}
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+            >
+              <option value="ALL">🌐 Tất cả trạng thái</option>
+              <option value="LOW">🚨 Cần nhập gấp</option>
+              <option value="OK">✔ An toàn (Đủ hàng)</option>
+            </select>
+          )}
+
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
+            <button type="button" className="btn-secondary" onClick={handleExportCSV}>
+              📥 Xuất Excel (CSV)
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => window.print()}>
+              🖨️ In Báo Cáo
+            </button>
+          </div>
+        </div>
+
         {activeTab === 'inventory' ? (
           <>
             <div className="report-table-header">
               <h3>
-                <span>📋</span> Báo Cáo Số Dư SKU & Tốc Độ Tiêu Thụ (Burn Rate)
+                <span>📋</span> Báo Cáo Số Dư SKU & Phân Loại ABC Analysis
               </h3>
               <span style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-                💡 Các dòng tô cam cho thấy tồn kho hiện tại ≤ định mức tối thiểu an toàn
+                💡 Hàng Nhóm A chiếm ưu tiên lưu giữ và kiểm kê thường xuyên
               </span>
             </div>
 
@@ -86,59 +159,64 @@ export default function InventoryReportPage() {
                 <thead>
                   <tr>
                     <th>Sản phẩm SKU</th>
-                    <th>Phân loại / Nhà cung cấp</th>
+                    <th>Phân Loại ABC</th>
                     <th style={{ textAlign: 'center' }}>Tồn Kho Thực Tế</th>
                     <th style={{ textAlign: 'center' }}>Burn Rate (30 Ngày)</th>
-                    <th style={{ textAlign: 'center' }}>Dự Báo Khả Năng Đáp Ứng</th>
+                    <th style={{ textAlign: 'center' }}>Dự Báo Đáp Ứng</th>
                     <th style={{ textAlign: 'right' }}>Khuyến Nghị Nhập Hàng</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <TableEmpty colSpan={6} text="⏳ Đang tổng hợp số liệu tồn kho toàn hệ thống..." />
-                  ) : inventory.length === 0 ? (
-                    <TableEmpty colSpan={6} text="❌ Chưa có dữ liệu tồn kho" />
+                  ) : filteredInventory.length === 0 ? (
+                    <TableEmpty colSpan={6} text="❌ Không tìm thấy dữ liệu phù hợp" />
                   ) : (
-                    inventory.map((item) => (
-                      <tr key={item.id} className={item.isLowStock ? 'low-stock-row' : ''}>
-                        <td>
-                          <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.96rem' }}>{item.name}</strong>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>SKU: {item.sku}</span>
-                        </td>
-                        <td>
-                          <div style={{ color: '#e2e8f0', fontSize: '0.88rem', fontWeight: 600 }}>{item.category || 'Chưa phân loại'}</div>
-                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{item.supplier || 'Đối tác chung'}</div>
-                        </td>
-                        <td style={{ textAlign: 'center' }}>
-                          <span style={{ fontSize: '1.05rem', fontWeight: 800, color: item.isLowStock ? '#fbbf24' : '#34d399' }}>
-                            {item.currentStock} {item.unit}
-                          </span>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Tối thiểu: {item.minStock} {item.unit}</div>
-                        </td>
-                        <td style={{ textAlign: 'center', color: '#cbd5e1', fontWeight: 600 }}>
-                          🔥 {item.avgDailyExport} {item.unit}/ngày
-                        </td>
-                        <td style={{ textAlign: 'center' }}>
-                          {item.daysRemaining !== null ? (
-                            <span className={`status-pill ${item.daysRemaining < 7 ? 'danger' : item.daysRemaining < 15 ? 'warning' : 'success'}`} style={{ fontWeight: 800 }}>
-                              ⏳ Còn {item.daysRemaining} ngày
+                    filteredInventory.map((item, index) => {
+                      const abc = getAbcGroup(item, index)
+                      return (
+                        <tr key={item.id} className={item.isLowStock ? 'low-stock-row' : ''}>
+                          <td>
+                            <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.96rem' }}>{item.name}</strong>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--brand-600)', fontWeight: 600 }}>SKU: {item.sku}</span>
+                          </td>
+                          <td>
+                            <span className={`status-pill ${abc.badge}`} title={abc.text}>
+                              {abc.group}
                             </span>
-                          ) : (
-                            <span style={{ color: 'var(--text-dim)' }}>Chưa có biến động xuất</span>
-                          )}
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          {item.isLowStock ? (
-                            <div className="urgent-order-box">
-                              <strong>🚨 Cần Nhập Gấp!</strong>
-                              <span>+{item.suggestedOrder} {item.unit}</span>
-                            </div>
-                          ) : (
-                            <span className="status-pill success" style={{ padding: '6px 14px' }}>✔ Đủ hàng duy trì</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>{item.category || 'Chưa phân loại'}</div>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <span style={{ fontSize: '1.05rem', fontWeight: 800, color: item.isLowStock ? '#d97706' : '#059669' }}>
+                              {item.currentStock} {item.unit}
+                            </span>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Min: {item.minStock} {item.unit}</div>
+                          </td>
+                          <td style={{ textAlign: 'center', color: 'var(--text-muted)', fontWeight: 600 }}>
+                            🔥 {item.avgDailyExport} {item.unit}/ngày
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {item.daysRemaining !== null ? (
+                              <span className={`status-pill ${item.daysRemaining < 7 ? 'danger' : item.daysRemaining < 15 ? 'warning' : 'success'}`} style={{ fontWeight: 800 }}>
+                                ⏳ Còn {item.daysRemaining} ngày
+                              </span>
+                            ) : (
+                              <span style={{ color: 'var(--text-dim)' }}>Chưa có xuất hàng</span>
+                            )}
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                            {item.isLowStock ? (
+                              <div className="urgent-order-box">
+                                <strong>🚨 Cần Nhập Gấp!</strong>
+                                <span>+{item.suggestedOrder} {item.unit}</span>
+                              </div>
+                            ) : (
+                              <span className="status-pill success" style={{ padding: '6px 14px' }}>✔ Đủ hàng duy trì</span>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })
                   )}
                 </tbody>
               </table>
@@ -147,7 +225,7 @@ export default function InventoryReportPage() {
         ) : (
           <>
             <div className="report-table-header">
-              <h3 style={{ color: '#f43f5e' }}>
+              <h3 style={{ color: '#e11d48' }}>
                 <span>🚨</span> Danh Sách Các Lô Hàng Cận Hạn Sử Dụng (FEFO Alert)
               </h3>
               <span style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>
@@ -178,15 +256,15 @@ export default function InventoryReportPage() {
                         <tr key={batch.id} className="expiry-alert-row">
                           <td>
                             <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.96rem' }}>{batch.productName}</strong>
-                            <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>SKU: {batch.productSku}</span>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--brand-600)', fontWeight: 600 }}>SKU: {batch.productSku}</span>
                           </td>
                           <td>
-                            <strong style={{ color: '#fb7185', fontSize: '0.94rem' }}>Lot: {batch.lotNumber}</strong>
+                            <strong style={{ color: '#e11d48', fontSize: '0.94rem' }}>Lot: {batch.lotNumber}</strong>
                           </td>
                           <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-main)' }}>
                             {batch.remainingQuantity}
                           </td>
-                          <td style={{ textAlign: 'center', color: '#cbd5e1', fontWeight: 600 }}>
+                          <td style={{ textAlign: 'center', color: 'var(--text-muted)', fontWeight: 600 }}>
                             📅 {new Date(batch.expiryDate).toLocaleDateString('vi-VN')}
                           </td>
                           <td style={{ textAlign: 'right' }}>

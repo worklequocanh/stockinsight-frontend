@@ -224,6 +224,56 @@
   animation: slideUp 0.3s ease-out;
 }
 
+/* ── Time Range Pills ── */
+.time-range-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface-elevated);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-medium);
+}
+
+.range-pill-btn {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.range-pill-btn:hover {
+  color: var(--brand-600);
+}
+
+.range-pill-btn.active {
+  background: var(--bg-surface);
+  color: var(--brand-600);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Top Item Progress Bar ── */
+.top-item-progress-bg {
+  flex: 1;
+  height: 5px;
+  max-width: 120px;
+  background: var(--border-light);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.top-item-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--brand-500), var(--violet-500));
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease-out;
+}
+
 /* ── Responsive ── */
 @media (max-width: 1024px) { .analytics-grid { grid-template-columns: 1fr; } }
 @media (max-width: 640px) {
@@ -231,3 +281,4 @@
   .chart-card, .ai-forecast-card { padding: 16px; }
   .chart-wrapper { height: 260px; }
 }
+
