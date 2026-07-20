@@ -1,61 +1,73 @@
 /* ==========================================================================
-   STOCKINSIGHT INVENTORY & EXPIRY BI REPORT STYLES (v3.0)
+   INVENTORY REPORT PAGE v5.0 — Dark Precision SaaS
    ========================================================================== */
 
 .report-page-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   width: 100%;
 }
 
-/* Hero Header */
 .report-hero {
-  background: var(--bg-glass-heavy);
-  border: 1px solid var(--border-glass);
-  border-radius: 24px;
-  padding: 26px 32px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  padding: 22px 26px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 20px;
-  box-shadow: 0 16px 40px rgba(15,23,42,0.04);
+  gap: 16px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.report-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brand-400), var(--accent-400), transparent);
 }
 
 .report-hero-info h1 {
-  font-size: 1.6rem;
+  font-size: 1.45rem;
   font-weight: 800;
   color: var(--text-main);
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.03em;
 }
 
 .report-hero-info p {
-  font-size: 0.92rem;
+  font-size: 0.855rem;
   color: var(--text-muted);
   margin: 0;
 }
 
-/* Tab Pill Switcher */
+/* ── Tab Pill Switcher ── */
 .report-tabs-switcher {
   display: flex;
-  gap: 10px;
-  background: var(--bg-surface-elevated);
-  padding: 6px;
-  border-radius: 16px;
-  border: 1px solid var(--border-glass);
+  gap: 4px;
+  background: var(--bg-elevated);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
 }
 
 .report-tab-btn {
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-size: 0.88rem;
-  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.845rem;
+  font-weight: 600;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   transition: all var(--transition-fast);
   background: transparent;
   color: var(--text-muted);
@@ -63,48 +75,48 @@
 
 .report-tab-btn:hover {
   color: var(--text-main);
-  background: rgba(15,23,42,0.04);
+  background: var(--bg-glass-hover);
 }
 
 .report-tab-btn.active {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: var(--text-main);
-  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.35);
+  background: linear-gradient(135deg, var(--brand-500), var(--accent-500));
+  color: #fff;
+  box-shadow: var(--shadow-brand);
 }
 
 .report-tab-btn.active.expiry-tab {
   background: linear-gradient(135deg, #f43f5e, #be123c);
-  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.35);
+  box-shadow: 0 4px 16px rgba(244, 63, 94, 0.30);
 }
 
 .tab-badge {
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.75rem;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
   font-weight: 800;
-  background: rgba(15,23,42,0.04);
-  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.15);
+  color: inherit;
 }
 
-/* Table Card Panel */
+/* ── Table Card Panel ── */
 .report-table-card {
   background: var(--bg-surface);
-  border: 1.5px solid var(--border-light);
-  border-radius: var(--radius-2xl);
-  padding: 24px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   box-shadow: var(--shadow-md);
 }
 
 .report-toolbar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
-  padding-bottom: 16px;
-  border-bottom: 1.5px solid var(--border-light);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .report-table-header {
@@ -112,42 +124,44 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-glass);
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .report-table-header h3 {
-  font-size: 1.18rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-main);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
+/* ── Special Row Highlights ── */
 .low-stock-row {
-  background: rgba(245, 158, 11, 0.08) !important;
+  background: rgba(251, 191, 36, 0.06) !important;
 }
 
 .low-stock-row:hover {
-  background: rgba(245, 158, 11, 0.14) !important;
+  background: rgba(251, 191, 36, 0.12) !important;
 }
 
 .expiry-alert-row {
-  background: rgba(244, 63, 94, 0.06) !important;
+  background: rgba(248, 113, 113, 0.06) !important;
 }
 
 .expiry-alert-row:hover {
-  background: rgba(244, 63, 94, 0.12) !important;
+  background: rgba(248, 113, 113, 0.12) !important;
 }
 
+/* ── Urgent Order Box ── */
 .urgent-order-box {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
   padding: 8px 14px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   display: inline-flex;
   flex-direction: column;
   align-items: flex-end;
@@ -155,41 +169,87 @@
 }
 
 .urgent-order-box strong {
-  color: #f87171;
-  font-size: 0.78rem;
+  color: var(--danger-text);
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
 }
 
 .urgent-order-box span {
-  font-size: 0.96rem;
+  font-size: 0.92rem;
   color: var(--text-main);
   font-weight: 800;
 }
 
+/* ── Report Stat Box ── */
 .report-stat-box {
   background: var(--bg-surface);
-  border: 1.5px solid var(--border-light);
-  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   padding: 16px 20px;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
 }
 
+/* ── BI Stats (ITR, DSI) ── */
+.bi-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.bi-stat-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.bi-stat-card:hover {
+  border-color: var(--border-brand);
+}
+
+.bi-stat-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--brand-400);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.bi-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.bi-stat-desc {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* ── Responsive ── */
 @media (max-width: 640px) {
   .report-hero {
     flex-direction: column;
     align-items: flex-start;
+    padding: 16px;
   }
-  
   .report-tabs-switcher {
     width: 100%;
-    flex-direction: column;
   }
-  
   .report-tab-btn {
-    width: 100%;
-    justify-content: space-between;
+    flex: 1;
+    justify-content: center;
   }
 }

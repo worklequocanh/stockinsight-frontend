@@ -10,8 +10,8 @@
 }
 
 .audit-hero {
-  background: var(--bg-glass-heavy);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: 24px;
   padding: 26px 32px;
   display: flex;
@@ -19,7 +19,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
-  box-shadow: 0 16px 40px rgba(15,23,42,0.04);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
 }
 
 .audit-hero-info h1 {
@@ -37,35 +37,34 @@
 
 .audit-table-card {
   background: var(--bg-glass);
-  border: 1px solid var(--border-glass);
+  border: 1px solid var(--border-subtle);
   border-radius: 24px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 20px 50px rgba(15,23,42,0.04);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
 }
 
 .audit-diff-box {
   font-size: 0.82rem;
-  color: #cbd5e1;
-  background: rgba(15,23,42,0.04);
+  color: var(--text-sub);
+  background: var(--bg-glass);
   padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(15,23,42,0.05);
+  border: 1px solid var(--border-subtle);
   font-family: 'Fira Code', 'Courier New', Courier, monospace;
   word-break: break-all;
   line-height: 1.5;
 }
 
 .audit-resource-code {
-  background: rgba(15,23,42,0.05);
+  background: var(--bg-glass);
   border: 1px solid var(--border-subtle);
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 0.82rem;
-  color: #38bdf8;
+  color: var(--info-text);
   font-family: 'Fira Code', 'Courier New', Courier, monospace;
   font-weight: 700;
 }
-

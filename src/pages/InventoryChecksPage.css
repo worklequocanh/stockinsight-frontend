@@ -10,8 +10,8 @@
 }
 
 .checks-hero {
-  background: var(--bg-glass-heavy);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: 24px;
   padding: 26px 32px;
   display: flex;
@@ -19,7 +19,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
-  box-shadow: 0 16px 40px rgba(15,23,42,0.04);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
 }
 
 .checks-hero-info h1 {
@@ -37,30 +37,30 @@
 
 .checks-main-card {
   background: var(--bg-glass);
-  border: 1px solid var(--border-glass);
+  border: 1px solid var(--border-subtle);
   border-radius: 24px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 20px 50px rgba(15,23,42,0.04);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
 }
 
 .checks-worksheet-panel {
-  background: var(--bg-glass-heavy);
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--info-border);
   border-radius: 24px;
   padding: 28px;
-  box-shadow: 0 25px 60px rgba(15,23,42,0.04);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
   margin-top: 24px;
 }
 
 .checks-creation-panel {
-  background: var(--bg-glass-heavy);
-  border: 1px solid rgba(14, 165, 233, 0.4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--info-border);
   border-radius: 24px;
   padding: 28px;
-  box-shadow: 0 25px 60px rgba(15,23,42,0.04);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
   margin-top: 24px;
 }
 
@@ -71,7 +71,7 @@
   max-height: 340px;
   overflow-y: auto;
   padding: 14px;
-  background: rgba(15,23,42,0.04);
+  background: var(--bg-glass);
   border-radius: 16px;
   border: 1px solid var(--border-subtle);
 }
@@ -81,7 +81,7 @@
 }
 
 .product-select-grid::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
 }
 
@@ -95,4 +95,3 @@
   gap: 12px;
   user-select: none;
 }
-

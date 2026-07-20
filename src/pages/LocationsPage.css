@@ -10,8 +10,8 @@
 }
 
 .locations-hero {
-  background: var(--bg-glass-heavy);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: 24px;
   padding: 26px 32px;
   display: flex;
@@ -19,7 +19,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
-  box-shadow: 0 16px 40px rgba(15,23,42,0.04);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
 }
 
 .locations-hero-info h1 {
@@ -44,21 +44,21 @@
 
 .locations-table-card {
   background: var(--bg-glass);
-  border: 1px solid var(--border-glass);
+  border: 1px solid var(--border-subtle);
   border-radius: 24px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 20px 50px rgba(15,23,42,0.04);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
 }
 
 .location-icon-box {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: rgba(52, 211, 153, 0.15);
-  border: 1px solid rgba(52, 211, 153, 0.35);
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,13 +67,13 @@
 }
 
 .locations-side-form {
-  background: var(--bg-glass-heavy);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: 24px;
   padding: 28px;
   position: sticky;
   top: 96px;
-  box-shadow: 0 25px 60px rgba(15,23,42,0.04);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
 }
 
 @media (max-width: 1024px) {
@@ -81,4 +81,3 @@
     grid-template-columns: 1fr;
   }
 }
-

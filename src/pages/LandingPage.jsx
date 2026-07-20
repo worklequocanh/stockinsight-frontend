@@ -1,198 +1,169 @@
-import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import './LandingPage.css'
 
-const featureCards = [
+const FEATURES = [
   {
-    icon: (
-      <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" style={{ width: 28, height: 28 }}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
-      </svg>
-    ),
-    title: 'Quản lý Hàng hóa & SKU Số hóa',
-    description: 'Hệ thống chuẩn hóa mã SKU, Barcode, quản lý chi tiết nhà cung cấp, đối tác khách hàng và tự động tính toán định mức tồn kho an toàn.'
+    icon: '📦',
+    title: 'Quản lý Hàng hóa & SKU',
+    desc: 'Chuẩn hóa mã SKU, Barcode, quản lý chi tiết nhà cung cấp, đối tác khách hàng và tự động tính toán định mức tồn kho an toàn.'
   },
   {
-    icon: (
-      <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" style={{ width: 28, height: 28 }}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-      </svg>
-    ),
-    title: 'Xuất Nhập theo Thuật toán FEFO',
-    description: 'AI Engine tự động ưu tiên xuất các lô cận hạn sử dụng (First Expired First Out) giúp tối ưu hóa hao phí và rủi ro hết hạn cho doanh nghiệp.'
+    icon: '⏱️',
+    title: 'Xuất Nhập theo FEFO AI',
+    desc: 'Engine tự động ưu tiên xuất các lô cận hạn sử dụng (First Expired First Out) giúp tối ưu hóa hao phí và rủi ro hết hạn.'
   },
   {
-    icon: (
-      <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" style={{ width: 28, height: 28 }}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-      </svg>
-    ),
+    icon: '📊',
     title: 'Thống kê & Cảnh báo Realtime',
-    description: 'Biểu đồ phân tích trực quan Chart.js và luồng cảnh báo tức thì qua Socket.io mỗi khi tồn kho xuống thấp hoặc phát hiện lô sắp hết hạn.'
+    desc: 'Biểu đồ phân tích trực quan Chart.js và luồng cảnh báo tức thì qua Socket.io mỗi khi tồn kho xuống thấp hoặc lô sắp hết hạn.'
   },
   {
-    icon: (
-      <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" style={{ width: 28, height: 28 }}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
-      </svg>
-    ),
-    title: 'Sơ đồ Kho Trực quan 2D/3D Map',
-    description: 'Bản đồ số hóa từng khu vực A-B-C, kệ hàng trong kho. Cho phép tra cứu nhanh vị trí lưu trữ của sản phẩm chỉ với 1 cú click.'
-  }
+    icon: '🗺️',
+    title: 'Sơ đồ Kho 2D/3D Map',
+    desc: 'Bản đồ số hóa từng khu vực A-B-C, kệ hàng trong kho. Tra cứu nhanh vị trí lưu trữ của sản phẩm chỉ với 1 click.'
+  },
+]
+
+const STATS = [
+  { value: '13+', label: 'Bảng dữ liệu tích hợp' },
+  { value: '100%', label: 'Dữ liệu demo thực tế' },
+  { value: 'FEFO', label: 'Thuật toán AI xuất kho' },
+  { value: '99.9%', label: 'Uptime cam kết' },
 ]
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuth()
-  const [health, setHealth] = useState({
-    status: 'checking',
-    message: 'Đang kết nối tới máy chủ WMS Cloud...'
-  })
+  const navigate = useNavigate()
+  const [health, setHealth] = useState({ status: 'checking', message: 'Đang kết nối...' })
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    let isMounted = true
-
-    async function loadHealth() {
-      try {
-        const response = await api.get('/health')
-        const payload = response.data?.data ?? response.data
-
-        if (isMounted) {
-          setHealth({
-            status: payload?.status || 'ok',
-            message: response.data?.message || 'Máy chủ Backend & Database đã sẵn sàng hoạt động tối đa.',
-            database: payload?.database || 'Postgres Cloud',
-            timestamp: new Date().toLocaleTimeString('vi-VN')
-          })
-        }
-      } catch {
-        if (isMounted) {
-          setHealth({
-            status: 'offline',
-            message: 'Đang kết nối... (Vui lòng khởi động Backend API tại localhost:3001)'
-          })
-        }
-      }
-    }
-
-    loadHealth()
-    return () => { isMounted = false }
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    api.get('/health').then(res => {
+      setHealth({ status: 'online', message: 'Máy chủ đang hoạt động ổn định' })
+    }).catch(() => {
+      setHealth({ status: 'offline', message: 'Không thể kết nối máy chủ' })
+    })
+  }, [])
+
+  const handleCTA = () => {
+    if (isAuthenticated) navigate('/dashboard')
+    else navigate('/login')
+  }
+
   return (
-    <div className="landing-shell">
-      {/* Navigation Bar */}
-      <header className="landing-nav">
-        <div className="landing-logo">
-          <div className="landing-logo-icon">
-            <svg fill="none" viewBox="0 0 24 24" strokeWidth="2.2" stroke="currentColor" style={{ width: 24, height: 24 }}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504 1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-            </svg>
-          </div>
-          <h2>StockInsight</h2>
+    <div className="lp-wrapper">
+      {/* Navbar */}
+      <nav className={`lp-navbar ${scrolled ? 'scrolled' : ''}`}>
+        <div className="lp-nav-logo">
+          <div className="lp-nav-logo-icon">📦</div>
+          <span className="lp-nav-logo-text">StockInsight</span>
         </div>
-        <div>
-          <Link className="hero-btn-primary" style={{ padding: '10px 22px', fontSize: '0.9rem' }} to={isAuthenticated ? '/dashboard' : '/login'}>
-            {isAuthenticated ? 'Vào Command Center' : 'Đăng nhập ngay'}
+        <div className="lp-nav-links">
+          <a className="lp-nav-link" href="#features">Tính năng</a>
+          <a className="lp-nav-link" href="#stats">Số liệu</a>
+          <Link to={isAuthenticated ? '/dashboard' : '/login'} className="btn-primary" style={{ padding: '8px 18px', fontSize: '0.855rem' }}>
+            {isAuthenticated ? '→ Vào Dashboard' : 'Đăng nhập'}
           </Link>
         </div>
-      </header>
+      </nav>
 
-      {/* Hero Section */}
-      <section className="landing-hero">
-        <div className="hero-content">
-          <div className="hero-eyebrow">
-            <span>⚡</span> WMS Enterprise v3.0 Deep Cyber
+      {/* Hero */}
+      <section className="lp-hero">
+        {/* Background */}
+        <div className="lp-grid-bg" />
+        <div className="lp-orb lp-orb-1" />
+        <div className="lp-orb lp-orb-2" />
+        <div className="lp-orb lp-orb-3" />
+
+        <div className="lp-hero-content">
+          <div className="lp-eyebrow">
+            <span className="lp-eyebrow-dot" />
+            Hệ thống WMS Enterprise v5.0
           </div>
-          <h1>
-            Quản lý Kho thông minh chuẩn <span className="gradient-text">FEFO & Realtime AI</span>
+
+          <h1 className="lp-hero-title">
+            Xây dựng Website
+            <br />
+            <span className="gradient-text">Quản lý Bán hàng</span>
+            <br />
+            tích hợp Báo cáo Phân tích
           </h1>
-          <p className="hero-copy">
-            Nền tảng quản lý tồn kho thế hệ mới dành cho doanh nghiệp bán lẻ và chuỗi cung ứng. Tối ưu hóa lô hàng, kiểm soát hạn sử dụng tự động và báo cáo đa chiều trên giao diện Glassmorphism đỉnh cao.
+
+          <p className="lp-hero-sub">
+            Nền tảng quản lý kho hàng thông minh — theo dõi tồn kho realtime,
+            xuất nhập theo thuật toán FEFO, phân tích BI chuyên sâu và báo cáo doanh thu tức thì.
           </p>
 
-          <div className="hero-buttons">
-            <Link className="hero-btn-primary" to={isAuthenticated ? '/dashboard' : '/login'}>
-              {isAuthenticated ? 'Truy cập Command Center' : 'Bắt đầu Trải nghiệm'}
-              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" style={{ width: 20, height: 20 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-              </svg>
-            </Link>
-            <a href="#features" className="hero-btn-secondary">
-              Khám phá tính năng
+          <div className="lp-hero-actions">
+            <button className="lp-btn-primary" onClick={handleCTA}>
+              {isAuthenticated ? '→ Vào Dashboard ngay' : '🚀 Bắt đầu miễn phí'}
+            </button>
+            <a href="#features" className="lp-btn-secondary">
+              Xem tính năng ↓
             </a>
           </div>
-        </div>
 
-        {/* Mockup Preview Card */}
-        <div className="hero-visual">
-          <div className="mockup-card">
-            <div className="mockup-header">
-              <div className="mockup-dots">
-                <span /><span /><span />
-              </div>
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>stockinsight.enterprise / command-center</span>
-            </div>
-
-            <div className="mockup-stats">
-              <div className="mock-stat-box">
-                <p>📦 Tổng sản phẩm lưu kho</p>
-                <h4>1,428 SKU</h4>
-              </div>
-              <div className="mock-stat-box">
-                <p>📈 Giá trị tồn kho thực tế</p>
-                <h4 style={{ color: '#38bdf8' }}>3.24 Tỷ VNĐ</h4>
-              </div>
-            </div>
-
-            <div className="mock-fefo-alert">
-              <span style={{ fontSize: '1.6rem' }}>⚡</span>
-              <div>
-                <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-main)' }}>Phát hiện 3 lô hàng cận date trong 30 ngày</strong>
-                <span style={{ fontSize: '0.78rem', color: '#fca5a5' }}>Thuật toán FEFO đã tự động điều hướng ưu tiên vào phiếu xuất tiếp theo</span>
-              </div>
-            </div>
+          <div className="lp-server-status">
+            <span className={`status-dot ${health.status}`} />
+            {health.message}
           </div>
         </div>
       </section>
 
-      {/* Health Status Banner */}
-      <section className="health-panel">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <span className={`health-badge ${health.status === 'ok' ? 'ok' : 'offline'}`}>
-            {health.status === 'ok' ? '● System Online & Ready' : '○ Checking Backend API'}
-          </span>
-          <span style={{ fontSize: '0.95rem', color: '#e2e8f0', fontWeight: 600 }}>
-            {health.message}
-          </span>
-        </div>
-        {health.timestamp && (
-          <span style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
-            Cập nhật lúc: {health.timestamp}
-          </span>
-        )}
+      {/* Stats Bar */}
+      <section className="lp-stats" id="stats">
+        {STATS.map((s, i) => (
+          <div className="lp-stat-item" key={i}>
+            <div className="lp-stat-value">{s.value}</div>
+            <div className="lp-stat-label">{s.label}</div>
+          </div>
+        ))}
       </section>
 
-      {/* Features Showcase */}
-      <section id="features" className="landing-features">
-        <div className="section-title">
-          <h2>Bộ Tính năng Nghiệp vụ Cốt lõi</h2>
-          <p>Được thiết kế chuẩn hóa cho tốc độ xử lý nhanh, bảo mật chặt chẽ và trải nghiệm người dùng hiện đại nhất.</p>
-        </div>
-
-        <div className="features-grid">
-          {featureCards.map((feat) => (
-            <div className="feature-box" key={feat.title}>
-              <div className="feature-icon-wrapper">
-                {feat.icon}
-              </div>
-              <h3>{feat.title}</h3>
-              <p>{feat.description}</p>
+      {/* Features */}
+      <section className="lp-features" id="features">
+        <div className="lp-section-label">✦ Tính năng nổi bật</div>
+        <h2 className="lp-section-title">Mọi thứ bạn cần cho kho hàng</h2>
+        <p className="lp-section-sub">
+          Từ nhập kho, xuất kho, kiểm kê đến phân tích BI — tất cả trên một nền tảng thống nhất.
+        </p>
+        <div className="lp-features-grid">
+          {FEATURES.map((f, i) => (
+            <div className="lp-feature-card animate-slide-up" key={i} style={{ animationDelay: `${i * 0.08}s` }}>
+              <div className="lp-feature-icon">{f.icon}</div>
+              <div className="lp-feature-title">{f.title}</div>
+              <div className="lp-feature-desc">{f.desc}</div>
             </div>
           ))}
         </div>
       </section>
+
+      {/* CTA */}
+      <section className="lp-cta">
+        <div className="lp-cta-card">
+          <h2 className="lp-cta-title">Sẵn sàng nâng cấp kho hàng?</h2>
+          <p className="lp-cta-sub">
+            Đăng nhập ngay để trải nghiệm hệ thống quản lý kho thông minh với đầy đủ dữ liệu demo thực tế.
+          </p>
+          <button className="lp-btn-primary" onClick={handleCTA} style={{ fontSize: '1rem', padding: '14px 36px' }}>
+            {isAuthenticated ? '→ Vào Dashboard' : '🔐 Đăng nhập ngay'}
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="lp-footer">
+        © 2026 StockInsight WMS Enterprise — Đồ án Tốt nghiệp · Xây dựng Website Quản lý Bán hàng tích hợp Báo cáo Phân tích Hàng hóa
+      </footer>
     </div>
   )
 }

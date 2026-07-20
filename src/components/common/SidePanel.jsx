@@ -7,23 +7,19 @@ export default function SidePanel({
   title,
   subtitle,
   children,
-  width = '480px',
+  width = '500px',
   footer = null
 }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose()
-      }
+      if (e.key === 'Escape' && isOpen) onClose()
     }
-
     if (isOpen) {
       document.body.style.overflow = 'hidden'
       window.addEventListener('keydown', handleKeyDown)
     } else {
       document.body.style.overflow = 'auto'
     }
-
     return () => {
       document.body.style.overflow = 'auto'
       window.removeEventListener('keydown', handleKeyDown)
@@ -33,56 +29,52 @@ export default function SidePanel({
   if (!isOpen) return null
 
   return createPortal(
-    <div className="side-panel-wrapper" style={{
+    <div style={{
       position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
+      inset: 0,
       zIndex: 10000,
       display: 'flex',
       justifyContent: 'flex-end'
     }}>
       {/* Backdrop */}
       <div
-        className="side-panel-backdrop"
+        onClick={onClose}
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'rgba(15, 23, 42, 0.35)',
+          background: 'rgba(0, 0, 0, 0.65)',
           backdropFilter: 'blur(6px)',
           WebkitBackdropFilter: 'blur(6px)',
-          transition: 'opacity 0.3s ease'
         }}
-        onClick={onClose}
       />
 
       {/* Drawer Panel */}
       <div
-        className="side-panel-drawer animate-slide-in-right"
+        className="animate-slide-in-right"
         style={{
           position: 'relative',
           width,
           maxWidth: '96vw',
           height: '100vh',
           background: 'var(--bg-surface)',
-          borderLeft: '1.5px solid var(--border-light)',
-          boxShadow: '-8px 0 32px rgba(15, 23, 42, 0.10)',
+          borderLeft: '1px solid var(--border-medium)',
+          boxShadow: 'var(--shadow-xl)',
           display: 'flex',
           flexDirection: 'column',
-          zIndex: 10001
+          zIndex: 10001,
+          overflow: 'hidden',
         }}
       >
         {/* Header */}
         <div style={{
-          padding: '20px 26px',
-          borderBottom: '1.5px solid var(--border-light)',
-          background: 'var(--bg-surface)',
+          padding: '18px 22px',
+          borderBottom: '1px solid var(--border-subtle)',
+          background: 'var(--bg-elevated)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          gap: '16px',
-          flexShrink: 0
+          gap: '14px',
+          flexShrink: 0,
         }}>
           <div>
             {subtitle && (
@@ -90,7 +82,14 @@ export default function SidePanel({
                 {subtitle}
               </span>
             )}
-            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', margin: 0, color: 'var(--text-main)', fontWeight: 800, letterSpacing: '-0.02em' }}>
+            <h2 style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: '1.1rem',
+              margin: 0,
+              color: 'var(--text-main)',
+              fontWeight: 700,
+              letterSpacing: '-0.02em'
+            }}>
               {title}
             </h2>
           </div>
@@ -99,29 +98,30 @@ export default function SidePanel({
             onClick={onClose}
             title="Đóng (ESC)"
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid var(--border-glass)',
+              background: 'var(--bg-glass)',
+              border: '1px solid var(--border-subtle)',
               color: 'var(--text-muted)',
-              fontSize: '1.4rem',
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
+              fontSize: '1.1rem',
+              width: '32px',
+              height: '32px',
+              borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'all 0.2s ease',
-              flexShrink: 0
+              transition: 'all 0.15s ease',
+              flexShrink: 0,
+              lineHeight: 1,
             }}
             onMouseOver={(e) => {
-              e.currentTarget.style.background = 'rgba(244, 63, 94, 0.2)'
-              e.currentTarget.style.color = '#fff'
-              e.currentTarget.style.borderColor = 'rgba(244, 63, 94, 0.5)'
+              e.currentTarget.style.background = 'var(--danger-bg)'
+              e.currentTarget.style.color = 'var(--danger-text)'
+              e.currentTarget.style.borderColor = 'var(--danger-border)'
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
+              e.currentTarget.style.background = 'var(--bg-glass)'
               e.currentTarget.style.color = 'var(--text-muted)'
-              e.currentTarget.style.borderColor = 'var(--border-glass)'
+              e.currentTarget.style.borderColor = 'var(--border-subtle)'
             }}
           >
             ×
@@ -132,9 +132,9 @@ export default function SidePanel({
         <div style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '24px 28px',
+          padding: '22px 24px',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
         }}>
           {children}
         </div>
@@ -142,13 +142,13 @@ export default function SidePanel({
         {/* Footer */}
         {footer && (
           <div style={{
-            padding: '14px 26px',
-            borderTop: '1.5px solid var(--border-light)',
-            background: 'var(--bg-surface-elevated)',
+            padding: '12px 22px',
+            borderTop: '1px solid var(--border-subtle)',
+            background: 'var(--bg-elevated)',
             display: 'flex',
             justifyContent: 'flex-end',
-            gap: '10px',
-            flexShrink: 0
+            gap: '8px',
+            flexShrink: 0,
           }}>
             {footer}
           </div>
