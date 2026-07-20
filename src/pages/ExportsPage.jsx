@@ -21,6 +21,7 @@ export default function ExportsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [targetItemIndex, setTargetItemIndex] = useState(null)
+  const [selectedInvoice, setSelectedInvoice] = useState(null)
 
   const [products, setProducts] = useState([])
   const [customers, setCustomers] = useState([])
@@ -285,7 +286,14 @@ export default function ExportsPage() {
                                 </button>
                               </>
                             ) : (
-                              <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontStyle: 'italic' }}>Đã khóa</span>
+                              <button 
+                                type="button" 
+                                className="status-pill info" 
+                                style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }}
+                                onClick={() => setSelectedInvoice(item)}
+                              >
+                                🧾 In Hóa Đơn
+                              </button>
                             )}
                           </div>
                         </td>
@@ -444,6 +452,123 @@ export default function ExportsPage() {
         onClose={() => setIsScannerOpen(false)} 
         onScanSuccess={handleScanSuccess} 
       />
+
+      {/* Printable Sales Invoice Modal */}
+      {selectedInvoice && (
+        <div className="invoice-modal-overlay" onClick={() => setSelectedInvoice(null)}>
+          <div className="invoice-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="invoice-modal-header no-print">
+              <h3>🧾 Hóa Đơn Xuất Bán Hàng (Sales Receipt)</h3>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button type="button" className="btn-primary" onClick={() => window.print()}>
+                  🖨️ In Hóa Đơn A4
+                </button>
+                <button type="button" className="btn-secondary" onClick={() => setSelectedInvoice(null)}>
+                  ✕ Đóng
+                </button>
+              </div>
+            </div>
+
+            <div className="printable-invoice-paper">
+              <div className="invoice-paper-header">
+                <div>
+                  <h1 style={{ margin: 0, fontSize: '1.6rem', color: '#1e293b', fontWeight: 800 }}>STOCKINSIGHT WMS</h1>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#64748b' }}>Hệ Thống Quản Lý Kho & Bán Hàng Doanh Nghiệp</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <h2 style={{ margin: 0, fontSize: '1.2rem', color: '#4f46e5' }}>HÓA ĐƠN BÁN HÀNG</h2>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>Mã: {selectedInvoice.code}</p>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: '#64748b' }}>Ngày: {new Date(selectedInvoice.createdAt).toLocaleDateString('vi-VN')}</p>
+                </div>
+              </div>
+
+              <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '16px 0' }} />
+
+              <div className="invoice-paper-info-grid">
+                <div>
+                  <span style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Đơn vị xuất hàng:</span>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b' }}>Tổng Kho WMS Enterprise</p>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: '#475569' }}>Người lập phiếu: {selectedInvoice.createdBy?.name || 'Nhân viên bán hàng'}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Khách hàng nhận hàng:</span>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b' }}>
+                    {selectedInvoice.customer ? selectedInvoice.customer.name : 'Khách hàng lẻ'}
+                  </p>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: '#475569' }}>
+                    SĐT: {selectedInvoice.customer?.phone || 'Chưa cập nhật'} | ĐC: {selectedInvoice.customer?.address || 'Tại kho'}
+                  </p>
+                </div>
+              </div>
+
+              <table className="printable-invoice-table" style={{ width: '100%', marginTop: 20, borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.82rem', color: '#334155' }}>STT</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.82rem', color: '#334155' }}>Sản phẩm / SKU</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '0.82rem', color: '#334155' }}>SL</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: '0.82rem', color: '#334155' }}>Đơn giá</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: '0.82rem', color: '#334155' }}>Thành tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(selectedInvoice.items && selectedInvoice.items.length > 0) ? (
+                    selectedInvoice.items.map((item, idx) => {
+                      const lineTotal = Number(item.quantity) * Number(item.unitPrice)
+                      return (
+                        <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '10px 12px', fontSize: '0.85rem', color: '#475569' }}>{idx + 1}</td>
+                          <td style={{ padding: '10px 12px', fontSize: '0.85rem', color: '#0f172a', fontWeight: 600 }}>
+                            {item.product?.name || 'Sản phẩm kinh doanh'}
+                            <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 400 }}>SKU: {item.product?.sku}</span>
+                          </td>
+                          <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>{item.quantity}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: '0.85rem', color: '#475569' }}>{Number(item.unitPrice).toLocaleString('vi-VN')} đ</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>{lineTotal.toLocaleString('vi-VN')} đ</td>
+                        </tr>
+                      )
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', padding: 20, color: '#94a3b8' }}>Phiếu xuất tiêu chuẩn</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+
+              <div style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <div style={{ fontSize: '0.82rem', color: '#64748b' }}>
+                  <p style={{ margin: 0 }}>* Hóa đơn xuất theo quy trình kiểm tra FEFO tự động.</p>
+                  <p style={{ margin: '2px 0 0 0' }}> Cảm ơn quý khách đã tin tưởng và hợp tác!</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>
+                    Tổng Cộng Thanh Toán: {((selectedInvoice.items || []).reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0)).toLocaleString('vi-VN')} đ
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', textAlign: 'center', fontSize: '0.85rem', color: '#475569' }}>
+                <div>
+                  <strong>Người Lập Phiếu</strong>
+                  <div style={{ height: 50 }} />
+                  <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.78rem' }}>(Ký & ghi rõ họ tên)</p>
+                </div>
+                <div>
+                  <strong>Thủ Kho Xuất Hàng</strong>
+                  <div style={{ height: 50 }} />
+                  <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.78rem' }}>(Ký & ghi rõ họ tên)</p>
+                </div>
+                <div>
+                  <strong>Khách Hàng Nhận Hàng</strong>
+                  <div style={{ height: 50 }} />
+                  <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.78rem' }}>(Ký & ghi rõ họ tên)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

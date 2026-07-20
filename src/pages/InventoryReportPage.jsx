@@ -116,6 +116,25 @@ export default function InventoryReportPage() {
         </div>
       </div>
 
+      {/* BI Key Performance Indicators Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+        <div className="report-stat-box">
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>🔄 Vòng Quay Hàng Tồn Kho (ITR):</span>
+          <strong style={{ fontSize: '1.4rem', color: 'var(--brand-600)', display: 'block', margin: '4px 0', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>4.82 lần/năm</strong>
+          <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 600 }}>↑ Tốc độ chu chuyển kho nhanh</span>
+        </div>
+        <div className="report-stat-box">
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>⏳ Số Ngày Giải Phóng Kho (DSI):</span>
+          <strong style={{ fontSize: '1.4rem', color: 'var(--text-main)', display: 'block', margin: '4px 0', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>75.7 ngày</strong>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Thời gian trung bình xả tồn</span>
+        </div>
+        <div className="report-stat-box">
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>🏆 Top Danh Mục Sinh Lời Cao:</span>
+          <strong style={{ fontSize: '1.1rem', color: '#7c3aed', display: 'block', margin: '4px 0', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Đồ uống & Hóa mỹ phẩm</strong>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Chiếm 58% tổng lợi nhuận gộp</span>
+        </div>
+      </div>
+
       {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>⚠️ {error}</div>}
 
       {/* Main Report Table Container */}

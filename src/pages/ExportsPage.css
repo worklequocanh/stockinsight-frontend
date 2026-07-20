@@ -96,9 +96,106 @@
   border-bottom: 1px dashed rgba(15,23,42,0.07);
 }
 
+/* ── Printable Invoice Modal Styles ── */
+.invoice-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.invoice-modal-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-2xl);
+  border: 1.5px solid var(--border-light);
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-2xl);
+}
+
+.invoice-modal-header {
+  padding: 18px 24px;
+  background: var(--bg-surface-elevated);
+  border-bottom: 1.5px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.invoice-modal-header h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.printable-invoice-paper {
+  background: #ffffff;
+  color: #0f172a;
+  padding: 40px;
+  overflow-y: auto;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.invoice-paper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.invoice-paper-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+/* ── Print Stylesheet ── */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .invoice-modal-overlay {
+    position: static;
+    background: transparent;
+    padding: 0;
+    backdrop-filter: none;
+  }
+  .invoice-modal-card {
+    border: none;
+    box-shadow: none;
+    max-width: 100%;
+    max-height: 100%;
+  }
+  .printable-invoice-paper, .printable-invoice-paper * {
+    visibility: visible;
+  }
+  .printable-invoice-paper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+  }
+}
+
 @media (max-width: 1200px) {
   .exports-layout-grid {
     grid-template-columns: 1fr;
   }
 }
+
 

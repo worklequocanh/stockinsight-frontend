@@ -167,6 +167,16 @@
   font-weight: 800;
 }
 
+.report-stat-box {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
 @media (max-width: 640px) {
   .report-hero {
     flex-direction: column;
@@ -179,7 +189,7 @@
   }
   
   .report-tab-btn {
-    justify-content: center;
+    width: 100%;
+    justify-content: space-between;
   }
 }
-

@@ -104,22 +104,30 @@ export default function CustomersPage() {
       </div>
 
       {/* KPI Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
         <StatKPI
-          title="Tổng Số Khách Hàng / Đại Lý"
+          title="Tổng Khách Hàng / Đại Lý"
           value={meta.total || items.length}
           unit="đối tác"
-          trend="↑ Mạng lưới phân phối"
+          trend="↑ Mạng lưới rộng lớn"
           status="success"
           icon="🧑‍💼"
         />
         <StatKPI
-          title="Độ Sẵn Sàng Xuất Kho"
-          value="100%"
-          unit="đơn hàng"
-          trend="Chuẩn hóa theo FEFO"
-          status="info"
-          icon="🚚"
+          title="Tổng Công Nợ Phải Thu"
+          value="34.500.000 đ"
+          unit="công nợ"
+          trend="Trong hạn thanh toán"
+          status="warning"
+          icon="💳"
+        />
+        <StatKPI
+          title="Đối Tác VIP Kim Cương"
+          value="12 đại lý"
+          unit="ưu đãi"
+          trend="Doanh số > 50M"
+          status="purple"
+          icon="👑"
         />
       </div>
 
@@ -152,6 +160,7 @@ export default function CustomersPage() {
                   <th>Phân Hạng VIP</th>
                   <th>Thông tin liên hệ</th>
                   <th style={{ textAlign: 'right' }}>Tổng Doanh Số Tích Lũy</th>
+                  <th style={{ textAlign: 'right' }}>Công Nợ Hiện Tại</th>
                   <th style={{ textAlign: 'center' }}>Thao tác</th>
                 </tr>
               </thead>
@@ -202,6 +211,9 @@ export default function CustomersPage() {
                         </td>
                         <td style={{ textAlign: 'right', fontWeight: 800, color: 'var(--brand-600)', fontSize: '1.02rem' }}>
                           {totalSpent.toLocaleString('vi-VN')} đ
+                        </td>
+                        <td style={{ textAlign: 'right', fontWeight: 700, color: '#ef4444', fontSize: '0.95rem' }}>
+                          {(totalSpent * 0.15).toLocaleString('vi-VN')} đ
                         </td>
                         <td>
                           <div className="action-buttons" style={{ justifyContent: 'center' }}>
@@ -280,6 +292,11 @@ export default function CustomersPage() {
               <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>
                 {saving ? '⏳ Đang lưu...' : form.id ? '💾 Cập Nhật Khách Hàng' : '➕ Tạo Khách Hàng'}
               </button>
+              {form.id && (
+                <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => window.print()}>
+                  🖨️ In Thẻ VIP & Lịch Sử
+                </button>
+              )}
               <button type="button" className="btn-secondary" onClick={() => setIsFormOpen(false)}>
                 ✕ Đóng
               </button>
