@@ -38,19 +38,19 @@ function App() {
       >
         <Route index element={<DashboardPage />} />
         <Route path="visual-map" element={<VisualMapPage />} />
-        <Route path="inventory-reports" element={<InventoryReportPage />} />
-        <Route path="products" element={<ProductsPage />} />
-        <Route path="categories" element={<CategoriesPage />} />
-        <Route path="suppliers" element={<SuppliersPage />} />
-        <Route path="customers" element={<CustomersPage />} />
-        <Route path="locations" element={<LocationsPage />} />
+        <Route path="inventory-reports" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><InventoryReportPage /></ProtectedRoute>} />
+        <Route path="products" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><ProductsPage /></ProtectedRoute>} />
+        <Route path="categories" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><CategoriesPage /></ProtectedRoute>} />
+        <Route path="suppliers" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><SuppliersPage /></ProtectedRoute>} />
+        <Route path="customers" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><CustomersPage /></ProtectedRoute>} />
+        <Route path="locations" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><LocationsPage /></ProtectedRoute>} />
         <Route path="imports" element={<ImportsPage />} />
         <Route path="exports" element={<ExportsPage />} />
         <Route path="transfers" element={<TransfersPage />} />
         <Route path="inventory-checks" element={<InventoryChecksPage />} />
         <Route path="returns" element={<ReturnsPage />} />
-        <Route path="audit-logs" element={<AuditLogsPage />} />
-        <Route path="users" element={<UsersPage />} />
+        <Route path="audit-logs" element={<ProtectedRoute allowedRoles={['ADMIN']}><AuditLogsPage /></ProtectedRoute>} />
+        <Route path="users" element={<ProtectedRoute allowedRoles={['ADMIN']}><UsersPage /></ProtectedRoute>} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
