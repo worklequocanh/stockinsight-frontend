@@ -27,7 +27,7 @@
   flex-direction: column;
   z-index: 9990;
   transition: width var(--transition-spring), min-width var(--transition-spring);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 
