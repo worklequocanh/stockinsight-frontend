@@ -215,10 +215,6 @@ export default function DashboardLayout() {
           </div>
         </div>
 
-        {/* Desktop expand toggle */}
-        <button className="sidebar-toggle" onClick={toggleExpanded} title={isSidebarExpanded ? 'Thu gọn' : 'Mở rộng'}>
-          {isSidebarExpanded ? '‹' : '›'}
-        </button>
 
         {/* Nav */}
         <nav className="sidebar-nav">
@@ -307,6 +303,11 @@ export default function DashboardLayout() {
         {/* Desktop Header */}
         <header className="desktop-header">
           <div className="header-left">
+            <button className="desktop-sidebar-toggle" onClick={toggleExpanded} title={isSidebarExpanded ? 'Thu gọn' : 'Mở rộng'}>
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
             <div className="breadcrumb">
               <span className="breadcrumb-item">StockInsight</span>
               <span className="breadcrumb-sep">›</span>
