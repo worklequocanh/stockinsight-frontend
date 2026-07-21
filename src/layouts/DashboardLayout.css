@@ -180,22 +180,24 @@
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  padding: 12px 10px 5px 10px;
+  padding: 0 10px;
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   opacity: 0;
   height: 0;
-  transition: opacity var(--transition-smooth), height var(--transition-smooth);
+  transition: all var(--transition-smooth);
 }
 
 .sidebar.expanded .nav-section-title,
 .sidebar.open .nav-section-title {
   opacity: 1;
   height: auto;
+  padding: 12px 10px 5px 10px;
 }
 
 @media (min-width: 1536px) {
-  .nav-section-title { opacity: 1; height: auto; }
+  .nav-section-title { opacity: 1; height: auto; padding: 12px 10px 5px 10px; }
 }
 
 .nav-sep {
@@ -279,18 +281,34 @@
   overflow: hidden;
 }
 
-.session-card {
-  border-radius: var(--radius-md);
+.sidebar.expanded .session-card,
+.sidebar.open .session-card {
   background: var(--bg-glass);
   border: 1px solid var(--border-subtle);
+}
+
+.session-card {
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: 1px solid transparent;
   overflow: hidden;
+  transition: all var(--transition-smooth);
 }
 
 .session-header {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 6px;
+}
+
+.sidebar.expanded .session-header,
+.sidebar.open .session-header {
   padding: 10px 10px 8px;
+}
+
+@media (min-width: 1536px) {
+  .session-header { padding: 10px 10px 8px; }
 }
 
 .session-avatar {
@@ -347,7 +365,7 @@
   padding: 7px 10px;
   font-size: 0.78rem;
   border-radius: 0;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid transparent;
   background: transparent;
   color: var(--text-muted);
   display: flex;
@@ -356,6 +374,15 @@
   gap: 6px;
   transition: all var(--transition-fast);
   overflow: hidden;
+}
+
+.sidebar.expanded .logout-btn,
+.sidebar.open .logout-btn {
+  border-top: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 1536px) {
+  .logout-btn { border-top: 1px solid var(--border-subtle); }
 }
 
 .logout-btn:hover {
