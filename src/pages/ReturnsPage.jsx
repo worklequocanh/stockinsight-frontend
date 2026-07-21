@@ -88,7 +88,7 @@ export default function ReturnsPage() {
     try {
       const res = await api.get(`/returns/${item.id}`)
       if (res.data?.data) {
-        setViewItem(res.data.data)
+        setViewItem(res.data.data.item || res.data.data)
       } else {
         setViewItem(item)
       }

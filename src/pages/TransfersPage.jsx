@@ -139,7 +139,7 @@ export default function TransfersPage() {
     try {
       const res = await api.get(`/transfers/${item.id}`)
       if (res.data?.data) {
-        setViewItem(res.data.data)
+        setViewItem(res.data.data.item || res.data.data)
       } else {
         setViewItem(item)
       }
