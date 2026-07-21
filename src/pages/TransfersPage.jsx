@@ -22,6 +22,7 @@ export default function TransfersPage() {
   
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [targetItemIndex, setTargetItemIndex] = useState(null)
+  const [viewItem, setViewItem] = useState(null)
 
   const [products, setProducts] = useState([])
   const [locations, setLocations] = useState([])
@@ -131,6 +132,20 @@ export default function TransfersPage() {
       }
     } catch (err) {
       alert(parseApiError(err, 'Lỗi tìm kiếm sản phẩm qua QR'))
+    }
+  }
+
+  async function handleViewItem(item) {
+    try {
+      const res = await api.get(`/transfers/${item.id}`)
+      if (res.data?.data) {
+        setViewItem(res.data.data)
+      } else {
+        setViewItem(item)
+      }
+    } catch (err) {
+      console.error(err)
+      setViewItem(item)
     }
   }
 
@@ -258,8 +273,11 @@ export default function TransfersPage() {
                           )}
                         </td>
                         <td>
-                          <div className="action-buttons" style={{ justifyContent: 'center' }}>
-                            {item.status === 'PENDING' ? (
+                          <div className="action-buttons" style={{ justifyContent: 'center', gap: '8px' }}>
+                            <button type="button" className="status-pill info" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => handleViewItem(item)}>
+                              👁️ Xem
+                            </button>
+                            {item.status === 'PENDING' && (
                               <>
                                 <button type="button" className="status-pill success" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => approveTransfer(item.id)}>
                                   ✔ Duyệt
@@ -268,8 +286,6 @@ export default function TransfersPage() {
                                   ✕ Từ chối
                                 </button>
                               </>
-                            ) : (
-                              <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontStyle: 'italic' }}>Đã khóa</span>
                             )}
                           </div>
                         </td>
@@ -404,6 +420,96 @@ export default function TransfersPage() {
         onClose={() => setIsScannerOpen(false)} 
         onScanSuccess={handleScanSuccess} 
       />
+
+      {/* View Item Modal */}
+      {viewItem && (
+        <SidePanel
+          isOpen={!!viewItem}
+          onClose={() => setViewItem(null)}
+          title={`📄 Chi Tiết Phiếu Chuyển: ${viewItem.code}`}
+          subtitle={`Tạo ngày ${new Date(viewItem.createdAt).toLocaleDateString('vi-VN')}`}
+          width="700px"
+        >
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+              <div className="form-group">
+                <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 4 }}>Người lập:</span>
+                <strong style={{ color: 'var(--text-main)' }}>{viewItem.createdBy?.name || '-'}</strong>
+              </div>
+              <div className="form-group">
+                <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 4 }}>Trạng thái:</span>
+                <strong className={`status-pill ${viewItem.status === 'APPROVED' ? 'success' : viewItem.status === 'REJECTED' ? 'danger' : 'warning'}`}>
+                  {translateStatus(viewItem.status)}
+                </strong>
+              </div>
+              {viewItem.approvedBy && (
+                <div className="form-group">
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 4 }}>Người duyệt:</span>
+                  <strong style={{ color: 'var(--text-main)' }}>{viewItem.approvedBy.name}</strong>
+                </div>
+              )}
+              {viewItem.rejectedReason && (
+                <div className="form-group">
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--danger-color)', marginBottom: 4 }}>Lý do hủy:</span>
+                  <strong style={{ color: 'var(--danger-color)' }}>{viewItem.rejectedReason}</strong>
+                </div>
+              )}
+              {viewItem.note && (
+                <div className="form-group full-width">
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 4 }}>Ghi chú:</span>
+                  <div style={{ padding: '8px 12px', background: 'var(--bg-subtle)', borderRadius: 6, color: 'var(--text-main)' }}>
+                    {viewItem.note}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: 'var(--text-main)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 8 }}>
+              🔄 Danh sách sản phẩm điều chuyển
+            </h4>
+            
+            <div className="modern-table-wrapper" style={{ overflowX: 'auto', marginBottom: 24 }}>
+              <table className="modern-table" style={{ width: '100%', minWidth: 500 }}>
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Sản phẩm / Lô</th>
+                    <th>Từ Kệ</th>
+                    <th>Đến Kệ</th>
+                    <th>Số lượng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(viewItem.items && viewItem.items.length > 0) ? (
+                    viewItem.items.map((it, idx) => (
+                      <tr key={idx}>
+                        <td>{idx + 1}</td>
+                        <td>
+                          <strong style={{ display: 'block', color: 'var(--text-main)' }}>{it.product?.name || 'Không rõ'}</strong>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lô: {it.stockBatch?.batchNumber || 'N/A'}</span>
+                        </td>
+                        <td style={{ color: 'var(--danger-color)', fontWeight: 600 }}>{it.fromLocation?.code || '-'}</td>
+                        <td style={{ color: 'var(--success-color)', fontWeight: 600 }}>{it.toLocation?.code || '-'}</td>
+                        <td style={{ fontWeight: 700 }}>{it.quantity}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Chưa có chi tiết sản phẩm</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+              <button type="button" className="btn-secondary" onClick={() => setViewItem(null)}>
+                ✕ Đóng
+              </button>
+            </div>
+          </div>
+        </SidePanel>
+      )}
     </div>
   )
 }

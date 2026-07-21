@@ -15,6 +15,7 @@ export default function ReturnsPage() {
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [viewItem, setViewItem] = useState(null)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -80,6 +81,20 @@ export default function ReturnsPage() {
       await loadData({ search, page })
     } catch (err) {
       setError(parseApiError(err, 'Lỗi khi xử lý phiếu trả'))
+    }
+  }
+
+  async function handleViewItem(item) {
+    try {
+      const res = await api.get(`/returns/${item.id}`)
+      if (res.data?.data) {
+        setViewItem(res.data.data)
+      } else {
+        setViewItem(item)
+      }
+    } catch (err) {
+      console.error(err)
+      setViewItem(item)
     }
   }
 
@@ -229,8 +244,11 @@ export default function ReturnsPage() {
                           👤 {item.createdBy?.name || '-'}
                         </td>
                         <td>
-                          <div className="action-buttons" style={{ justifyContent: 'center' }}>
-                            {item.status === 'PENDING' ? (
+                          <div className="action-buttons" style={{ justifyContent: 'center', gap: '8px' }}>
+                            <button type="button" className="status-pill info" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => handleViewItem(item)}>
+                              👁️ Xem
+                            </button>
+                            {item.status === 'PENDING' && (
                               <>
                                 <button type="button" className="status-pill success" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => handleProcess(item.id, 'RETURNED_TO_STOCK')}>
                                   ↩ Nhập lại kho
@@ -239,8 +257,6 @@ export default function ReturnsPage() {
                                   🔥 Tiêu hủy
                                 </button>
                               </>
-                            ) : (
-                              <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontStyle: 'italic' }}>Đã kết án</span>
                             )}
                           </div>
                         </td>
@@ -370,6 +386,90 @@ export default function ReturnsPage() {
           </form>
         </div>
       </SidePanel>
+
+      {/* View Item Modal */}
+      {viewItem && (
+        <SidePanel
+          isOpen={!!viewItem}
+          onClose={() => setViewItem(null)}
+          title={`📄 Chi Tiết Phiếu Hoàn Trả: ${viewItem.code}`}
+          subtitle={`Tạo ngày ${new Date(viewItem.createdAt).toLocaleDateString('vi-VN')}`}
+          width="700px"
+        >
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+              <div className="form-group">
+                <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 4 }}>Người lập:</span>
+                <strong style={{ color: 'var(--text-main)' }}>{viewItem.createdBy?.name || '-'}</strong>
+              </div>
+              <div className="form-group">
+                <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 4 }}>Trạng thái:</span>
+                <strong className={`status-pill ${viewItem.status === 'RETURNED_TO_STOCK' ? 'success' : viewItem.status === 'DISCARDED' ? 'danger' : 'warning'}`}>
+                  {translateReturnStatus(viewItem.status)}
+                </strong>
+              </div>
+              {viewItem.originalExportId && (
+                <div className="form-group full-width">
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 4 }}>Phiếu xuất gốc (nếu có):</span>
+                  <strong style={{ color: 'var(--brand-400)' }}>{viewItem.originalExportId}</strong>
+                </div>
+              )}
+              {viewItem.reason && (
+                <div className="form-group full-width">
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 4 }}>Lý do hoàn trả:</span>
+                  <div style={{ padding: '8px 12px', background: 'var(--bg-subtle)', borderRadius: 6, color: 'var(--text-main)' }}>
+                    {viewItem.reason}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: 'var(--text-main)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 8 }}>
+              🔄 Danh sách sản phẩm hoàn trả
+            </h4>
+            
+            <div className="modern-table-wrapper" style={{ overflowX: 'auto', marginBottom: 24 }}>
+              <table className="modern-table" style={{ width: '100%', minWidth: 500 }}>
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Sản phẩm / SKU</th>
+                    <th>Về Kệ (nếu có)</th>
+                    <th>Tình trạng HH</th>
+                    <th>Số lượng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(viewItem.items && viewItem.items.length > 0) ? (
+                    viewItem.items.map((it, idx) => (
+                      <tr key={idx}>
+                        <td>{idx + 1}</td>
+                        <td>
+                          <strong style={{ display: 'block', color: 'var(--text-main)' }}>{it.product?.name || 'Không rõ'}</strong>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>SKU: {it.product?.sku || 'N/A'}</span>
+                        </td>
+                        <td style={{ color: 'var(--success-color)', fontWeight: 600 }}>{it.location?.code || '-'}</td>
+                        <td>{it.condition === 'GOOD' ? 'Tốt' : it.condition === 'DAMAGED' ? 'Hư hỏng' : 'Hết hạn'}</td>
+                        <td style={{ fontWeight: 700 }}>{it.quantity}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Chưa có chi tiết sản phẩm</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+              <button type="button" className="btn-secondary" onClick={() => setViewItem(null)}>
+                ✕ Đóng
+              </button>
+            </div>
+          </div>
+        </SidePanel>
+      )}
     </div>
   )
 }
