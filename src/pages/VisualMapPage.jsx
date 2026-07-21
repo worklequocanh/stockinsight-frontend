@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import api from '../services/api'
 import { parseApiError } from '../utils/helpers'
+import SidePanel from '../components/common/SidePanel'
 import './VisualMapPage.css'
 
 export default function VisualMapPage() {
@@ -207,25 +208,16 @@ export default function VisualMapPage() {
         </motion.div>
 
         {/* Selected Location Drawer */}
-        <AnimatePresence mode="wait">
-          <motion.div 
-            key={selectedLoc?.id || 'empty'}
-            className="loc-drawer"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-          >
-            {selectedLoc ? (
-              <div>
-                <div className="drawer-header">
-                  <div>
-                    <span className="status-pill info" style={{ marginBottom: 6 }}>📍 KHU VỰC {selectedLoc.zone}</span>
-                    <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--text-main)' }}>{selectedLoc.code}</h2>
-                  </div>
-                  <button onClick={() => setSelectedLoc(null)} className="btn-secondary" style={{ padding: '6px 12px' }} title="Đóng">✕</button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <SidePanel
+          isOpen={!!selectedLoc}
+          onClose={() => setSelectedLoc(null)}
+          title={`📍 KHU VỰC ${selectedLoc?.zone || ''}`}
+          subtitle={selectedLoc?.code || ''}
+          width="460px"
+        >
+          {selectedLoc && (
+            <div style={{ padding: '8px 0' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div className="occupancy-meter">
                     <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600 }}>Tỷ lệ lấp đầy tổng thể:</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
@@ -299,17 +291,8 @@ export default function VisualMapPage() {
                   </div>
                 </div>
               </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--text-muted)' }}>
-                <div style={{ fontSize: '3.5rem', marginBottom: 12 }}>🧭</div>
-                <h3 style={{ color: 'var(--text-main)', fontSize: '1.2rem', marginBottom: 6 }}>Chọn Vị Trí Kệ Hàng</h3>
-                <p style={{ fontSize: '0.92rem', lineHeight: 1.6, color: 'var(--text-muted)' }}>
-                  Nhấp vào một ô kệ trên sơ đồ bên trái để kiểm tra chi tiết tầng kệ, tỷ lệ lấp đầy và thao tác điều chuyển.
-                </p>
-              </div>
             )}
-          </motion.div>
-        </AnimatePresence>
+        </SidePanel>
       </div>
     </div>
   )
