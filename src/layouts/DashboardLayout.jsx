@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import NotificationBell from '../components/NotificationBell'
+import CommandPalette from '../components/CommandPalette'
 import './DashboardLayout.css'
 
 const NAV_ITEMS = [
@@ -160,6 +161,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="dashboard-layout">
+      <CommandPalette />
       {/* Mobile Header */}
       <div className="mobile-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

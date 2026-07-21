@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import api from '../services/api'
 import { buildQuery, parseApiError } from '../utils/helpers'
 import { translateStatus } from '../utils/translations'
-import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import QRScannerModal from '../components/QRScannerModal'
@@ -11,7 +10,7 @@ import './ImportsPage.css'
 
 export default function ImportsPage() {
   const [items, setItems] = useState([])
-  const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
+  const [meta, setMeta] = useState({ page: 1, limit: 30, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -36,7 +35,8 @@ export default function ImportsPage() {
     setLoading(true)
     setError('')
     try {
-      const response = await api.get(`/imports?${buildQuery({ search: params.search ?? search, page: params.page ?? page, limit: 10 })}`)
+      // Increase limit to show more items on the board
+      const response = await api.get(`/imports?${buildQuery({ search: params.search ?? search, page: params.page ?? page, limit: 30 })}`)
       const payload = response.data?.data || {}
       setItems(payload.items || [])
       setMeta(payload.meta || meta)
@@ -149,8 +149,12 @@ export default function ImportsPage() {
     }
   }
 
-  const pendingCount = items.filter(i => i.status === 'PENDING').length
-  const approvedCount = items.filter(i => i.status === 'APPROVED').length
+  const pendingItems = items.filter(i => i.status === 'PENDING')
+  const approvedItems = items.filter(i => i.status === 'APPROVED')
+  const rejectedItems = items.filter(i => i.status === 'REJECTED')
+
+  const pendingCount = pendingItems.length
+  const approvedCount = approvedItems.length
 
   return (
     <div className="imports-container">
@@ -209,98 +213,139 @@ export default function ImportsPage() {
 
       {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>⚠️ {error}</div>}
 
-      <div className="imports-layout-grid">
-        {/* Table Container */}
-        <div className="imports-table-card">
-          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
-            <div className="table-search" style={{ flex: 1 }}>
-              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-              </svg>
-              <input
-                placeholder="Tìm mã phiếu nhập (VD: IMP-2026), nhà cung cấp..."
-                value={search}
-                onChange={(e) => {
-                  setPage(1)
-                  setSearch(e.target.value)
-                }}
-              />
+      <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16, display: 'flex', gap: 16 }}>
+        <div className="table-search" style={{ flex: 1, maxWidth: 400 }}>
+          <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+          <input
+            placeholder="Tìm mã phiếu nhập (VD: IMP-2026)..."
+            value={search}
+            onChange={(e) => {
+              setPage(1)
+              setSearch(e.target.value)
+            }}
+          />
+        </div>
+        <div style={{ alignSelf: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          {loading && '⏳ Đang tải dữ liệu...'}
+        </div>
+      </div>
+
+      <div className="kanban-board-container">
+        {/* PENDING COLUMN */}
+        <div className="kanban-column">
+          <div className="kanban-column-header">
+            <div className="kanban-column-title">
+              <span className="kanban-dot" style={{ backgroundColor: 'var(--warning-color, #fbbf24)' }}></span>
+              Chờ Duyệt (PENDING)
             </div>
+            <span className="kanban-count">{pendingItems.length}</span>
           </div>
-
-          <div className="modern-table-wrapper" style={{ flex: 1 }}>
-            <table className="modern-table">
-              <thead>
-                <tr>
-                  <th>Mã Phiếu &amp; Ngày nhập</th>
-                  <th>Nhà cung cấp đối tác</th>
-                  <th>Trạng thái</th>
-                  <th>Thẩm định bởi</th>
-                  <th style={{ textAlign: 'center' }}>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <TableEmpty colSpan={5} text="⏳ Đang đồng bộ danh sách phiếu nhập kho từ cloud..." />
-                ) : items.length === 0 ? (
-                  <TableEmpty colSpan={5} text="❌ Chưa có phiếu nhập kho nào được tạo" />
-                ) : (
-                  items.map((item) => {
-                    const statusClass = item.status === 'APPROVED' ? 'success' : item.status === 'REJECTED' ? 'danger' : 'warning'
-                    return (
-                      <tr key={item.id}>
-                        <td>
-                          <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.code}</strong>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--brand-400)' }}>
-                            📅 {new Date(item.createdAt).toLocaleDateString('vi-VN')}
-                          </span>
-                        </td>
-                        <td>
-                          <strong style={{ color: 'var(--text-main)', fontSize: '0.92rem' }}>{item.supplier?.name || 'Không xác định'}</strong>
-                          {item.note && <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>Ghi chú: {item.note}</div>}
-                        </td>
-                        <td>
-                          <span className={`status-pill ${statusClass}`} style={{ fontSize: '0.75rem', padding: '3px 10px' }}>
-                            {translateStatus(item.status)}
-                          </span>
-                          {item.rejectedReason && (
-                            <div style={{ fontSize: '0.75rem', color: '#fb7185', marginTop: 4 }}>💬 {item.rejectedReason}</div>
-                          )}
-                        </td>
-                        <td>
-                          <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>👤 Tạo: {item.createdBy?.name || '-'}</div>
-                          {item.approvedBy && (
-                            <div style={{ fontSize: '0.8rem', color: '#34d399', marginTop: 2 }}>✔ Duyệt: {item.approvedBy.name}</div>
-                          )}
-                        </td>
-                        <td>
-                          <div className="action-buttons" style={{ justifyContent: 'center' }}>
-                            {item.status === 'PENDING' ? (
-                              <>
-                                <button type="button" className="status-pill success" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => approveImport(item.id)}>
-                                  ✔ Duyệt
-                                </button>
-                                <button type="button" className="status-pill danger" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => rejectImport(item.id)}>
-                                  ✕ Từ chối
-                                </button>
-                              </>
-                            ) : (
-                              <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontStyle: 'italic' }}>Đã khóa</span>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-subtle)' }}>
-            <Pagination meta={meta} onPageChange={setPage} loading={loading} />
+          <div className="kanban-cards-container">
+            {pendingItems.map(item => (
+              <div key={item.id} className="kanban-card">
+                <div className="kanban-card-header">
+                  <span className="kanban-card-code">{item.code}</span>
+                  <span className="kanban-card-date">{new Date(item.createdAt).toLocaleDateString('vi-VN')}</span>
+                </div>
+                <div className="kanban-card-body">
+                  <div className="kanban-info-row">
+                    <span>Đối tác:</span>
+                    <strong>{item.supplier?.name || 'Không xác định'}</strong>
+                  </div>
+                  <div className="kanban-info-row">
+                    <span>Tạo bởi:</span>
+                    <strong>{item.createdBy?.name || '-'}</strong>
+                  </div>
+                  {item.note && <p className="kanban-note">{item.note}</p>}
+                </div>
+                <div className="kanban-card-actions">
+                  <button type="button" className="kanban-btn success" onClick={() => approveImport(item.id)}>✔ Duyệt</button>
+                  <button type="button" className="kanban-btn danger" onClick={() => rejectImport(item.id)}>✕ Từ chối</button>
+                </div>
+              </div>
+            ))}
+            {pendingItems.length === 0 && !loading && (
+              <div className="kanban-empty">Không có phiếu chờ duyệt</div>
+            )}
           </div>
         </div>
+
+        {/* APPROVED COLUMN */}
+        <div className="kanban-column">
+          <div className="kanban-column-header">
+            <div className="kanban-column-title">
+              <span className="kanban-dot" style={{ backgroundColor: 'var(--success-color, #34d399)' }}></span>
+              Đã Duyệt (APPROVED)
+            </div>
+            <span className="kanban-count">{approvedItems.length}</span>
+          </div>
+          <div className="kanban-cards-container">
+            {approvedItems.map(item => (
+              <div key={item.id} className="kanban-card approved">
+                <div className="kanban-card-header">
+                  <span className="kanban-card-code">{item.code}</span>
+                  <span className="kanban-card-date">{new Date(item.createdAt).toLocaleDateString('vi-VN')}</span>
+                </div>
+                <div className="kanban-card-body">
+                  <div className="kanban-info-row">
+                    <span>Đối tác:</span>
+                    <strong>{item.supplier?.name || 'Không xác định'}</strong>
+                  </div>
+                  <div className="kanban-info-row">
+                    <span>Duyệt bởi:</span>
+                    <strong style={{ color: '#34d399' }}>{item.approvedBy?.name || '-'}</strong>
+                  </div>
+                  {item.note && <p className="kanban-note">{item.note}</p>}
+                </div>
+              </div>
+            ))}
+            {approvedItems.length === 0 && !loading && (
+              <div className="kanban-empty">Không có phiếu đã duyệt</div>
+            )}
+          </div>
+        </div>
+
+        {/* REJECTED COLUMN */}
+        <div className="kanban-column">
+          <div className="kanban-column-header">
+            <div className="kanban-column-title">
+              <span className="kanban-dot" style={{ backgroundColor: 'var(--danger-color, #fb7185)' }}></span>
+              Từ Chối (REJECTED)
+            </div>
+            <span className="kanban-count">{rejectedItems.length}</span>
+          </div>
+          <div className="kanban-cards-container">
+            {rejectedItems.map(item => (
+              <div key={item.id} className="kanban-card rejected">
+                <div className="kanban-card-header">
+                  <span className="kanban-card-code">{item.code}</span>
+                  <span className="kanban-card-date">{new Date(item.createdAt).toLocaleDateString('vi-VN')}</span>
+                </div>
+                <div className="kanban-card-body">
+                  <div className="kanban-info-row">
+                    <span>Đối tác:</span>
+                    <strong>{item.supplier?.name || 'Không xác định'}</strong>
+                  </div>
+                  {item.rejectedReason && (
+                    <div className="kanban-reject-reason">
+                      💬 {item.rejectedReason}
+                    </div>
+                  )}
+                  {item.note && <p className="kanban-note">{item.note}</p>}
+                </div>
+              </div>
+            ))}
+            {rejectedItems.length === 0 && !loading && (
+              <div className="kanban-empty">Không có phiếu bị từ chối</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-glass)', borderRadius: '16px' }}>
+        <Pagination meta={meta} onPageChange={setPage} loading={loading} />
       </div>
 
       {/* SidePanel Drawer */}
