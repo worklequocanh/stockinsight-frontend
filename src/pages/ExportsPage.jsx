@@ -143,6 +143,20 @@ export default function ExportsPage() {
     }
   }
 
+  async function handleOpenInvoice(item) {
+    try {
+      const res = await api.get(`/exports/${item.id}`)
+      if (res.data?.data) {
+        setSelectedInvoice(res.data.data)
+      } else {
+        setSelectedInvoice(item)
+      }
+    } catch (err) {
+      console.error('Failed to fetch invoice details', err)
+      setSelectedInvoice(item)
+    }
+  }
+
   const pendingCount = items.filter(i => i.status === 'PENDING').length
   const approvedCount = items.filter(i => i.status === 'APPROVED').length
 
@@ -290,7 +304,7 @@ export default function ExportsPage() {
                                 type="button" 
                                 className="status-pill info" 
                                 style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }}
-                                onClick={() => setSelectedInvoice(item)}
+                                onClick={() => handleOpenInvoice(item)}
                               >
                                 🧾 In Hóa Đơn
                               </button>
