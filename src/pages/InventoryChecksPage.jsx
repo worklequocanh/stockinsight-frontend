@@ -6,6 +6,7 @@ import { translateCheckStatus } from '../utils/translations'
 import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
+import SidePanel from '../components/common/SidePanel'
 import './InventoryChecksPage.css'
 
 export default function InventoryChecksPage() {
@@ -291,21 +292,14 @@ export default function InventoryChecksPage() {
       </div>
 
       {/* Creation Drawer / Panel */}
-      <AnimatePresence>
-        {creating && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="checks-creation-panel"
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16, marginBottom: 20 }}>
-              <div>
-                <span className="status-pill info" style={{ marginBottom: 6 }}>📋 THIẾT LẬP ĐỢT KIỂM KÊ</span>
-                <h2 style={{ fontSize: '1.4rem', margin: 0, color: 'var(--text-main)' }}>Tạo Phiếu Kiểm Kê Mới</h2>
-              </div>
-              <button type="button" className="icon-btn" onClick={() => { setCreating(false); setSelectedProductIds([]); }}>✕</button>
-            </div>
+      <SidePanel
+        isOpen={creating}
+        onClose={() => { setCreating(false); setSelectedProductIds([]); }}
+        title="📋 THIẾT LẬP ĐỢT KIỂM KÊ"
+        subtitle="Tạo Phiếu Kiểm Kê Mới"
+        width="600px"
+      >
+        <div style={{ padding: '8px 0' }}>
 
             <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginBottom: 16 }}>
               {selectedProductIds.length === 0
@@ -341,42 +335,34 @@ export default function InventoryChecksPage() {
               })}
             </div>
 
-            <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-              <button type="button" className="btn-primary" onClick={handleCreate} disabled={saving}>
+            <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+              <button type="button" className="btn-primary" onClick={handleCreate} disabled={saving} style={{ flex: 1 }}>
                 {saving ? '⏳ Đang khởi tạo...' : '🚀 Phát Hành Phiếu Kiểm Kê'}
               </button>
               <button type="button" className="btn-secondary" onClick={() => { setCreating(false); setSelectedProductIds([]); }}>
-                Đóng / Hủy
+                Hủy
               </button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      </SidePanel>
 
       {/* Detail Worksheet Panel */}
-      <AnimatePresence>
+      <SidePanel
+        isOpen={!!detail}
+        onClose={() => setDetail(null)}
+        title="🔍 BẢNG ĐỐI SOÁT CHI TIẾT"
+        subtitle={`Phiếu ${detail?.code || ''}`}
+        width="840px"
+      >
         {detail && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="checks-worksheet-panel"
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16, marginBottom: 20 }}>
-              <div>
-                <span className="status-pill info" style={{ marginBottom: 6 }}>🔍 BẢNG ĐỐI SOÁT CHI TIẾT</span>
-                <h2 style={{ fontSize: '1.45rem', margin: 0, color: 'var(--text-main)' }}>Phiếu {detail.code}</h2>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                  Tạo bởi {detail.createdBy?.name} lúc {new Date(detail.createdAt).toLocaleString('vi-VN')} {detail.note && `(${detail.note})`}
-                </div>
+          <div style={{ padding: '10px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Tạo bởi {detail.createdBy?.name} lúc {new Date(detail.createdAt).toLocaleString('vi-VN')} {detail.note && `(${detail.note})`}
               </div>
-
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                <span className={`status-pill ${detail.status === 'COMPLETED' ? 'success' : 'info'}`} style={{ fontSize: '0.85rem' }}>
-                  {translateCheckStatus(detail.status)}
-                </span>
-                <button type="button" className="btn-secondary" style={{ padding: '6px 16px' }} onClick={() => setDetail(null)}>Đóng Bảng</button>
-              </div>
+              <span className={`status-pill ${detail.status === 'COMPLETED' ? 'success' : 'info'}`} style={{ fontSize: '0.85rem' }}>
+                {translateCheckStatus(detail.status)}
+              </span>
             </div>
 
             <div className="modern-table-wrapper" style={{ maxHeight: 450, overflowY: 'auto' }}>
@@ -461,8 +447,8 @@ export default function InventoryChecksPage() {
             </div>
 
             {(detail.status === 'DRAFT' || detail.status === 'IN_PROGRESS') && (
-              <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-                <button type="button" className="btn-primary" onClick={handleUpdateItems} disabled={updatingItems}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                <button type="button" className="btn-primary" onClick={handleUpdateItems} disabled={updatingItems} style={{ flex: 1 }}>
                   {updatingItems ? '⏳ Đang lưu...' : '💾 Lưu Số Liệu Thực Tế'}
                 </button>
                 <button type="button" className="btn-secondary" style={{ background: 'rgba(52, 211, 153, 0.2)', color: '#34d399', border: '1px solid rgba(52, 211, 153, 0.4)' }} onClick={() => handleApprove(detail.id)} disabled={updatingItems}>
@@ -470,9 +456,9 @@ export default function InventoryChecksPage() {
                 </button>
               </div>
             )}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </SidePanel>
     </div>
   )
 }
