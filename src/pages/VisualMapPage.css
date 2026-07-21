@@ -361,4 +361,28 @@
   }
 }
 
+@media (max-width: 767px) {
+  .map-hero {
+    padding: 16px;
+  }
+  .map-grid-panel {
+    padding: 16px;
+    overflow: hidden;
+  }
+  .map-grid-board {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 16px;
+    gap: 12px;
+  }
+  .map-grid-board.is-3d-view {
+    transform: perspective(800px) rotateX(15deg) rotateZ(-2deg) scale(0.9);
+  }
+  .grid-cell {
+    padding: 10px;
+  }
+  .cell-center strong {
+    font-size: 1.1rem;
+  }
+}
+
 
