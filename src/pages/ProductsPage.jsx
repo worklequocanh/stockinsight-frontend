@@ -4,7 +4,7 @@ import { buildQuery, parseApiError } from '../utils/helpers'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import SidePanel from '../components/common/SidePanel'
-import { motion, AnimatePresence } from 'framer-motion'
+import TableEmpty from '../components/TableEmpty'
 import './ProductsPage.css'
 
 const emptyProductForm = { id: '', sku: '', barcode: '', name: '', unit: '', minStock: '0', costPrice: '', salePrice: '', currentStock: '0', categoryId: '', supplierId: '' }
@@ -187,11 +187,10 @@ export default function ProductsPage() {
 
       {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>⚠️ {error}</div>}
 
-      <div className="md-layout">
-        {/* Left Pane (Master) */}
-        <div className="md-master-pane">
-          <div className="md-master-header">
-            <div className="products-search-box">
+      <div className="products-layout-grid">
+        <div className="products-table-card">
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
+            <div className="table-search" style={{ flex: 1 }}>
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
               </svg>
@@ -213,122 +212,138 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          <div className="md-master-list">
-            {loading ? (
-              <div className="md-empty">⏳ Đang đồng bộ...</div>
-            ) : items.length === 0 ? (
-              <div className="md-empty">❌ Không tìm thấy sản phẩm.</div>
-            ) : (
-              items.map((item) => {
-                const isSelected = selectedProduct?.id === item.id;
-                const isLowStock = item.currentStock <= item.minStock;
-                return (
-                  <motion.div 
-                    layoutId={`product-card-${item.id}`}
-                    key={item.id}
-                    className={`md-card ${isSelected ? 'selected' : ''}`}
-                    onClick={() => setSelectedProduct(item)}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                  >
-                    <div className="md-card-top">
-                      <strong className="md-card-title">{item.name}</strong>
-                      {isLowStock && <span className="status-pill danger" style={{ padding: '2px 6px', fontSize: '0.65rem' }}>Low</span>}
-                    </div>
-                    <div className="md-card-sku">SKU: {item.sku}</div>
-                    <div className="md-card-bottom">
-                      <span className="md-card-stock">
-                        {item.currentStock} <span style={{fontSize: '0.75rem', fontWeight: 400}}>{item.unit}</span>
-                      </span>
-                      <span className="status-pill info" style={{ fontSize: '0.7rem' }}>
-                        📁 {item.category?.name || 'N/A'}
-                      </span>
-                    </div>
-                  </motion.div>
-                )
-              })
-            )}
+          <div className="modern-table-wrapper" style={{ flex: 1 }}>
+            <table className="modern-table">
+              <thead>
+                <tr>
+                  <th>Sản phẩm / SKU</th>
+                  <th>Danh mục</th>
+                  <th>Nhà cung cấp</th>
+                  <th>Giá vốn / Giá bán</th>
+                  <th>Tồn kho (Định mức)</th>
+                  <th style={{ textAlign: 'center' }}>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <TableEmpty colSpan={6} text="⏳ Đang tải dữ liệu sản phẩm..." />
+                ) : items.length === 0 ? (
+                  <TableEmpty colSpan={6} text="❌ Không tìm thấy sản phẩm nào" />
+                ) : (
+                  items.map((item) => {
+                    const isLowStock = item.currentStock <= item.minStock
+                    return (
+                      <tr key={item.id}>
+                        <td>
+                          <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.95rem' }}>{item.name}</strong>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>SKU: {item.sku} {item.barcode && `| Barcode: ${item.barcode}`}</span>
+                        </td>
+                        <td>{item.category?.name || '-'}</td>
+                        <td>{item.supplier?.name || '-'}</td>
+                        <td>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Vốn: {Number(item.costPrice).toLocaleString('vi-VN')} đ</div>
+                          <div style={{ color: 'var(--brand-500)', fontWeight: 600, fontSize: '0.9rem' }}>Bán: {Number(item.salePrice).toLocaleString('vi-VN')} đ</div>
+                        </td>
+                        <td>
+                          <span style={{ fontWeight: 600, fontSize: '0.95rem', color: isLowStock ? 'var(--danger-color)' : 'var(--text-main)' }}>
+                            {item.currentStock}
+                          </span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginLeft: 4 }}>/ {item.minStock} {item.unit}</span>
+                          {isLowStock && <div style={{ fontSize: '0.7rem', color: 'var(--danger-color)', marginTop: 2 }}>⚠️ Dưới định mức</div>}
+                        </td>
+                        <td>
+                          <div className="action-buttons" style={{ justifyContent: 'center', gap: '8px' }}>
+                            <button type="button" className="status-pill info" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => setSelectedProduct(item)}>
+                              👁️ Xem
+                            </button>
+                            <button type="button" className="icon-btn edit" title="Sửa" onClick={() => handleEdit(item)}>✏️</button>
+                            <button type="button" className="icon-btn delete" title="Xóa" onClick={() => handleDelete(item.id)}>🗑️</button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
           
-          <div className="md-master-footer">
+          <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-subtle)' }}>
             <Pagination meta={meta} onPageChange={setPage} loading={loading} />
           </div>
         </div>
-
-        {/* Right Pane (Detail) */}
-        <div className="md-detail-pane">
-          <AnimatePresence mode="wait">
-            {selectedProduct ? (
-              <motion.div
-                key={selectedProduct.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="md-detail-content"
-              >
-                <div className="md-detail-header">
-                  <div>
-                    <span className="status-pill info" style={{marginBottom: 8, display: 'inline-block'}}>
-                      📁 {selectedProduct.category?.name || 'Chưa phân loại'}
-                    </span>
-                    <h2>{selectedProduct.name}</h2>
-                    <div className="md-detail-subtext">
-                      SKU: <span className="highlight-text">{selectedProduct.sku}</span> {selectedProduct.barcode && ` • Barcode: ${selectedProduct.barcode}`}
-                    </div>
-                  </div>
-                  <div className="md-detail-actions">
-                    <button type="button" className="btn-secondary" onClick={() => handleEdit(selectedProduct)}>✏️ Sửa</button>
-                    <button type="button" className="btn-danger" onClick={() => handleDelete(selectedProduct.id)}>🗑️ Xóa</button>
-                  </div>
-                </div>
-
-                <div className="md-detail-body">
-                  <div className="md-stock-hero">
-                    <div className="md-stock-val" style={{ color: selectedProduct.currentStock <= selectedProduct.minStock ? '#fb7185' : 'var(--brand-400)' }}>
-                      {selectedProduct.currentStock}
-                    </div>
-                    <div className="md-stock-label">TỒN KHO HIỆN TẠI ({selectedProduct.unit})</div>
-                    {selectedProduct.currentStock <= selectedProduct.minStock && (
-                      <div className="status-pill danger" style={{marginTop: 8}}>⚠️ Tồn kho dưới định mức ({selectedProduct.minStock})</div>
-                    )}
-                  </div>
-
-                  <div className="md-info-grid">
-                    <div className="md-info-box">
-                      <span className="md-info-label">Định mức an toàn</span>
-                      <span className="md-info-value">{selectedProduct.minStock} {selectedProduct.unit}</span>
-                    </div>
-                    <div className="md-info-box">
-                      <span className="md-info-label">Nhà cung cấp</span>
-                      <span className="md-info-value">{selectedProduct.supplier?.name || 'Không rõ'}</span>
-                    </div>
-                    <div className="md-info-box">
-                      <span className="md-info-label">Giá vốn</span>
-                      <span className="md-info-value cost-text">{Number(selectedProduct.costPrice).toLocaleString('vi-VN')} đ</span>
-                    </div>
-                    <div className="md-info-box">
-                      <span className="md-info-label">Giá bán</span>
-                      <span className="md-info-value price-text">{Number(selectedProduct.salePrice).toLocaleString('vi-VN')} đ</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div 
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="md-detail-empty"
-              >
-                <div className="empty-icon">📦</div>
-                <h3>Chọn một sản phẩm để xem chi tiết</h3>
-                <p>Thông tin tồn kho, giá bán và nhà cung cấp sẽ hiển thị tại đây.</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
       </div>
+
+      {/* View Detail Modal */}
+      {selectedProduct && (
+        <SidePanel
+          isOpen={!!selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          title={`📦 Chi Tiết Sản Phẩm`}
+          subtitle={selectedProduct.name}
+          width="600px"
+        >
+          <div style={{ padding: '16px 0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+              <div className="form-group">
+                <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 4 }}>SKU:</span>
+                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem' }}>{selectedProduct.sku}</strong>
+              </div>
+              <div className="form-group">
+                <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 4 }}>Barcode:</span>
+                <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem' }}>{selectedProduct.barcode || 'N/A'}</strong>
+              </div>
+              <div className="form-group">
+                <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 4 }}>Danh mục:</span>
+                <strong style={{ color: 'var(--brand-500)' }}>{selectedProduct.category?.name || 'Chưa phân loại'}</strong>
+              </div>
+              <div className="form-group">
+                <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 4 }}>Nhà cung cấp:</span>
+                <strong style={{ color: 'var(--text-main)' }}>{selectedProduct.supplier?.name || 'Không rõ'}</strong>
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--bg-subtle)', borderRadius: 12, padding: 20, marginBottom: 24 }}>
+              <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--text-main)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 8 }}>
+                💰 Thông tin Giá
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                <div>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 4 }}>Giá vốn:</span>
+                  <strong style={{ color: 'var(--text-main)', fontSize: '1.1rem' }}>{Number(selectedProduct.costPrice).toLocaleString('vi-VN')} đ</strong>
+                </div>
+                <div>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 4 }}>Giá bán:</span>
+                  <strong style={{ color: 'var(--brand-500)', fontSize: '1.1rem' }}>{Number(selectedProduct.salePrice).toLocaleString('vi-VN')} đ</strong>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--bg-subtle)', borderRadius: 12, padding: 20 }}>
+              <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--text-main)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 8 }}>
+                📊 Thông tin Tồn Kho
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                <div>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 4 }}>Tồn kho hiện tại:</span>
+                  <strong style={{ fontSize: '1.2rem', color: selectedProduct.currentStock <= selectedProduct.minStock ? 'var(--danger-color)' : 'var(--success-color)' }}>
+                    {selectedProduct.currentStock} <span style={{ fontSize: '0.85rem', fontWeight: 400 }}>{selectedProduct.unit}</span>
+                  </strong>
+                </div>
+                <div>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 4 }}>Định mức an toàn:</span>
+                  <strong style={{ color: 'var(--text-main)', fontSize: '1.1rem' }}>{selectedProduct.minStock} {selectedProduct.unit}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24, gap: 12 }}>
+              <button type="button" className="btn-secondary" onClick={() => setSelectedProduct(null)}>✕ Đóng</button>
+              <button type="button" className="btn-primary" onClick={() => { setSelectedProduct(null); handleEdit(selectedProduct); }}>✏️ Sửa Sản Phẩm</button>
+            </div>
+          </div>
+        </SidePanel>
+      )}
 
       {/* SidePanel Drawer */}
       <SidePanel
