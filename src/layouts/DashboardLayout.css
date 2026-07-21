@@ -27,7 +27,7 @@
   flex-direction: column;
   z-index: 9990;
   transition: width var(--transition-spring), min-width var(--transition-spring);
-  overflow: visible;
+  overflow: hidden;
   position: relative;
 }
 
@@ -67,6 +67,26 @@
   .sidebar {
     width: 64px !important;
     min-width: 64px !important;
+  }
+  /* Force hide all text elements even if .expanded is present */
+  .sidebar .sidebar-brand,
+  .sidebar .nav-section-title,
+  .sidebar .nav-link-label,
+  .sidebar .session-info {
+    opacity: 0 !important;
+    width: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+  }
+  .sidebar .session-card {
+    background: transparent !important;
+    border-color: transparent !important;
+  }
+  .sidebar .session-header {
+    padding: 0 !important;
+  }
+  .sidebar .logout-btn {
+    border-top-color: transparent !important;
   }
 }
 
