@@ -178,7 +178,7 @@ export default function UsersPage() {
       <div className="users-layout-grid">
         {/* Table Container */}
         <div className="users-table-card">
-          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
             <div className="table-search" style={{ flex: 1 }}>
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -223,7 +223,7 @@ export default function UsersPage() {
                             <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.name}</strong>
                           </div>
                         </td>
-                        <td style={{ color: '#cbd5e1', fontSize: '0.92rem' }}>
+                        <td style={{ color: 'var(--text-muted)', fontSize: '0.92rem' }}>
                           ✉️ {item.email}
                         </td>
                         <td>

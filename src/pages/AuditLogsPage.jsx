@@ -114,7 +114,7 @@ export default function AuditLogsPage() {
       {error && <div className="status-pill danger" style={{ padding: 16, fontSize: '0.95rem' }}>⚠️ {error}</div>}
 
       <div className="audit-table-card">
-        <div className="table-toolbar" style={{ flexWrap: 'wrap', gap: 12, borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+        <div className="table-toolbar" style={{ flexWrap: 'wrap', gap: 12, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
           <div className="table-search" style={{ flex: '1 1 240px' }}>
             <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -200,7 +200,7 @@ export default function AuditLogsPage() {
                       <strong style={{ color: 'var(--text-main)', fontSize: '0.88rem', display: 'block' }}>
                         {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                       </strong>
-                      <span style={{ color: 'var(--primary-light)', fontSize: '0.78rem' }}>
+                      <span style={{ color: 'var(--brand-400)', fontSize: '0.78rem' }}>
                         🕒 {new Date(item.createdAt).toLocaleTimeString('vi-VN')}
                       </span>
                     </td>
@@ -226,7 +226,7 @@ export default function AuditLogsPage() {
                       </span>
                     </td>
                     <td>
-                      <strong style={{ color: '#e2e8f0', fontSize: '0.9rem' }}>{item.resource}</strong>
+                      <strong style={{ color: 'var(--text-main)', fontSize: '0.9rem' }}>{item.resource}</strong>
                     </td>
                     <td>
                       <code className="audit-resource-code">

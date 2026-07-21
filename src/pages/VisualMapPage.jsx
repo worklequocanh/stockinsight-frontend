@@ -252,7 +252,7 @@ export default function VisualMapPage() {
                         <div key={index} className="level-item">
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600 }}>
                             <span>{lvl.icon} {lvl.level}</span>
-                            <span style={{ color: 'var(--brand-600)' }}>{lvl.load}%</span>
+                            <span style={{ color: 'var(--brand-400)' }}>{lvl.load}%</span>
                           </div>
                           <div className="meter-track" style={{ height: 6, marginTop: 4 }}>
                             <div style={{ width: `${lvl.load}%`, height: '100%', background: 'linear-gradient(90deg, var(--brand-500), var(--violet-500))' }} />

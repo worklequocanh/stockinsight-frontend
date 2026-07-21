@@ -169,7 +169,7 @@ export default function ReturnsPage() {
       <div className="returns-layout-grid">
         {/* Table Container */}
         <div className="returns-table-card">
-          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
             <div className="table-search" style={{ flex: 1 }}>
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -208,7 +208,7 @@ export default function ReturnsPage() {
                       <tr key={item.id}>
                         <td>
                           <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.code}</strong>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--brand-400)' }}>
                             📅 {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                           </span>
                         </td>
@@ -216,7 +216,7 @@ export default function ReturnsPage() {
                           <div style={{ color: '#e2e8f0', fontSize: '0.92rem', fontWeight: 600 }}>{item.reason || 'Khách hàng hoàn trả'}</div>
                           {item.originalExportId && (
                             <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                              🔗 Từ lệnh xuất: <strong style={{ color: '#38bdf8' }}>{item.originalExportId}</strong>
+                              🔗 Từ lệnh xuất: <strong style={{ color: 'var(--brand-400)' }}>{item.originalExportId}</strong>
                             </div>
                           )}
                         </td>
@@ -298,15 +298,15 @@ export default function ReturnsPage() {
               </div>
 
               {form.items.length === 0 ? (
-                <div style={{ padding: 24, textAlign: 'center', background: 'rgba(0,0,0,0.35)', borderRadius: 12, border: '1px dashed var(--border-glass)' }}>
+                <div style={{ padding: 24, textAlign: 'center', background: 'rgba(0,0,0,0.35)', borderRadius: 12, border: '1px dashed var(--border-subtle)' }}>
                   <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Chưa có sản phẩm nào. Nhấn &quot;➕ Thêm dòng SKU&quot; bên trên.</span>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 320, overflowY: 'auto', paddingRight: 4 }}>
                   {form.items.map((item, idx) => (
-                    <div key={idx} className="return-item-box" style={{ background: 'var(--bg-surface-elevated)', border: '1px solid var(--border-glass)', borderRadius: 12, padding: 14 }}>
+                    <div key={idx} className="return-item-box" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: 14 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary-light)' }}>Dòng #{idx + 1}</span>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--brand-400)' }}>Dòng #{idx + 1}</span>
                         <button type="button" className="icon-btn delete" onClick={() => removeItem(idx)}>🗑️</button>
                       </div>
 

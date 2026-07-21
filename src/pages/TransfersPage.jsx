@@ -197,7 +197,7 @@ export default function TransfersPage() {
       <div className="transfers-layout-grid">
         {/* Table Container */}
         <div className="transfers-table-card">
-          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
             <div className="table-search" style={{ flex: 1 }}>
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -217,7 +217,7 @@ export default function TransfersPage() {
             <table className="modern-table">
               <thead>
                 <tr>
-                  <th>Mã Phiếu & Ngày chuyển</th>
+                  <th>Mã Phiếu &amp; Ngày chuyển</th>
                   <th>Ghi chú điều chuyển</th>
                   <th>Trạng thái</th>
                   <th>Thẩm định bởi</th>
@@ -236,11 +236,11 @@ export default function TransfersPage() {
                       <tr key={item.id}>
                         <td>
                           <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.code}</strong>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--brand-400)' }}>
                             📅 {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                           </span>
                         </td>
-                        <td style={{ color: '#e2e8f0', fontSize: '0.92rem' }}>
+                        <td style={{ color: 'var(--text-main)', fontSize: '0.92rem' }}>
                           {item.note || <span style={{ fontStyle: 'italic', color: 'var(--text-dim)' }}>Không có ghi chú</span>}
                         </td>
                         <td>
@@ -252,7 +252,7 @@ export default function TransfersPage() {
                           )}
                         </td>
                         <td>
-                          <div style={{ fontSize: '0.84rem', color: '#cbd5e1' }}>👤 Tạo: {item.createdBy?.name || '-'}</div>
+                          <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>👤 Tạo: {item.createdBy?.name || '-'}</div>
                           {item.approvedBy && (
                             <div style={{ fontSize: '0.8rem', color: '#34d399', marginTop: 2 }}>✔ Duyệt: {item.approvedBy.name}</div>
                           )}
@@ -321,7 +321,7 @@ export default function TransfersPage() {
               </div>
 
               {form.items.length === 0 ? (
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border-subtle)', padding: '24px', borderRadius: 16, textAlign: 'center', color: 'var(--text-muted)' }}>
+                <div style={{ background: 'var(--bg-glass)', border: '1px dashed var(--border-subtle)', padding: '24px', borderRadius: 16, textAlign: 'center', color: 'var(--text-muted)' }}>
                   Chưa chọn sản phẩm chuyển. Nhấp &quot;+ Thêm dòng chuyển&quot; hoặc quét QR để bắt đầu.
                 </div>
               ) : (

@@ -128,7 +128,7 @@ export default function SuppliersPage() {
       <div className="suppliers-layout-grid">
         {/* Table Container */}
         <div className="suppliers-table-card">
-          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
             <div className="table-search" style={{ flex: 1 }}>
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -169,12 +169,12 @@ export default function SuppliersPage() {
                           </div>
                           <div>
                             <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.name}</strong>
-                            <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>ID: #{item.id.slice(0, 8)}</span>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--brand-400)' }}>ID: #{item.id.slice(0, 8)}</span>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <div style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>📞 {item.phone || 'Chưa có SĐT'}</div>
+                        <div style={{ fontSize: '0.88rem', color: 'var(--text-main)' }}>📞 {item.phone || 'Chưa có SĐT'}</div>
                         <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 2 }}>✉️ {item.email || 'Chưa có email'}</div>
                       </td>
                       <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: 260 }}>

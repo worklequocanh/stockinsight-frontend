@@ -88,7 +88,7 @@ export default function ProfilePage() {
       <div className="profile-cards-grid">
         {/* Profile Card */}
         <div className="profile-card">
-          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
             <div className="profile-avatar-hero">
               {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </div>
@@ -147,7 +147,7 @@ export default function ProfilePage() {
 
         {/* Change Password Card */}
         <div className="profile-card">
-          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 24 }}>
+          <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16, marginBottom: 24 }}>
             <span className="status-pill warning" style={{ marginBottom: 6 }}>🔐 BẢO MẬT TÀI KHOẢN</span>
             <h2 style={{ fontSize: '1.4rem', margin: 0, color: 'var(--text-main)' }}>Thay Đổi Mật Khẩu</h2>
           </div>

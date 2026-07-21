@@ -155,7 +155,7 @@ export default function ExportsPage() {
             <span className="status-pill info">● OUTBOUND FEFO ENGINE</span>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Điều phối xuất hàng tự động tối ưu hạn dùng</span>
           </div>
-          <h1>Nghiệp Vụ Xuất Kho & FEFO (Outbound Fulfillment)</h1>
+          <h1>Nghiệp Vụ Xuất Kho &amp; FEFO (Outbound Fulfillment)</h1>
           <p>Xuất hàng tự động theo thuật toán First Expired, First Out (lô cận date xuất trước). Hỗ trợ xuất bán hàng cho đại lý, điều chuyển nội bộ và xử lý hàng hư hỏng.</p>
         </div>
         <div>
@@ -206,7 +206,7 @@ export default function ExportsPage() {
       <div className="exports-layout-grid">
         {/* Table Container */}
         <div className="exports-table-card">
-          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
             <div className="table-search" style={{ flex: 1 }}>
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -226,8 +226,8 @@ export default function ExportsPage() {
             <table className="modern-table">
               <thead>
                 <tr>
-                  <th>Mã Phiếu & Ngày xuất</th>
-                  <th>Phân loại & Khách hàng</th>
+                  <th>Mã Phiếu &amp; Ngày xuất</th>
+                  <th>Phân loại &amp; Khách hàng</th>
                   <th>Trạng thái</th>
                   <th>Người thẩm định</th>
                   <th style={{ textAlign: 'center' }}>Thao tác</th>
@@ -245,7 +245,7 @@ export default function ExportsPage() {
                       <tr key={item.id}>
                         <td>
                           <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.code}</strong>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--brand-400)' }}>
                             📅 {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                           </span>
                         </td>
@@ -254,7 +254,7 @@ export default function ExportsPage() {
                             {translateExportType(item.exportType)}
                           </span>
                           {item.customer ? (
-                            <div style={{ fontSize: '0.88rem', color: '#e2e8f0' }}>🧑‍💼 {item.customer.name}</div>
+                            <div style={{ fontSize: '0.88rem', color: 'var(--text-main)' }}>🧑‍💼 {item.customer.name}</div>
                           ) : (
                             <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Xuất nội bộ / Khác</div>
                           )}
@@ -269,7 +269,7 @@ export default function ExportsPage() {
                           )}
                         </td>
                         <td>
-                          <div style={{ fontSize: '0.84rem', color: '#cbd5e1' }}>👤 Tạo: {item.createdBy?.name || '-'}</div>
+                          <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>👤 Tạo: {item.createdBy?.name || '-'}</div>
                           {item.approvedBy && (
                             <div style={{ fontSize: '0.8rem', color: '#34d399', marginTop: 2 }}>✔ Duyệt: {item.approvedBy.name}</div>
                           )}
@@ -316,7 +316,7 @@ export default function ExportsPage() {
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         title="Xuất Hàng FEFO"
-        subtitle="Lập Phiếu Xuất Kho & FEFO Engine"
+        subtitle="Lập Phiếu Xuất Kho &amp; FEFO Engine"
         width="680px"
       >
         <div className="exports-side-form">
@@ -366,7 +366,7 @@ export default function ExportsPage() {
               </div>
 
               {form.items.length === 0 ? (
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border-subtle)', padding: '24px', borderRadius: 16, textAlign: 'center', color: 'var(--text-muted)' }}>
+                <div style={{ background: 'var(--bg-glass)', border: '1px dashed var(--border-subtle)', padding: '24px', borderRadius: 16, textAlign: 'center', color: 'var(--text-muted)' }}>
                   Chưa chọn sản phẩm xuất. Nhấp "+ Thêm dòng xuất" hoặc quét mã QR để bắt đầu.
                 </div>
               ) : (
@@ -422,7 +422,7 @@ export default function ExportsPage() {
               if (form.exportType !== 'SALE' || form.items.length === 0) return null
 
               return (
-                <div style={{ background: 'var(--bg-surface-elevated)', border: '1.5px solid var(--border-light)', padding: '16px 20px', borderRadius: '16px', marginTop: 16 }}>
+                <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', padding: '16px 20px', borderRadius: '16px', marginTop: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: 6 }}>
                     <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>🛍️ Tổng Doanh Thu Đơn Xuất Bán:</span>
                     <strong style={{ color: 'var(--text-main)', fontSize: '1.05rem' }}>{totalRev.toLocaleString('vi-VN')} đ</strong>
@@ -453,7 +453,7 @@ export default function ExportsPage() {
         onScanSuccess={handleScanSuccess} 
       />
 
-      {/* Printable Sales Invoice Modal */}
+      {/* Printable Sales Invoice Modal — paper stays white for printing */}
       {selectedInvoice && (
         <div className="invoice-modal-overlay" onClick={() => setSelectedInvoice(null)}>
           <div className="invoice-modal-card" onClick={(e) => e.stopPropagation()}>
@@ -473,7 +473,7 @@ export default function ExportsPage() {
               <div className="invoice-paper-header">
                 <div>
                   <h1 style={{ margin: 0, fontSize: '1.6rem', color: '#1e293b', fontWeight: 800 }}>STOCKINSIGHT WMS</h1>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#64748b' }}>Hệ Thống Quản Lý Kho & Bán Hàng Doanh Nghiệp</p>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#64748b' }}>Hệ Thống Quản Lý Kho &amp; Bán Hàng Doanh Nghiệp</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <h2 style={{ margin: 0, fontSize: '1.2rem', color: '#4f46e5' }}>HÓA ĐƠN BÁN HÀNG</h2>
@@ -552,17 +552,17 @@ export default function ExportsPage() {
                 <div>
                   <strong>Người Lập Phiếu</strong>
                   <div style={{ height: 50 }} />
-                  <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.78rem' }}>(Ký & ghi rõ họ tên)</p>
+                  <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.78rem' }}>(Ký &amp; ghi rõ họ tên)</p>
                 </div>
                 <div>
                   <strong>Thủ Kho Xuất Hàng</strong>
                   <div style={{ height: 50 }} />
-                  <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.78rem' }}>(Ký & ghi rõ họ tên)</p>
+                  <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.78rem' }}>(Ký &amp; ghi rõ họ tên)</p>
                 </div>
                 <div>
                   <strong>Khách Hàng Nhận Hàng</strong>
                   <div style={{ height: 50 }} />
-                  <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.78rem' }}>(Ký & ghi rõ họ tên)</p>
+                  <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.78rem' }}>(Ký &amp; ghi rõ họ tên)</p>
                 </div>
               </div>
             </div>

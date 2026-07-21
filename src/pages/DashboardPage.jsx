@@ -113,7 +113,7 @@ export default function DashboardPage() {
         label: 'Giá trị Nhập kho (VNĐ)',
         data: monthlyData.map(d => d.importValue),
         backgroundColor: 'rgba(56, 189, 248, 0.78)',
-        borderColor: '#38bdf8',
+        borderColor: 'var(--brand-400)',
         borderWidth: 2,
         borderRadius: 8,
       },
@@ -137,10 +137,10 @@ export default function DashboardPage() {
         labels: { color: '#e2e8f0', font: { family: 'Outfit', weight: '600', size: 13 } } 
       },
       tooltip: {
-        backgroundColor: 'var(--bg-surface-elevated)',
-        titleColor: '#38bdf8',
-        bodycolor: 'var(--text-main)',
-        borderColor: 'rgba(56, 189, 248, 0.3)',
+        backgroundColor: 'var(--bg-elevated)',
+        titleColor: 'var(--brand-400)',
+        bodyColor: 'var(--text-main)',
+        borderColor: 'var(--border-brand)',
         borderWidth: 1,
         padding: 14,
         callbacks: {

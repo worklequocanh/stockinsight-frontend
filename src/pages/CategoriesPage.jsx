@@ -126,7 +126,7 @@ export default function CategoriesPage() {
       <div className="categories-layout-grid">
         {/* Table Container */}
         <div className="categories-table-card">
-          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
             <div className="table-search" style={{ flex: 1 }}>
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -166,7 +166,7 @@ export default function CategoriesPage() {
                           </div>
                           <div>
                             <strong style={{ color: 'var(--text-main)', fontSize: '1rem', display: 'block' }}>{item.name}</strong>
-                            <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>ID: #{item.id}</span>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--brand-400)' }}>ID: #{item.id}</span>
                           </div>
                         </div>
                       </td>

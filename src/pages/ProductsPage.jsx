@@ -293,7 +293,7 @@ export default function ProductsPage() {
                         </td>
                         <td style={{ textAlign: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                            <strong style={{ fontSize: '1.08rem', fontWeight: 800, color: isLowStock ? '#fb7185' : '#38bdf8' }}>
+                            <strong style={{ fontSize: '1.08rem', fontWeight: 800, color: isLowStock ? '#fb7185' : 'var(--brand-400)' }}>
                               {item.currentStock} {item.unit}
                             </strong>
                             {isLowStock && (

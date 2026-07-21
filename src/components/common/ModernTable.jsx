@@ -44,13 +44,13 @@ export default function ModernTable({
   }
 
   return (
-    <div className="glass-panel" style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid var(--border-glass)' }}>
+    <div className="glass-panel" style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
       {/* Top Controls Toolbar */}
       {(searchSlot || actionSlot) && (
         <div style={{
           padding: '18px 24px',
-          borderBottom: '1px solid var(--border-glass)',
-          background: 'rgba(15, 23, 42, 0.45)',
+          borderBottom: '1px solid var(--border-subtle)',
+          background: 'var(--bg-elevated)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -114,7 +114,7 @@ export default function ModernTable({
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ background: 'var(--bg-surface-elevated)', borderBottom: '1px solid var(--border-glass)' }}>
+              <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-subtle)' }}>
                 {columns.map(col => (
                   <th key={col.key || col.dataIndex} style={{
                     padding: '16px 20px',
@@ -143,7 +143,7 @@ export default function ModernTable({
                       transition: 'background 0.15s ease',
                       cursor: onRowClick ? 'pointer' : 'default'
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(56, 189, 248, 0.06)'}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-glass-hover)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     {columns.map(col => (

@@ -206,7 +206,7 @@ export default function InventoryChecksPage() {
 
       {/* Main Table View */}
       <div className="checks-main-card">
-        <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+        <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: 16 }}>
           <div className="table-search" style={{ flex: 1 }}>
             <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -245,7 +245,7 @@ export default function InventoryChecksPage() {
                     <tr key={item.id}>
                       <td>
                         <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.98rem' }}>{item.code}</strong>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--brand-400)' }}>
                           📅 {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                         </span>
                       </td>
@@ -299,7 +299,7 @@ export default function InventoryChecksPage() {
             exit={{ opacity: 0, y: 20 }}
             className="checks-creation-panel"
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16, marginBottom: 20 }}>
               <div>
                 <span className="status-pill info" style={{ marginBottom: 6 }}>📋 THIẾT LẬP ĐỢT KIỂM KÊ</span>
                 <h2 style={{ fontSize: '1.4rem', margin: 0, color: 'var(--text-main)' }}>Tạo Phiếu Kiểm Kê Mới</h2>
@@ -328,11 +328,11 @@ export default function InventoryChecksPage() {
                     onClick={() => toggleProduct(p.id)}
                     className="product-select-item"
                     style={{
-                      background: isSelected ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(2, 132, 199, 0.4))' : 'rgba(255,255,255,0.03)',
-                      border: isSelected ? '1px solid #38bdf8' : '1px solid rgba(255,255,255,0.06)'
+                      background: isSelected ? 'linear-gradient(135deg, var(--info-bg), rgba(14, 165, 233, 0.2))' : 'var(--bg-glass)',
+                      border: isSelected ? '1px solid var(--brand-400)' : '1px solid var(--border-subtle)'
                     }}
                   >
-                    <input type="checkbox" checked={isSelected} readOnly style={{ accentColor: '#38bdf8', width: 16, height: 16 }} />
+                    <input type="checkbox" checked={isSelected} readOnly style={{ accentColor: 'var(--brand-400)', width: 16, height: 16 }} />
                     <span style={{ fontSize: '0.85rem', color: isSelected ? '#fff' : '#cbd5e1', fontWeight: isSelected ? 700 : 400 }}>
                       <strong>{p.sku}</strong> — {p.name}
                     </span>
@@ -362,7 +362,7 @@ export default function InventoryChecksPage() {
             exit={{ opacity: 0, y: 20 }}
             className="checks-worksheet-panel"
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: 16, marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16, marginBottom: 20 }}>
               <div>
                 <span className="status-pill info" style={{ marginBottom: 6 }}>🔍 BẢNG ĐỐI SOÁT CHI TIẾT</span>
                 <h2 style={{ fontSize: '1.45rem', margin: 0, color: 'var(--text-main)' }}>Phiếu {detail.code}</h2>
@@ -401,7 +401,7 @@ export default function InventoryChecksPage() {
                       <tr key={item.id} style={{ background: isDiff ? 'rgba(251, 113, 133, 0.04)' : 'transparent' }}>
                         <td>
                           <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.95rem' }}>{item.product?.name}</strong>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--primary-light)' }}>SKU: {item.product?.sku}</span>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--brand-400)' }}>SKU: {item.product?.sku}</span>
                         </td>
                         <td>
                           {item.batch ? (
@@ -414,7 +414,7 @@ export default function InventoryChecksPage() {
                             <span style={{ color: 'var(--text-dim)' }}>Tồn chung SKU</span>
                           )}
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.05rem', color: '#38bdf8' }}>
+                        <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.05rem', color: 'var(--brand-400)' }}>
                           {item.systemQty}
                         </td>
                         <td style={{ textAlign: 'center' }}>

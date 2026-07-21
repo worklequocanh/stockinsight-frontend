@@ -127,7 +127,7 @@ export default function LocationsPage() {
       <div className="locations-layout-grid">
         {/* Table Container */}
         <div className="locations-table-card">
-          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: 16 }}>
+          <div className="table-toolbar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: 16 }}>
             <div className="table-search" style={{ flex: 1 }}>
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -170,12 +170,12 @@ export default function LocationsPage() {
                             <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '1.02rem', letterSpacing: '0.04em', fontFamily: "'Outfit', monospace" }}>
                               {item.code}
                             </strong>
-                            <span style={{ fontSize: '0.78rem', color: '#34d399' }}>ID: #{item.id.slice(0, 8)}</span>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--success-text)' }}>ID: #{item.id.slice(0, 8)}</span>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <strong style={{ color: '#e2e8f0', fontSize: '0.96rem' }}>{item.name}</strong>
+                        <strong style={{ color: 'var(--text-main)', fontSize: '0.96rem' }}>{item.name}</strong>
                       </td>
                       <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: 300 }}>
                         {item.description || <span style={{ fontStyle: 'italic', color: 'var(--text-dim)' }}>Kệ tiêu chuẩn đa năng</span>}
