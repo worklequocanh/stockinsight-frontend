@@ -16,6 +16,7 @@ const NAV_ITEMS = [
       },
       {
         to: '/dashboard/visual-map', label: 'Sơ đồ kho (Map)',
+        allowedRoles: ['ADMIN', 'WAREHOUSE_MANAGER'],
         icon: <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c-.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
       },
       {
@@ -64,14 +65,17 @@ const NAV_ITEMS = [
       },
       {
         to: '/dashboard/transfers', label: 'Điều chuyển kho',
+        allowedRoles: ['ADMIN', 'WAREHOUSE_MANAGER'],
         icon: <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
       },
       {
         to: '/dashboard/inventory-checks', label: 'Kiểm kê đối soát',
+        allowedRoles: ['ADMIN', 'WAREHOUSE_MANAGER'],
         icon: <path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
       },
       {
         to: '/dashboard/returns', label: 'Trả hàng hoàn',
+        allowedRoles: ['ADMIN', 'WAREHOUSE_MANAGER'],
         icon: <path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
       },
     ]

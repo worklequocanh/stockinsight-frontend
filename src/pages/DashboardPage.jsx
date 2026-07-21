@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,6 +18,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import api from '../services/api'
 import { parseApiError } from '../utils/helpers'
 import StatKPI from '../components/common/StatKPI'
+import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import './DashboardPage.css'
 
 ChartJS.register(
@@ -34,15 +36,22 @@ ChartJS.register(
 
 export default function DashboardPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { showToast } = useToast()
+
   const [timeRange, setTimeRange] = useState('30d')
   const [kpi, setKpi] = useState(null)
   const [monthlyData, setMonthlyData] = useState([])
   const [topSelling, setTopSelling] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [toast, setToast] = useState('')
 
   const fetchData = async () => {
+    if (user?.role === 'EMPLOYEE') {
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     try {
       const [kpiRes, monthlyRes, topRes] = await Promise.all([
@@ -72,9 +81,10 @@ export default function DashboardPage() {
     })
     
     socket.on('stock_updated', () => {
-      setToast('⚡ Phát hiện thay đổi dữ liệu kho thực tế! Đang đồng bộ tự động...')
-      fetchData()
-      setTimeout(() => setToast(''), 4500)
+      showToast('⚡ Phát hiện thay đổi dữ liệu kho thực tế! Đang đồng bộ tự động...', 'info')
+      if (user?.role !== 'EMPLOYEE') {
+        fetchData()
+      }
     })
 
     return () => {
@@ -92,6 +102,37 @@ export default function DashboardPage() {
           ))}
         </div>
         <div className="glass-panel" style={{ height: 420, borderRadius: 24, opacity: 0.5, animation: 'pulseGlow 2s infinite' }} />
+      </div>
+    )
+  }
+
+  if (user?.role === 'EMPLOYEE') {
+    return (
+      <div className="dashboard-container">
+        <div className="glass-panel" style={{ padding: '40px', borderRadius: '24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+          <div style={{ fontSize: '4rem', marginBottom: '16px' }}>👋</div>
+          <h1 style={{ margin: 0, fontSize: '2.5rem', background: 'linear-gradient(135deg, var(--brand-300), var(--brand-500))', WebkitBackgroundClip: 'text', color: 'transparent' }}>
+            Xin chào, {user?.name || 'Nhân viên'}!
+          </h1>
+          <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: '600px', lineHeight: 1.6 }}>
+            Chào mừng bạn đến với Hệ thống Quản trị Kho WMS Enterprise. Hãy bắt đầu công việc bằng cách khởi tạo các phiếu nghiệp vụ bên dưới.
+          </p>
+          
+          <div style={{ display: 'flex', gap: '20px', marginTop: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Link to="/dashboard/imports" className="btn-primary" style={{ padding: '16px 32px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" style={{ width: 24, height: 24 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              Phiếu Nhập Kho
+            </Link>
+            <Link to="/dashboard/exports" className="btn-glass" style={{ padding: '16px 32px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(244, 63, 94, 0.1)', color: '#f43f5e', border: '1px solid rgba(244, 63, 94, 0.3)' }}>
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" style={{ width: 24, height: 24 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+              </svg>
+              Phiếu Xuất Kho
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }

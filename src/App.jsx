@@ -37,7 +37,7 @@ function App() {
         }
       >
         <Route index element={<DashboardPage />} />
-        <Route path="visual-map" element={<VisualMapPage />} />
+        <Route path="visual-map" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><VisualMapPage /></ProtectedRoute>} />
         <Route path="inventory-reports" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><InventoryReportPage /></ProtectedRoute>} />
         <Route path="products" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><ProductsPage /></ProtectedRoute>} />
         <Route path="categories" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><CategoriesPage /></ProtectedRoute>} />
@@ -46,9 +46,9 @@ function App() {
         <Route path="locations" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><LocationsPage /></ProtectedRoute>} />
         <Route path="imports" element={<ImportsPage />} />
         <Route path="exports" element={<ExportsPage />} />
-        <Route path="transfers" element={<TransfersPage />} />
-        <Route path="inventory-checks" element={<InventoryChecksPage />} />
-        <Route path="returns" element={<ReturnsPage />} />
+        <Route path="transfers" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><TransfersPage /></ProtectedRoute>} />
+        <Route path="inventory-checks" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><InventoryChecksPage /></ProtectedRoute>} />
+        <Route path="returns" element={<ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']}><ReturnsPage /></ProtectedRoute>} />
         <Route path="audit-logs" element={<ProtectedRoute allowedRoles={['ADMIN']}><AuditLogsPage /></ProtectedRoute>} />
         <Route path="users" element={<ProtectedRoute allowedRoles={['ADMIN']}><UsersPage /></ProtectedRoute>} />
         <Route path="profile" element={<ProfilePage />} />
