@@ -20,6 +20,7 @@ export default function ImportsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [targetItemIndex, setTargetItemIndex] = useState(null)
+  const [viewItem, setViewItem] = useState(null)
 
   const [suppliers, setSuppliers] = useState([])
   const [products, setProducts] = useState([])
@@ -152,6 +153,20 @@ export default function ImportsPage() {
     }
   }
 
+  async function handleViewItem(item) {
+    try {
+      const res = await api.get(`/imports/${item.id}`)
+      if (res.data?.data) {
+        setViewItem(res.data.data)
+      } else {
+        setViewItem(item)
+      }
+    } catch (err) {
+      console.error(err)
+      setViewItem(item)
+    }
+  }
+
   const pendingItems = items.filter(i => i.status === 'PENDING')
   const approvedItems = items.filter(i => i.status === 'APPROVED')
   const rejectedItems = items.filter(i => i.status === 'REJECTED')
@@ -247,7 +262,7 @@ export default function ImportsPage() {
           </div>
           <div className="kanban-cards-container">
             {pendingItems.map(item => (
-              <div key={item.id} className="kanban-card">
+              <div key={item.id} className="kanban-card" onClick={() => handleViewItem(item)} style={{ cursor: 'pointer' }}>
                 <div className="kanban-card-header">
                   <span className="kanban-card-code">{item.code}</span>
                   <span className="kanban-card-date">{new Date(item.createdAt).toLocaleDateString('vi-VN')}</span>
@@ -264,8 +279,8 @@ export default function ImportsPage() {
                   {item.note && <p className="kanban-note">{item.note}</p>}
                 </div>
                 <div className="kanban-card-actions">
-                  <button type="button" className="kanban-btn success" onClick={() => approveImport(item.id)}>✔ Duyệt</button>
-                  <button type="button" className="kanban-btn danger" onClick={() => rejectImport(item.id)}>✕ Từ chối</button>
+                  <button type="button" className="kanban-btn success" onClick={(e) => { e.stopPropagation(); approveImport(item.id); }}>✔ Duyệt</button>
+                  <button type="button" className="kanban-btn danger" onClick={(e) => { e.stopPropagation(); rejectImport(item.id); }}>✕ Từ chối</button>
                 </div>
               </div>
             ))}
@@ -286,7 +301,7 @@ export default function ImportsPage() {
           </div>
           <div className="kanban-cards-container">
             {approvedItems.map(item => (
-              <div key={item.id} className="kanban-card approved">
+              <div key={item.id} className="kanban-card approved" onClick={() => handleViewItem(item)} style={{ cursor: 'pointer' }}>
                 <div className="kanban-card-header">
                   <span className="kanban-card-code">{item.code}</span>
                   <span className="kanban-card-date">{new Date(item.createdAt).toLocaleDateString('vi-VN')}</span>
@@ -298,7 +313,7 @@ export default function ImportsPage() {
                   </div>
                   <div className="kanban-info-row">
                     <span>Duyệt bởi:</span>
-                    <strong style={{ color: '#34d399' }}>{item.approvedBy?.name || '-'}</strong>
+                    <strong>{item.approvedBy?.name || '-'}</strong>
                   </div>
                   {item.note && <p className="kanban-note">{item.note}</p>}
                 </div>
@@ -321,7 +336,7 @@ export default function ImportsPage() {
           </div>
           <div className="kanban-cards-container">
             {rejectedItems.map(item => (
-              <div key={item.id} className="kanban-card rejected">
+              <div key={item.id} className="kanban-card rejected" onClick={() => handleViewItem(item)} style={{ cursor: 'pointer' }}>
                 <div className="kanban-card-header">
                   <span className="kanban-card-code">{item.code}</span>
                   <span className="kanban-card-date">{new Date(item.createdAt).toLocaleDateString('vi-VN')}</span>
@@ -474,6 +489,95 @@ export default function ImportsPage() {
         onClose={() => setIsScannerOpen(false)} 
         onScanSuccess={handleScanSuccess} 
       />
+
+      {/* View Item Modal */}
+      {viewItem && (
+        <SidePanel
+          isOpen={!!viewItem}
+          onClose={() => setViewItem(null)}
+          title={`📄 Chi Tiết Phiếu: ${viewItem.code}`}
+          subtitle={`Tạo ngày ${new Date(viewItem.createdAt).toLocaleDateString('vi-VN')}`}
+          width="700px"
+        >
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+              <div className="kanban-info-row">
+                <span>Đối tác:</span>
+                <strong>{viewItem.supplier?.name || 'Không xác định'}</strong>
+              </div>
+              <div className="kanban-info-row">
+                <span>Người lập:</span>
+                <strong>{viewItem.createdBy?.name || '-'}</strong>
+              </div>
+              <div className="kanban-info-row">
+                <span>Trạng thái:</span>
+                <strong className={`status-pill ${viewItem.status === 'APPROVED' ? 'success' : viewItem.status === 'REJECTED' ? 'danger' : 'warning'}`}>
+                  {viewItem.status}
+                </strong>
+              </div>
+              {viewItem.approvedBy && (
+                <div className="kanban-info-row">
+                  <span>Người duyệt:</span>
+                  <strong>{viewItem.approvedBy.name}</strong>
+                </div>
+              )}
+              {viewItem.rejectedReason && (
+                <div className="kanban-info-row">
+                  <span style={{ color: 'var(--danger-color)' }}>Lý do hủy:</span>
+                  <strong style={{ color: 'var(--danger-color)' }}>{viewItem.rejectedReason}</strong>
+                </div>
+              )}
+            </div>
+            
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: 'var(--text-main)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 8 }}>
+              📦 Danh sách sản phẩm nhập kho
+            </h4>
+            
+            <div className="modern-table-wrapper" style={{ overflowX: 'auto', marginBottom: 24 }}>
+              <table className="modern-table" style={{ width: '100%', minWidth: 500 }}>
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Sản phẩm / SKU</th>
+                    <th>SL</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(viewItem.items && viewItem.items.length > 0) ? (
+                    viewItem.items.map((it, idx) => {
+                      const total = Number(it.quantity) * Number(it.unitPrice)
+                      return (
+                        <tr key={idx}>
+                          <td>{idx + 1}</td>
+                          <td>
+                            <strong style={{ display: 'block', color: 'var(--text-main)' }}>{it.product?.name || 'Không rõ'}</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>SKU: {it.product?.sku}</span>
+                          </td>
+                          <td style={{ fontWeight: 600 }}>{it.quantity}</td>
+                          <td>{Number(it.unitPrice).toLocaleString('vi-VN')} đ</td>
+                          <td style={{ fontWeight: 600, color: 'var(--brand-500)' }}>{total.toLocaleString('vi-VN')} đ</td>
+                        </tr>
+                      )
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Chưa có chi tiết sản phẩm</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+              <button type="button" className="btn-secondary" onClick={() => setViewItem(null)}>
+                ✕ Đóng
+              </button>
+            </div>
+          </div>
+        </SidePanel>
+      )}
     </div>
   )
 }
