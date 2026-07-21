@@ -36,14 +36,6 @@
   min-width: 240px;
 }
 
-/* Widescreen: always expanded */
-@media (min-width: 1536px) {
-  .sidebar {
-    width: 240px;
-    min-width: 240px;
-  }
-}
-
 /* Mobile: hidden by default, drawer overlay */
 @media (max-width: 767px) {
   .sidebar {
@@ -62,33 +54,6 @@
   }
 }
 
-/* Tablet: collapsed 64px always */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .sidebar {
-    width: 64px !important;
-    min-width: 64px !important;
-  }
-  /* Force hide all text elements even if .expanded is present */
-  .sidebar .sidebar-brand,
-  .sidebar .nav-section-title,
-  .sidebar .nav-link-label,
-  .sidebar .session-info {
-    opacity: 0 !important;
-    width: 0 !important;
-    max-height: 0 !important;
-    padding: 0 !important;
-  }
-  .sidebar .session-card {
-    background: transparent !important;
-    border-color: transparent !important;
-  }
-  .sidebar .session-header {
-    padding: 0 !important;
-  }
-  .sidebar .logout-btn {
-    border-top-color: transparent !important;
-  }
-}
 
 /* ── Sidebar Toggle Button ── */
 .sidebar-toggle {
@@ -117,8 +82,8 @@
   border-color: var(--border-brand);
 }
 
-@media (max-width: 1023px) { .sidebar-toggle { display: none; } }
-@media (min-width: 1536px) { .sidebar-toggle { display: none; } }
+@media (max-width: 767px) { .sidebar-toggle { display: none; } }
+
 
 /* ── Sidebar Header ── */
 .sidebar-header {
@@ -159,9 +124,7 @@
   width: auto;
 }
 
-@media (min-width: 1536px) {
-  .sidebar-brand { opacity: 1; width: auto; }
-}
+
 
 .sidebar-brand h2 {
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -218,9 +181,7 @@
   padding: 12px 10px 5px 10px;
 }
 
-@media (min-width: 1536px) {
-  .nav-section-title { opacity: 1; max-height: 40px; padding: 12px 10px 5px 10px; }
-}
+
 
 .nav-sep {
   height: 1px;
@@ -268,9 +229,7 @@
   width: auto;
 }
 
-@media (min-width: 1536px) {
-  .nav-link-label { opacity: 1; width: auto; }
-}
+
 
 .nav-link:hover {
   background: var(--bg-glass-hover);
@@ -330,9 +289,7 @@
   padding: 10px 10px 8px;
 }
 
-@media (min-width: 1536px) {
-  .session-header { padding: 10px 10px 8px; }
-}
+
 
 .session-avatar {
   width: 32px;
@@ -362,9 +319,7 @@
   width: auto;
 }
 
-@media (min-width: 1536px) {
-  .session-info { opacity: 1; width: auto; }
-}
+
 
 .session-info strong {
   display: block;
@@ -404,9 +359,7 @@
   border-top: 1px solid var(--border-subtle);
 }
 
-@media (min-width: 1536px) {
-  .logout-btn { border-top: 1px solid var(--border-subtle); }
-}
+
 
 .logout-btn:hover {
   background: var(--danger-bg);

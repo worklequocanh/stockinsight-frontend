@@ -106,7 +106,10 @@ export default function DashboardLayout() {
   const location = useLocation()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(() => {
-    return localStorage.getItem('sidebar_expanded') === 'true'
+    // If there's a saved preference, use it. Otherwise, default to expanded on large screens.
+    const saved = localStorage.getItem('sidebar_expanded')
+    if (saved !== null) return saved === 'true'
+    return window.innerWidth >= 1024
   })
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -120,7 +123,21 @@ export default function DashboardLayout() {
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
-    return () => clearInterval(timer)
+    
+    // Auto collapse/expand based on screen size when resizing
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarExpanded(false)
+      } else if (localStorage.getItem('sidebar_expanded') !== 'false') {
+        setIsSidebarExpanded(true)
+      }
+    }
+    
+    window.addEventListener('resize', handleResize)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener('resize', handleResize)
+    }
   }, [])
 
   // Close mobile sidebar on route change
