@@ -185,19 +185,20 @@
   white-space: nowrap;
   overflow: hidden;
   opacity: 0;
-  height: 0;
+  max-height: 0;
+  flex-shrink: 0;
   transition: all var(--transition-smooth);
 }
 
 .sidebar.expanded .nav-section-title,
 .sidebar.open .nav-section-title {
   opacity: 1;
-  height: auto;
+  max-height: 40px;
   padding: 12px 10px 5px 10px;
 }
 
 @media (min-width: 1536px) {
-  .nav-section-title { opacity: 1; height: auto; padding: 12px 10px 5px 10px; }
+  .nav-section-title { opacity: 1; max-height: 40px; padding: 12px 10px 5px 10px; }
 }
 
 .nav-sep {
@@ -222,6 +223,7 @@
   position: relative;
   text-decoration: none;
   min-height: 38px;
+  flex-shrink: 0;
 }
 
 .nav-link svg {
