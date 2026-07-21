@@ -25,7 +25,7 @@
   border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
-  z-index: 200;
+  z-index: 9990;
   transition: width var(--transition-spring), min-width var(--transition-spring);
   overflow: hidden;
   position: relative;
@@ -55,7 +55,7 @@
     min-width: 260px !important;
     transform: translateX(-100%);
     transition: transform var(--transition-spring);
-    z-index: 300;
+    z-index: 9995;
   }
   .sidebar.open {
     transform: translateX(0);
@@ -397,12 +397,12 @@
    ========================================================================== */
 
 .sidebar-overlay {
-  display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 250;
+  background: rgba(15, 23, 42, 0.4);
+  z-index: 9994;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   opacity: 0;
   transition: opacity var(--transition-smooth);
 }
