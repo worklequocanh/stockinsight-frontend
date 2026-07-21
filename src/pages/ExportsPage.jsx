@@ -534,7 +534,14 @@ export default function ExportsPage() {
                           <td style={{ padding: '10px 12px', fontSize: '0.85rem', color: '#475569' }}>{idx + 1}</td>
                           <td style={{ padding: '10px 12px', fontSize: '0.85rem', color: '#0f172a', fontWeight: 600 }}>
                             {item.product?.name || 'Sản phẩm kinh doanh'}
-                            <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 400 }}>SKU: {item.product?.sku}</span>
+                            <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 400 }}>SKU: {item.product?.sku}</span>
+                              {item.stockBatch && (
+                                <span style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 500 }}>
+                                  Lô: {item.stockBatch.batchNumber} (HSD: {new Date(item.stockBatch.expiryDate).toLocaleDateString('vi-VN')})
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>{item.quantity}</td>
                           <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: '0.85rem', color: '#475569' }}>{Number(item.unitPrice).toLocaleString('vi-VN')} đ</td>

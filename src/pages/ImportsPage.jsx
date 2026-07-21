@@ -539,6 +539,8 @@ export default function ImportsPage() {
                   <tr>
                     <th>STT</th>
                     <th>Sản phẩm / SKU</th>
+                    <th>Lô & Hạn sử dụng</th>
+                    <th>Lưu tại Kệ</th>
                     <th>SL</th>
                     <th>Đơn giá</th>
                     <th>Thành tiền</th>
@@ -555,6 +557,13 @@ export default function ImportsPage() {
                             <strong style={{ display: 'block', color: 'var(--text-main)' }}>{it.product?.name || 'Không rõ'}</strong>
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>SKU: {it.product?.sku}</span>
                           </td>
+                          <td>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 600 }}>{it.lotNumber || 'N/A'}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{it.expiryDate ? new Date(it.expiryDate).toLocaleDateString('vi-VN') : 'N/A'}</div>
+                          </td>
+                          <td>
+                            <span className="status-pill info" style={{ fontSize: '0.75rem' }}>{it.location?.code || 'Kho chung'}</span>
+                          </td>
                           <td style={{ fontWeight: 600 }}>{it.quantity}</td>
                           <td>{Number(it.unitPrice).toLocaleString('vi-VN')} đ</td>
                           <td style={{ fontWeight: 600, color: 'var(--brand-500)' }}>{total.toLocaleString('vi-VN')} đ</td>
@@ -563,7 +572,7 @@ export default function ImportsPage() {
                     })
                   ) : (
                     <tr>
-                      <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Chưa có chi tiết sản phẩm</td>
+                      <td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Chưa có chi tiết sản phẩm</td>
                     </tr>
                   )}
                 </tbody>
