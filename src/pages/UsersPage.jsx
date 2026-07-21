@@ -83,10 +83,12 @@ export default function UsersPage() {
     }
   }
 
-  async function handleResetPassword() {
+  async function handleResetPassword(password) {
     if (!resetPwId) return
-    const password = window.prompt('Nhập mật khẩu mới cho người dùng (tối thiểu 6 ký tự):')
-    if (!password) return
+    if (!password) {
+      setError('Vui lòng nhập mật khẩu mới')
+      return
+    }
     if (password.length < 6) {
       setError('Mật khẩu mới phải có ít nhất 6 ký tự')
       return
@@ -308,6 +310,7 @@ export default function UsersPage() {
                   value={form.password}
                   onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
                   required
+                  minLength={6}
                   placeholder="Tối thiểu 6 ký tự bảo mật..."
                 />
               </div>
@@ -357,6 +360,7 @@ export default function UsersPage() {
               type="password"
               className="input-field"
               id="new-password-input"
+              minLength={6}
               placeholder="Nhập mật khẩu mới tại đây..."
             />
           </div>
