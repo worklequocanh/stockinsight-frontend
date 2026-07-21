@@ -32,8 +32,14 @@ export default function CommandPalette() {
         setIsOpen(false);
       }
     };
+    const handleOpenEvent = () => setIsOpen(true);
+    
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('open-command-palette', handleOpenEvent);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('open-command-palette', handleOpenEvent);
+    };
   }, [isOpen]);
 
   useEffect(() => {
@@ -44,9 +50,15 @@ export default function CommandPalette() {
     }
   }, [isOpen]);
 
-  const filteredCommands = COMMANDS.filter((cmd) =>
-    cmd.name.toLowerCase().includes(query.toLowerCase())
-  );
+  const removeAccents = (str) => {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+  };
+
+  const filteredCommands = COMMANDS.filter((cmd) => {
+    const normName = removeAccents(cmd.name.toLowerCase());
+    const normQuery = removeAccents(query.toLowerCase());
+    return normName.includes(normQuery) || cmd.name.toLowerCase().includes(query.toLowerCase());
+  });
 
   useEffect(() => {
     setSelectedIndex(0);

@@ -283,11 +283,11 @@ export default function DashboardLayout() {
               <span className="breadcrumb-sep">›</span>
               <span className="breadcrumb-current">{getPageTitle()}</span>
             </div>
-            <div className="header-search">
+            <div className="header-search" onClick={() => document.dispatchEvent(new Event('open-command-palette'))} style={{ cursor: 'pointer' }}>
               <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
               </svg>
-              <input type="text" placeholder="Tìm kiếm... (Ctrl+K)" readOnly />
+              <input type="text" placeholder="Tìm kiếm... (Ctrl+K)" readOnly style={{ cursor: 'pointer', pointerEvents: 'none' }} />
               <span className="kbd-hint">⌘K</span>
             </div>
           </div>

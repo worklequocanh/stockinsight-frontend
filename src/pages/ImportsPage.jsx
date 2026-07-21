@@ -48,7 +48,10 @@ export default function ImportsPage() {
   }
 
   useEffect(() => {
-    loadData({ search, page })
+    const timer = setTimeout(() => {
+      loadData({ search, page })
+    }, 400);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, page])
 

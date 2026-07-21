@@ -61,7 +61,10 @@ export default function ProductsPage() {
   }
 
   useEffect(() => {
-    loadData({ search, page, categoryId: categoryFilter, supplierId: supplierFilter })
+    const timer = setTimeout(() => {
+      loadData({ search, page, categoryId: categoryFilter, supplierId: supplierFilter })
+    }, 400);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, page, categoryFilter, supplierFilter])
 
