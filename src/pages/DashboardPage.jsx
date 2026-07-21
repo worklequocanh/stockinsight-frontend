@@ -234,20 +234,6 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-container">
-      <AnimatePresence>
-        {toast && (
-          <motion.div 
-            className="live-sync-toast"
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-          >
-            <span>✨</span>
-            <span>{toast}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Command Center Hero Banner */}
       <div className="command-hero">
         <div className="command-hero-info">
