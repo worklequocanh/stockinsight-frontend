@@ -75,7 +75,7 @@ export default function DashboardPage() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname.includes('fly.dev') ? 'https://stockinsight-backend.fly.dev/api' : 'http://localhost:3001/api')
     const socketUrl = apiUrl.replace('/api', '')
     const socket = io(socketUrl, {
-      transports: ['websocket'],
+      transports: ['polling', 'websocket'],
       withCredentials: true,
     })
     
