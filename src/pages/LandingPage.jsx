@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import './LandingPage.css'
@@ -47,7 +47,7 @@ export default function LandingPage() {
   }, [])
 
   useEffect(() => {
-    api.get('/health').then(res => {
+    api.get('/health').then(() => {
       setHealth({ status: 'online', message: 'Máy chủ đang hoạt động ổn định' })
     }).catch(() => {
       setHealth({ status: 'offline', message: 'Không thể kết nối máy chủ' })

@@ -14,7 +14,6 @@ import {
 } from 'chart.js'
 import { Bar, Line } from 'react-chartjs-2'
 import { io } from 'socket.io-client'
-import { motion, AnimatePresence } from 'framer-motion'
 import api from '../services/api'
 import { parseApiError } from '../utils/helpers'
 import StatKPI from '../components/common/StatKPI'
@@ -90,6 +89,7 @@ export default function DashboardPage() {
     return () => {
       socket.disconnect()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (loading) {

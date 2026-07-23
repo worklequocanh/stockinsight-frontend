@@ -77,7 +77,7 @@ export default function ProductsPage() {
       if (updated) setSelectedProduct(updated)
       else setSelectedProduct(null)
     }
-  }, [items])
+  }, [items, selectedProduct])
 
   async function handleSubmit(event) {
     event.preventDefault()

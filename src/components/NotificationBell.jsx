@@ -51,14 +51,18 @@ export default function NotificationBell() {
     try {
       await api.patch(`/notifications/${id}/read`);
       fetchNotifications();
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleMarkAllRead = async () => {
     try {
       await api.patch('/notifications/read-all');
       fetchNotifications();
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (

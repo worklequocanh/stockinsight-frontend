@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const COMMANDS = [
   { id: 'dashboard', icon: '📊', name: 'Đến trang Tổng quan', path: '/dashboard' },

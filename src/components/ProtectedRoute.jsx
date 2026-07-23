@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -68,6 +68,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
 
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
     // Show toast warning once before redirecting
+    // eslint-disable-next-line react-hooks/refs
     if (!toastShownRef.current) {
       toastShownRef.current = true
       const roleLabel = user?.role === 'EMPLOYEE' ? 'Nhân viên' : user?.role

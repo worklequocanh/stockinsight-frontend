@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from 'react'
 import { clearStoredToken, getStoredToken, setStoredToken } from '../services/storage'
 import { getCurrentUser, loginRequest } from '../services/auth'

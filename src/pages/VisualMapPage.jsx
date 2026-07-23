@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import api from '../services/api'
 import { parseApiError } from '../utils/helpers'
 import SidePanel from '../components/common/SidePanel'
@@ -16,10 +16,6 @@ export default function VisualMapPage() {
   const [zoneFilter, setZoneFilter] = useState('ALL')
   const [viewMode, setViewMode] = useState('2D')
 
-  useEffect(() => {
-    fetchLocations()
-  }, [])
-
   const fetchLocations = async () => {
     setLoading(true)
     try {
@@ -31,6 +27,10 @@ export default function VisualMapPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchLocations()
+  }, [])
 
   // Generate 24 cell grid and assign zones based on code or index
   const gridCells = Array.from({ length: 24 }).map((_, i) => {

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import api from '../services/api'
 import { buildQuery, parseApiError } from '../utils/helpers'
 import { translateCheckStatus } from '../utils/translations'

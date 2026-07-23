@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../services/api'
 import { buildQuery, parseApiError } from '../utils/helpers'
-import { translateStatus } from '../utils/translations'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import QRScannerModal from '../components/QRScannerModal'

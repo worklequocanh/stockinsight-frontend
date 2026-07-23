@@ -93,13 +93,6 @@ const ADMIN_ITEMS = [
   },
 ]
 
-function NavIcon({ d }) {
-  return (
-    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
-      {d}
-    </svg>
-  )
-}
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth()
