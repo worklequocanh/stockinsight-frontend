@@ -5,11 +5,13 @@ import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import SidePanel from '../components/common/SidePanel'
+import { useToast } from '../context/ToastContext'
 import './LocationsPage.css'
 
 const emptyForm = { id: '', code: '', name: '', description: '' }
 
 export default function LocationsPage() {
+  const { showToast } = useToast()
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -47,15 +49,19 @@ export default function LocationsPage() {
     try {
       if (form.id) {
         await api.put(`/locations/${form.id}`, { code: form.code, name: form.name, description: form.description })
+        showToast('Đã cập nhật vị trí kho!', 'success')
       } else {
         await api.post('/locations', { code: form.code, name: form.name, description: form.description })
+        showToast('Đã tạo vị trí kho mới!', 'success')
       }
       setForm(emptyForm)
       setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi lưu vị trí lưu kho'))
+      const msg = parseApiError(err, 'Lỗi khi lưu vị trí lưu kho')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setSaving(false)
     }
@@ -65,11 +71,14 @@ export default function LocationsPage() {
     if (!window.confirm('Bạn có chắc chắn muốn xóa vị trí lưu kho này?')) return
     try {
       await api.delete(`/locations/${id}`)
+      showToast('Đã xóa vị trí kho thành công!', 'success')
       if (form.id === id) setForm(emptyForm)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi xóa vị trí lưu kho'))
+      const msg = parseApiError(err, 'Lỗi khi xóa vị trí lưu kho')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 

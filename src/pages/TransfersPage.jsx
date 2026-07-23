@@ -8,8 +8,10 @@ import StatKPI from '../components/common/StatKPI'
 import QRScannerModal from '../components/QRScannerModal'
 import SidePanel from '../components/common/SidePanel'
 import './TransfersPage.css'
+import { useToast } from '../context/ToastContext'
 
 export default function TransfersPage() {
+  const { showToast } = useToast()
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -61,24 +63,30 @@ export default function TransfersPage() {
         note: form.note,
         items: form.items,
       })
+      showToast('Phiếu điều chuyển đã được tạo thành công!', 'success')
       setForm({ id: '', note: '', items: [] })
       setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi tạo phiếu chuyển kho'))
+      const msg = parseApiError(err, 'Lỗi khi tạo phiếu chuyển kho')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setSaving(false)
     }
   }
 
   async function approveTransfer(id) {
-    if (!window.confirm('⚡ Duyệt phiếu chuyển kho này? Tồn kho từng khu vực/kệ sẽ được dịch chuyển ngay lập tức trên hệ thống định vị và không thể hoàn tác!')) return
+    if (!window.confirm('⚡ Duyệt phiếu chuyển kho này? Tồn kho từng khu vực/kệ sẽ được dịch chuyển ngay lập tức và không thể hoàn tác!')) return
     try {
       await api.post(`/transfers/${id}/approve`)
+      showToast('Phiếu điều chuyển đã được duyệt thành công!', 'success')
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi duyệt phiếu'))
+      const msg = parseApiError(err, 'Lỗi khi duyệt phiếu')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 
@@ -87,9 +95,12 @@ export default function TransfersPage() {
     if (!reason) return
     try {
       await api.post(`/transfers/${id}/reject`, { reason })
+      showToast('Đã từ chối phiếu điều chuyển.', 'info')
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi từ chối phiếu'))
+      const msg = parseApiError(err, 'Lỗi khi từ chối phiếu')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 
@@ -128,10 +139,10 @@ export default function TransfersPage() {
       if (product) {
         updateItem(targetItemIndex, 'productId', product.id)
       } else {
-        alert('❌ Không tìm thấy sản phẩm với mã QR/Barcode này!')
+        showToast('Không tìm thấy sản phẩm với mã QR/Barcode này!', 'warning')
       }
     } catch (err) {
-      alert(parseApiError(err, 'Lỗi tìm kiếm sản phẩm qua QR'))
+      showToast(parseApiError(err, 'Lỗi tìm kiếm sản phẩm qua QR'), 'error')
     }
   }
 

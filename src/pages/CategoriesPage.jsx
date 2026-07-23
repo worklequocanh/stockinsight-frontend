@@ -5,11 +5,13 @@ import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import SidePanel from '../components/common/SidePanel'
+import { useToast } from '../context/ToastContext'
 import './CategoriesPage.css'
 
 const emptyCategoryForm = { id: '', name: '', description: '' }
 
 export default function CategoriesPage() {
+  const { showToast } = useToast()
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -47,15 +49,19 @@ export default function CategoriesPage() {
     try {
       if (form.id) {
         await api.put(`/categories/${form.id}`, { name: form.name, description: form.description })
+        showToast('Đã cập nhật danh mục!', 'success')
       } else {
         await api.post('/categories', { name: form.name, description: form.description })
+        showToast('Đã tạo danh mục!', 'success')
       }
       setForm(emptyCategoryForm)
       setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi lưu danh mục'))
+      const msg = parseApiError(err, 'Lỗi khi lưu danh mục')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setSaving(false)
     }
@@ -65,11 +71,14 @@ export default function CategoriesPage() {
     if (!window.confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return
     try {
       await api.delete(`/categories/${id}`)
+      showToast('Đã xóa danh mục thành công!', 'success')
       if (form.id === id) setForm(emptyCategoryForm)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi xóa danh mục'))
+      const msg = parseApiError(err, 'Lỗi khi xóa danh mục')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 

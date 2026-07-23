@@ -8,9 +8,11 @@ import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import SidePanel from '../components/common/SidePanel'
 import './InventoryChecksPage.css'
+import { useToast } from '../context/ToastContext'
 
 export default function InventoryChecksPage() {
   const [items, setItems] = useState([])
+  const { showToast } = useToast()
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -106,10 +108,13 @@ export default function InventoryChecksPage() {
     if (!window.confirm('⚡ Chốt đợt kiểm kê này? Hệ thống AI se tự động tạo các bút toán chênh lệch (cộng/trừ tồn kho tự động theo số đếm thực tế) và khóa sổ đợt kiểm kê này!')) return
     try {
       await api.put(`/inventory-checks/${id}/approve`)
+      showToast('Đã chốt kiểm kê thành công!', 'success')
       if (detail?.id === id) await handleViewDetail(id)
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi chốt phiếu'))
+      const msg = parseApiError(err, 'Lỗi khi chốt phiếu')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 
@@ -117,10 +122,13 @@ export default function InventoryChecksPage() {
     if (!window.confirm('Hủy đợt kiểm kê này?')) return
     try {
       await api.put(`/inventory-checks/${id}/cancel`)
+      showToast('Đã hủy đợt kiểm kê.', 'info')
       if (detail?.id === id) setDetail(null)
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi hủy phiếu'))
+      const msg = parseApiError(err, 'Lỗi khi hủy phiếu')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 

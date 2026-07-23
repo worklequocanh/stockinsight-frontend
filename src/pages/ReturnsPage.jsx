@@ -7,11 +7,13 @@ import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import SidePanel from '../components/common/SidePanel'
 import './ReturnsPage.css'
+import { useToast } from '../context/ToastContext'
 
 const QUALITY_OPTIONS = ['Mới', 'Tốt', 'Hư hỏng', 'Mất niêm phong']
 
 export default function ReturnsPage() {
   const [items, setItems] = useState([])
+  const { showToast } = useToast()
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -62,12 +64,15 @@ export default function ReturnsPage() {
           qualityStatus: i.qualityStatus || 'Mới',
         })),
       })
+      showToast('Đã tạo phiếu trả hàng thành công!', 'success')
       setForm({ reason: '', originalExportId: '', items: [] })
       setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi tạo phiếu trả'))
+      const msg = parseApiError(err, 'Lỗi khi tạo phiếu trả')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setSaving(false)
     }
@@ -78,9 +83,12 @@ export default function ReturnsPage() {
     if (!window.confirm(`⚡ Xác nhận ${label} đối với phiếu trả hàng này?`)) return
     try {
       await api.put(`/returns/${id}/process`, { action })
+      showToast(action === 'RETURNED_TO_STOCK' ? 'Đã duyệt nhập lại kho thành công!' : 'Đã tiêu hủy hàng trả thành công!', 'success')
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi xử lý phiếu trả'))
+      const msg = parseApiError(err, 'Lỗi khi xử lý phiếu trả')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 

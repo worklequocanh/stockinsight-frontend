@@ -5,11 +5,13 @@ import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import SidePanel from '../components/common/SidePanel'
+import { useToast } from '../context/ToastContext'
 import './SuppliersPage.css'
 
 const emptySupplierForm = { id: '', name: '', phone: '', email: '', address: '' }
 
 export default function SuppliersPage() {
+  const { showToast } = useToast()
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -47,15 +49,19 @@ export default function SuppliersPage() {
     try {
       if (form.id) {
         await api.put(`/suppliers/${form.id}`, { name: form.name, phone: form.phone, email: form.email, address: form.address })
+        showToast('Đã cập nhật nhà cung cấp!', 'success')
       } else {
         await api.post('/suppliers', { name: form.name, phone: form.phone, email: form.email, address: form.address })
+        showToast('Đã tạo nhà cung cấp thành công!', 'success')
       }
       setForm(emptySupplierForm)
       setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi lưu nhà cung cấp'))
+      const msg = parseApiError(err, 'Lỗi khi lưu nhà cung cấp')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setSaving(false)
     }
@@ -65,11 +71,14 @@ export default function SuppliersPage() {
     if (!window.confirm('Bạn có chắc chắn muốn xóa nhà cung cấp này khỏi hệ thống?')) return
     try {
       await api.delete(`/suppliers/${id}`)
+      showToast('Đã xóa nhà cung cấp thành công!', 'success')
       if (form.id === id) setForm(emptySupplierForm)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi xóa nhà cung cấp'))
+      const msg = parseApiError(err, 'Lỗi khi xóa nhà cung cấp')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 

@@ -7,9 +7,13 @@ import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import QRScannerModal from '../components/QRScannerModal'
 import SidePanel from '../components/common/SidePanel'
+import { useRoleAccess } from '../hooks/useRoleAccess'
+import { useToast } from '../context/ToastContext'
 import './ExportsPage.css'
 
 export default function ExportsPage() {
+  const { canApprove } = useRoleAccess()
+  const { showToast } = useToast()
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -74,23 +78,37 @@ export default function ExportsPage() {
   }
 
   async function approveExport(id) {
+    if (!canApprove) {
+      showToast('Chỉ Quản lý kho hoặc Admin mới có thể duyệt phiếu xuất.', 'warning')
+      return
+    }
     if (!window.confirm('⚡ Duyệt lệnh xuất này? Hệ thống AI FEFO Engine sẽ tự động ưu tiên trích xuất các lô hàng cận date nhất trước và khấu trừ tồn khả dụng, không thể hoàn tác!')) return
     try {
       await api.post(`/exports/${id}/approve`)
+      showToast('Đã duyệt và kích hoạt FEFO Engine thành công!', 'success')
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi duyệt phiếu xuất'))
+      const msg = parseApiError(err, 'Lỗi khi duyệt phiếu xuất')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 
   async function rejectExport(id) {
+    if (!canApprove) {
+      showToast('Chỉ Quản lý kho hoặc Admin mới có thể từ chối phiếu xuất.', 'warning')
+      return
+    }
     const reason = window.prompt('Nhập lý do từ chối phiếu xuất kho:')
     if (!reason) return
     try {
       await api.post(`/exports/${id}/reject`, { reason })
+      showToast('Đã từ chối phiếu xuất.', 'info')
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi từ chối phiếu xuất'))
+      const msg = parseApiError(err, 'Lỗi khi từ chối phiếu xuất')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 
@@ -136,10 +154,10 @@ export default function ExportsPage() {
       if (product) {
         updateItem(targetItemIndex, 'productId', product.id)
       } else {
-        alert('❌ Không tìm thấy sản phẩm nào với mã Barcode/QR này!')
+        showToast('Không tìm thấy sản phẩm nào với mã Barcode/QR này!', 'warning')
       }
     } catch (err) {
-      alert(parseApiError(err, 'Lỗi tìm kiếm sản phẩm qua QR'))
+      showToast(parseApiError(err, 'Lỗi tìm kiếm sản phẩm qua QR'), 'error')
     }
   }
 
@@ -291,14 +309,18 @@ export default function ExportsPage() {
                         <td>
                           <div className="action-buttons" style={{ justifyContent: 'center' }}>
                             {item.status === 'PENDING' ? (
-                              <>
-                                <button type="button" className="status-pill success" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => approveExport(item.id)}>
-                                  ✔ Duyệt
-                                </button>
-                                <button type="button" className="status-pill danger" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => rejectExport(item.id)}>
-                                  ✕ Từ chối
-                                </button>
-                              </>
+                              canApprove ? (
+                                <>
+                                  <button type="button" className="status-pill success" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => approveExport(item.id)}>
+                                    ✔ Duyệt
+                                  </button>
+                                  <button type="button" className="status-pill danger" style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontWeight: 700 }} onClick={() => rejectExport(item.id)}>
+                                    ✕ Từ chối
+                                  </button>
+                                </>
+                              ) : (
+                                <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontStyle: 'italic' }}>⏳ Chờ quản lý duyệt</span>
+                              )
                             ) : (
                               <button 
                                 type="button" 

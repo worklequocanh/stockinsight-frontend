@@ -7,11 +7,13 @@ import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import SidePanel from '../components/common/SidePanel'
 import './UsersPage.css'
+import { useToast } from '../context/ToastContext'
 
 const emptyForm = { id: '', name: '', email: '', password: '', role: 'EMPLOYEE' }
 
 export default function UsersPage() {
   const [items, setItems] = useState([])
+  const { showToast } = useToast()
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -53,6 +55,7 @@ export default function UsersPage() {
           email: form.email,
           role: form.role,
         })
+        showToast('Đã cập nhật tài khoản thành công!', 'success')
       } else {
         await api.post('/users', {
           name: form.name,
@@ -60,13 +63,16 @@ export default function UsersPage() {
           password: form.password,
           role: form.role,
         })
+        showToast('Đã tạo tài khoản mới thành công!', 'success')
       }
       setForm(emptyForm)
       setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi lưu tài khoản'))
+      const msg = parseApiError(err, 'Lỗi khi lưu tài khoản')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setSaving(false)
     }
@@ -77,9 +83,12 @@ export default function UsersPage() {
     if (!window.confirm(`Bạn có chắc muốn ${action} tài khoản ${user.name}?`)) return
     try {
       await api.put(`/users/${user.id}`, { isActive: !user.isActive })
+      showToast(`Đã ${action} tài khoản ${user.name} thành công!`, 'success')
       await loadData({ search, page })
     } catch (err) {
-      setError(parseApiError(err, `Lỗi khi ${action} tài khoản`))
+      const msg = parseApiError(err, `Lỗi khi ${action} tài khoản`)
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 
@@ -98,9 +107,11 @@ export default function UsersPage() {
     try {
       await api.put(`/users/${resetPwId}/reset-password`, { password })
       setResetPwId(null)
-      alert('✅ Đặt lại mật khẩu thành công!')
+      showToast('Đặt lại mật khẩu thành công!', 'success')
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi đặt lại mật khẩu'))
+      const msg = parseApiError(err, 'Lỗi khi đặt lại mật khẩu')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setSaving(false)
     }

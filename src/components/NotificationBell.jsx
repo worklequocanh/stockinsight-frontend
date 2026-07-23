@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../services/api';
 import { parseApiError } from '../utils/helpers';
+import { useToast } from '../context/ToastContext';
 import './NotificationBell.css';
 
 export default function NotificationBell() {
@@ -8,22 +9,33 @@ export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const prevUnreadRef = useRef(null);
+  const { showToast } = useToast();
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const res = await api.get('/notifications');
-      setNotifications(res.data?.data?.notifications || []);
-      setUnreadCount(res.data?.data?.unreadCount || 0);
+      const data = res.data?.data || {};
+      const newUnread = data.unreadCount || 0;
+      setNotifications(data.notifications || []);
+      setUnreadCount(newUnread);
+
+      // Nếu unreadCount tăng so với lần poll trước → hiện toast
+      if (prevUnreadRef.current !== null && newUnread > prevUnreadRef.current) {
+        const diff = newUnread - prevUnreadRef.current;
+        showToast(`🔔 Bạn có ${diff} thông báo mới!`, 'info', 5000);
+      }
+      prevUnreadRef.current = newUnread;
     } catch (err) {
       console.error(parseApiError(err, 'Lỗi tải thông báo'));
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchNotifications]);
 
   useEffect(() => {
     function handleClickOutside(event) {

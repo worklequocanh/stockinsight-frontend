@@ -5,11 +5,13 @@ import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import SidePanel from '../components/common/SidePanel'
 import TableEmpty from '../components/TableEmpty'
+import { useToast } from '../context/ToastContext'
 import './ProductsPage.css'
 
 const emptyProductForm = { id: '', sku: '', barcode: '', name: '', unit: '', minStock: '0', costPrice: '', salePrice: '', currentStock: '0', categoryId: '', supplierId: '' }
 
 export default function ProductsPage() {
+  const { showToast } = useToast()
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -96,15 +98,19 @@ export default function ProductsPage() {
       
       if (form.id) {
         await api.put(`/products/${form.id}`, payload)
+        showToast('Đã cập nhật sản phẩm thành công!', 'success')
       } else {
         await api.post('/products', payload)
+        showToast('Đã tạo sản phẩm thành công!', 'success')
       }
       setForm(emptyProductForm)
       setIsFormOpen(false)
       if (!form.id) setPage(1)
       await loadData({ search, page: form.id ? page : 1, categoryId: categoryFilter, supplierId: supplierFilter })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi lưu sản phẩm'))
+      const msg = parseApiError(err, 'Lỗi khi lưu sản phẩm')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setSaving(false)
     }
@@ -114,12 +120,15 @@ export default function ProductsPage() {
     if (!window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi hệ thống?')) return
     try {
       await api.delete(`/products/${id}`)
+      showToast('Đã xóa sản phẩm thành công!', 'success')
       if (form.id === id) setForm(emptyProductForm)
       if (selectedProduct?.id === id) setSelectedProduct(null)
       setPage(1)
       await loadData({ search, page: 1, categoryId: categoryFilter, supplierId: supplierFilter })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi xóa sản phẩm'))
+      const msg = parseApiError(err, 'Lỗi khi xóa sản phẩm')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 
@@ -134,7 +143,9 @@ export default function ProductsPage() {
       link.click()
       link.remove()
     } catch (err) {
-      setError('Lỗi xuất file Excel: ' + err.message)
+      const msg = 'Lỗi xuất file Excel: ' + err.message
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 

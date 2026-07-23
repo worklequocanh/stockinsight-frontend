@@ -5,11 +5,13 @@ import TableEmpty from '../components/TableEmpty'
 import Pagination from '../components/Pagination'
 import StatKPI from '../components/common/StatKPI'
 import SidePanel from '../components/common/SidePanel'
+import { useToast } from '../context/ToastContext'
 import './CustomersPage.css'
 
 const emptyForm = { id: '', name: '', phone: '', email: '', address: '' }
 
 export default function CustomersPage() {
+  const { showToast } = useToast()
   const [items, setItems] = useState([])
   const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -47,15 +49,19 @@ export default function CustomersPage() {
     try {
       if (form.id) {
         await api.put(`/customers/${form.id}`, { name: form.name, phone: form.phone, email: form.email, address: form.address })
+        showToast('Đã cập nhật khách hàng!', 'success')
       } else {
         await api.post('/customers', { name: form.name, phone: form.phone, email: form.email, address: form.address })
+        showToast('Đã tạo khách hàng thành công!', 'success')
       }
       setForm(emptyForm)
       setIsFormOpen(false)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi lưu khách hàng'))
+      const msg = parseApiError(err, 'Lỗi khi lưu khách hàng')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setSaving(false)
     }
@@ -65,11 +71,14 @@ export default function CustomersPage() {
     if (!window.confirm('Bạn có chắc chắn muốn xóa khách hàng này khỏi hệ thống?')) return
     try {
       await api.delete(`/customers/${id}`)
+      showToast('Đã xóa khách hàng thành công!', 'success')
       if (form.id === id) setForm(emptyForm)
       setPage(1)
       await loadData({ search, page: 1 })
     } catch (err) {
-      setError(parseApiError(err, 'Lỗi khi xóa khách hàng'))
+      const msg = parseApiError(err, 'Lỗi khi xóa khách hàng')
+      setError(msg)
+      showToast(msg, 'error')
     }
   }
 
