@@ -86,7 +86,12 @@ export default function DashboardPage() {
       }
     })
 
+    // Ngắt chủ động trước khi Browser đưa trang vào Back-Forward Cache
+    const handlePageHide = () => socket.disconnect()
+    window.addEventListener('pagehide', handlePageHide)
+
     return () => {
+      window.removeEventListener('pagehide', handlePageHide)
       socket.disconnect()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
