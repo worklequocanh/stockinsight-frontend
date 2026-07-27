@@ -296,20 +296,162 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* ── 3D Isometric View Board ── */
-.map-grid-board.is-3d-view {
-  transform: perspective(900px) rotateX(28deg) rotateZ(-6deg) scale(0.96);
-  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.map-grid-board.is-3d-view .grid-cell {
+/* ── REAL 3D MULTI-TIER WAREHOUSE RACK TOWER STYLES ── */
+.rack-tower-3d {
+  background: var(--bg-surface-elevated);
+  border: 1.5px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
   transform-style: preserve-3d;
-  box-shadow: -4px 6px 14px rgba(15, 23, 42, 0.08);
+  box-shadow: 
+    -6px 10px 20px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-height: 185px;
 }
 
-.map-grid-board.is-3d-view .grid-cell:hover {
-  transform: translateZ(16px) scale(1.05);
+/* 3D Top Frame Roof */
+.rack-tower-3d::before {
+  content: 'RACK TOWER 3D';
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  position: absolute;
+  top: -9px;
+  left: 0;
+  width: 100%;
+  height: 9px;
+  background: rgba(30, 41, 59, 0.85);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.25);
+  transform: skewX(-40deg);
+  transform-origin: bottom left;
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* 3D Side Frame Pillar */
+.rack-tower-3d::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -9px;
+  width: 9px;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.7);
+  border-right: 1.5px solid rgba(255, 255, 255, 0.08);
+  transform: skewY(-50deg);
+  transform-origin: top left;
+  border-radius: 0 4px 4px 0;
+  pointer-events: none;
+}
+
+.rack-tower-3d:hover {
+  transform: translateY(-12px) translateZ(20px) scale(1.03);
+  box-shadow: 
+    -12px 24px 40px rgba(0, 0, 0, 0.7),
+    0 0 25px rgba(59, 130, 246, 0.35);
+  border-color: var(--brand-400);
+}
+
+.rack-tower-3d.selected-rack {
+  border-color: var(--brand-400);
+  box-shadow: 0 0 24px var(--brand-glow);
+}
+
+.rack-header-3d {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 6px;
+}
+
+.rack-code-badge {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.rack-zone-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* 3D Multi-Tier Shelves Stack (Tầng 3 -> Tầng 1) */
+.rack-tiers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+
+.rack-shelf-tier {
+  position: relative;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xs);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  overflow: hidden;
+}
+
+.shelf-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  opacity: 0.25;
+  transition: width 0.4s ease-out;
+}
+
+.tier-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  z-index: 1;
+}
+
+.tier-val {
+  font-size: 0.75rem;
+  font-weight: 800;
+  z-index: 1;
+}
+
+.rack-footer-3d {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.capacity-text {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.led-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
 /* ── Smart Locator Highlight Pulse ── */

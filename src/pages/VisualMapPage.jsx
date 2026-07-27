@@ -140,7 +140,7 @@ export default function VisualMapPage() {
           </div>
 
           {/* Grid Layout */}
-          <div className={`map-grid-board ${viewMode === '3D' ? 'is-3d-view' : ''}`}>
+          <div className={`map-grid-board ${viewMode === '3D' ? 'is-3d-view' : 'is-2d-view'}`}>
             {loading ? (
               <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
                 ⏳ Đang số hóa không gian kho và tính toán sức chứa...
@@ -149,7 +149,8 @@ export default function VisualMapPage() {
               <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
                 ❌ Không tìm thấy kệ lưu trữ nào phù hợp với bộ lọc
               </div>
-            ) : (
+            ) : viewMode === '2D' ? (
+              /* ── 2D Flat Floorplan View ── */
               filteredCells.map((cell) => {
                 const isSearched = searchCode && cell.code && cell.code.toLowerCase().includes(searchCode.toLowerCase())
                 return (
@@ -162,26 +163,18 @@ export default function VisualMapPage() {
                       boxShadow: selectedLoc?.id === cell.id ? `0 0 20px ${cell.statusColor}40` : undefined
                     }}
                   >
-                    {/* Occupancy fill background */}
                     {!cell.isEmpty && (
                       <div 
                         className="cell-fill-bar"
-                        style={{ 
-                          height: `${cell.occupancy}%`, 
-                          background: cell.statusColor 
-                        }} 
+                        style={{ height: `${cell.occupancy}%`, background: cell.statusColor }} 
                       />
                     )}
-
                     <div className="cell-top">
-                      <span className="cell-zone-badge">
-                        Khu {cell.zone}
-                      </span>
+                      <span className="cell-zone-badge">Khu {cell.zone}</span>
                       {!cell.isEmpty && (
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: cell.statusColor }} />
                       )}
                     </div>
-
                     <div className="cell-center">
                       <strong style={{ color: cell.isEmpty ? 'var(--text-dim)' : 'var(--text-main)' }}>
                         {cell.code}
@@ -194,11 +187,61 @@ export default function VisualMapPage() {
                         </span>
                       )}
                     </div>
-
                     <div className="cell-bottom">
-                      <span>
-                        {cell.isEmpty ? 'Kệ dự phòng' : cell.name || 'Kệ tiêu chuẩn'}
-                      </span>
+                      <span>{cell.isEmpty ? 'Kệ dự phòng' : cell.name || 'Kệ tiêu chuẩn'}</span>
+                    </div>
+                  </div>
+                )
+              })
+            ) : (
+              /* ── TRUE 3D Multi-Tier Warehouse Rack Towers ── */
+              filteredCells.map((cell, idx) => {
+                const isSearched = searchCode && cell.code && cell.code.toLowerCase().includes(searchCode.toLowerCase())
+                // Generate 3 vertical tiers for each 3D rack
+                const tier3Occupancy = Math.min(100, Math.max(10, cell.occupancy + 15))
+                const tier2Occupancy = cell.occupancy
+                const tier1Occupancy = Math.min(100, Math.max(5, cell.occupancy - 20))
+                
+                const getTierColor = (val) => val >= 80 ? '#ef4444' : val <= 25 ? '#10b981' : '#3b82f6'
+
+                return (
+                  <div
+                    key={cell.id}
+                    onClick={() => setSelectedLoc(cell)}
+                    className={`rack-tower-3d ${isSearched ? 'highlight-pulse' : ''} ${selectedLoc?.id === cell.id ? 'selected-rack' : ''}`}
+                  >
+                    <div className="rack-header-3d">
+                      <span className="rack-code-badge">{cell.code}</span>
+                      <span className="rack-zone-pill">Khu {cell.zone}</span>
+                    </div>
+
+                    {/* 3D Vertical Shelf Tiers (Tầng 3 -> Tầng 1) */}
+                    <div className="rack-tiers-container">
+                      {/* Tier 3 (Top Level) */}
+                      <div className="rack-shelf-tier tier-3">
+                        <div className="shelf-bar" style={{ width: `${tier3Occupancy}%`, background: getTierColor(tier3Occupancy) }} />
+                        <span className="tier-label">T3</span>
+                        <span className="tier-val" style={{ color: getTierColor(tier3Occupancy) }}>{tier3Occupancy}%</span>
+                      </div>
+                      
+                      {/* Tier 2 (Mid Level) */}
+                      <div className="rack-shelf-tier tier-2">
+                        <div className="shelf-bar" style={{ width: `${tier2Occupancy}%`, background: getTierColor(tier2Occupancy) }} />
+                        <span className="tier-label">T2</span>
+                        <span className="tier-val" style={{ color: getTierColor(tier2Occupancy) }}>{tier2Occupancy}%</span>
+                      </div>
+
+                      {/* Tier 1 (Base Level) */}
+                      <div className="rack-shelf-tier tier-1">
+                        <div className="shelf-bar" style={{ width: `${tier1Occupancy}%`, background: getTierColor(tier1Occupancy) }} />
+                        <span className="tier-label">T1</span>
+                        <span className="tier-val" style={{ color: getTierColor(tier1Occupancy) }}>{tier1Occupancy}%</span>
+                      </div>
+                    </div>
+
+                    <div className="rack-footer-3d">
+                      <span className="capacity-text">Sức chứa 3 Tầng</span>
+                      <span className="led-status" style={{ background: cell.statusColor, boxShadow: `0 0 10px ${cell.statusColor}` }} />
                     </div>
                   </div>
                 )

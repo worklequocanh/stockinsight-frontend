@@ -28,10 +28,16 @@ export default function TransfersPage() {
 
   const [products, setProducts] = useState([])
   const [locations, setLocations] = useState([])
+  const [availableBatches, setAvailableBatches] = useState([])
 
-  useEffect(() => {
+  const fetchMasterData = () => {
     api.get('/products?limit=100').then(res => setProducts(res.data?.data?.items || []))
     api.get('/locations?limit=100').then(res => setLocations(res.data?.data?.items || []))
+    api.get('/transfers/available-batches').then(res => setAvailableBatches(res.data?.data?.batches || []))
+  }
+
+  useEffect(() => {
+    fetchMasterData()
   }, [])
 
   async function loadData(params = {}) {
@@ -369,8 +375,17 @@ export default function TransfersPage() {
 
                       <div className="form-grid" style={{ gap: 12 }}>
                         <div className="form-group full-width">
-                          <label style={{ fontSize: '0.8rem' }}>Chọn SKU Sản phẩm *</label>
-                          <select className="select-field" value={item.productId} onChange={(e) => updateItem(index, 'productId', e.target.value)} required>
+                          <label style={{ fontSize: '0.8rem' }}>1. Chọn SKU Sản phẩm *</label>
+                          <select 
+                            className="select-field" 
+                            value={item.productId} 
+                            onChange={(e) => {
+                              updateItem(index, 'productId', e.target.value)
+                              updateItem(index, 'fromBatchId', '')
+                              updateItem(index, 'fromLocationId', '')
+                            }} 
+                            required
+                          >
                             <option value="">-- Chọn sản phẩm --</option>
                             {products.map((p) => (
                               <option key={p.id} value={p.id}>{p.sku} - {p.name}</option>
@@ -378,34 +393,69 @@ export default function TransfersPage() {
                           </select>
                         </div>
 
-                        <div className="form-group">
-                          <label style={{ fontSize: '0.8rem' }}>📍 Vị trí TỪ (Kệ nguồn) *</label>
-                          <select className="select-field" value={item.fromLocationId} onChange={(e) => updateItem(index, 'fromLocationId', e.target.value)} required>
-                            <option value="">-- Chọn vị trí từ --</option>
-                            {locations.map((loc) => (
-                              <option key={loc.id} value={loc.id}>{loc.code} ({loc.name})</option>
-                            ))}
+                        <div className="form-group full-width">
+                          <label style={{ fontSize: '0.8rem' }}>2. Chọn Lô hàng khả dụng & Kệ TỪ (Nguồn thực tế) *</label>
+                          <select 
+                            className="select-field" 
+                            value={item.fromBatchId} 
+                            onChange={(e) => {
+                              const batchId = e.target.value
+                              const selectedBatch = availableBatches.find(b => b.id === batchId)
+                              if (selectedBatch) {
+                                updateItem(index, 'fromBatchId', selectedBatch.id)
+                                updateItem(index, 'fromLocationId', selectedBatch.locationId)
+                                if (!item.quantity || item.quantity > selectedBatch.remainingQuantity) {
+                                  updateItem(index, 'quantity', selectedBatch.remainingQuantity)
+                                }
+                              } else {
+                                updateItem(index, 'fromBatchId', '')
+                                updateItem(index, 'fromLocationId', '')
+                              }
+                            }} 
+                            required
+                            disabled={!item.productId}
+                          >
+                            <option value="">-- {item.productId ? 'Chọn lô hàng & kệ gửi' : 'Vui lòng chọn sản phẩm trước'} --</option>
+                            {availableBatches
+                              .filter(b => b.productId === item.productId)
+                              .map((b) => (
+                                <option key={b.id} value={b.id}>
+                                  📦 Lô: {b.lotNumber} | Expiry: {new Date(b.expiryDate).toLocaleDateString('vi-VN')} | 📍 Kệ hiện tại: {b.location?.code || 'N/A'} (Tồn: {b.remainingQuantity} {b.product?.unit})
+                                </option>
+                              ))
+                            }
                           </select>
                         </div>
 
                         <div className="form-group">
-                          <label style={{ fontSize: '0.8rem' }}>🎯 Vị trí ĐẾN (Kệ đích) *</label>
-                          <select className="select-field" value={item.toLocationId} onChange={(e) => updateItem(index, 'toLocationId', e.target.value)} required>
+                          <label style={{ fontSize: '0.8rem' }}>3. 🎯 Chọn Vị trí ĐẾN (Kệ đích) *</label>
+                          <select 
+                            className="select-field" 
+                            value={item.toLocationId} 
+                            onChange={(e) => updateItem(index, 'toLocationId', e.target.value)} 
+                            required
+                          >
                             <option value="">-- Chọn vị trí đến --</option>
-                            {locations.map((loc) => (
-                              <option key={loc.id} value={loc.id}>{loc.code} ({loc.name})</option>
-                            ))}
+                            {locations
+                              .filter(loc => loc.id !== item.fromLocationId)
+                              .map((loc) => (
+                                <option key={loc.id} value={loc.id}>{loc.code} ({loc.name})</option>
+                              ))
+                            }
                           </select>
                         </div>
 
                         <div className="form-group">
-                          <label style={{ fontSize: '0.8rem' }}>Mã Lô Hàng (Để trống tự trích lô cũ nhất FEFO)</label>
-                          <input type="text" className="input-field" value={item.fromBatchId} onChange={(e) => updateItem(index, 'fromBatchId', e.target.value)} placeholder="Tùy chọn: Nhập Batch ID hoặc để trống tự động..." />
-                        </div>
-
-                        <div className="form-group">
-                          <label style={{ fontSize: '0.8rem' }}>Số lượng điều chuyển *</label>
-                          <input type="number" min="1" className="input-field" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', e.target.value)} required />
+                          <label style={{ fontSize: '0.8rem' }}>4. Số lượng điều chuyển *</label>
+                          <input 
+                            type="number" 
+                            min="1" 
+                            max={availableBatches.find(b => b.id === item.fromBatchId)?.remainingQuantity || 999999}
+                            className="input-field" 
+                            value={item.quantity} 
+                            onChange={(e) => updateItem(index, 'quantity', e.target.value)} 
+                            required 
+                          />
                         </div>
                       </div>
                     </div>
